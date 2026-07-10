@@ -4299,19 +4299,6 @@ async function loadPublicRecords() {
   }
 }
 
-state.rawPublicRows = data || [];
-savePublicCache(state.rawPublicRows);
-state.dashboardSeries = null;
-state.dashboardHover.total = null;
-state.dashboardHover.outflow = null;
-state.publicRows = aggregateRows(data || []);
-updateLastUpdateFromRows(data || [], "public");
-renderPublicTable();
-renderCountTable();
-renderDashboard();
-setPublicMessage("", "");
-}
-
 async function loadUserRecords(options = {}) {
   const { showError = true } = options;
   if (!state.user) {
