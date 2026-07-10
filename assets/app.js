@@ -4247,7 +4247,6 @@ async function loadPublicRecords() {
     .from(TABLE_NAME)
     .select("*");
 
-  // SE HOUVER ERRO NA BUSCA:
   if (error) {
     const cached = loadPublicCache();
     if (cached.length) {
@@ -4260,43 +4259,27 @@ async function loadPublicRecords() {
       renderPublicTable();
       renderCountTable();
       renderDashboard();
-
-      // Exibe aviso de que está usando dados antigos offline
       setPublicMessage(
         "warn",
         "Sem acesso ao servidor. Exibindo o ultimo estoque salvo."
       );
       return;
     }
-
-    // Exibe o erro crítico na tela caso não tenha cache
     setPublicMessage("error", `Erro ao carregar dados: ${error.message}`);
     return;
   }
 
-  // SE CASO NENHUM ERRO OCORRA (SUCESSO):
   state.rawPublicRows = data || [];
   savePublicCache(state.rawPublicRows);
   state.dashboardSeries = null;
   state.dashboardHover.total = null;
   state.dashboardHover.outflow = null;
-  state.publicRows = aggregateRows(state.rawPublicRows);
-  updateLastUpdateFromRows(state.rawPublicRows, "public");
+  state.publicRows = aggregateRows(data || []);
+  updateLastUpdateFromRows(data || [], "public");
   renderPublicTable();
   renderCountTable();
   renderDashboard();
-
-  // === ADICIONE ESTAS LINHAS AQUI NO FINAL ===
-
-  // 1. Atualiza a barra de mensagem pública para o modo sucesso
-  if (typeof setPublicMessage === "function") {
-    setPublicMessage("success", "Estoque atualizado com sucesso!");
-  }
-
-  // 2. Opcional: Se quiser que suba aquele balão verde flutuante na tela
-  if (typeof pushMessage === "function") {
-    pushMessage("success", "Estoque atualizado com sucesso!");
-  }
+  setPublicMessage("", "");
 }
 
 async function loadUserRecords(options = {}) {
@@ -4448,7 +4431,7 @@ function triggerDebouncedNotification() {
   notificationDebounceTimer = setTimeout(async () => {
     if (Notification.permission === "granted" && state.user) {
       const userLabel = displayUserFromEmail(state.user.email);
-
+      
       // Notificação local
       new Notification("Estoque Atualizado", {
         body: `O estoque do CD recebeu novas alterações por ${userLabel}`,
@@ -6542,9 +6525,9 @@ async function saveNewCount() {
     await loadUserRecords();
     await loadPublicRecords();
     const successMsg = snapshotSaved
-      ? "Nova contagem salva. Visao geral atualizada com total e saida."
-      : "Nova contagem salva, mas o historico da visao geral nao foi atualizado.";
-
+        ? "Nova contagem salva. Visao geral atualizada com total e saida."
+        : "Nova contagem salva, mas o historico da visao geral nao foi atualizado.";
+    
     pushMessage(snapshotSaved ? "success" : "warn", successMsg);
 
     // Notificação local para o usuário
@@ -7653,7 +7636,7 @@ window.addEventListener("resize", () => {
  */
 async function savePushSubscription(subscription) {
   if (!state.user) return;
-
+  
   try {
     const { error } = await supabaseClient
       .from("push_subscriptions")
@@ -7682,17 +7665,17 @@ async function requestNotificationPermission() {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       const registration = await navigator.serviceWorker.ready;
-
+      
       // Chave VAPID pública gerada para o projeto
       const VAPID_PUBLIC_KEY = "BAjzR0T971QRQTTcQxMMt4QmJcpBPZpRLWMRDiqAPgD2Jvs2dvfEkrz217PgqfLK2dOVmea-718DAv95d-7_MS0";
-
+      
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: VAPID_PUBLIC_KEY
       });
-
+      
       await savePushSubscription(subscription);
-
+      
       pushMessage("success", "Notificações ativadas com sucesso!");
     }
   } catch (error) {
