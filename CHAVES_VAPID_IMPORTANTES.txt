@@ -1,0 +1,13 @@
+
+ESTAS CHAVES SÃO NECESSÁRIAS PARA O ENVIO DE NOTIFICAÇÕES PUSH.
+GUARDE-AS EM LOCAL SEGURO.
+
+Chave Pública (já inserida no app.js):
+BAjzR0T971QRQTTcQxMMt4QmJcpBPZpRLWMRDiqAPgD2Jvs2dvfEkrz217PgqfLK2dOVmea-718DAv95d-7_MS0
+
+Chave Privada (será usada na Edge Function do Supabase):
+BemWL3eHdPV9NwYyUAMARSwJ5ezIiz5kPJZFfD9zFLE
+
+Instruções:
+1. A chave pública já está no seu código.
+2. A chave privada você usará quando configurar a função de disparo no Supabase.

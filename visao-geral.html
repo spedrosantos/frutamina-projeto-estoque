@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Estoque CD" />
+    <title>Visão Geral</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/img/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260423-7" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body data-page="dashboard">
+    <!-- Dashboard histórico do CD com gráficos e comparação da última contagem. -->
+    <aside id="app-sidebar" class="sidebar" aria-label="Navegação principal">
+      <div class="sidebar-top">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="sidebar-logo" />
+      </div>
+      <nav class="sidebar-nav">
+        <button id="menu-view" class="ghost" data-href="index.html" type="button">
+          <i class="bi bi-box-seam"></i>
+          <span class="sidebar-label">Estoque</span>
+        </button>
+        <button id="menu-dashboard" class="primary" type="button">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="sidebar-label">Visão geral</span>
+        </button>
+        <button id="menu-count" class="ghost" data-href="editar.html" type="button">
+          <i class="bi bi-pencil-square"></i>
+          <span class="sidebar-label">Editar estoque</span>
+        </button>
+        <button id="menu-products" class="ghost" data-href="produtos.html" type="button">
+          <i class="bi bi-boxes"></i>
+          <span class="sidebar-label">Produtos</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button
+          id="theme-toggle"
+          class="ghost theme-toggle"
+          type="button"
+          aria-label="Ativar tema escuro"
+          title="Tema escuro"
+        >
+          <i class="bi bi-moon-stars"></i>
+          <span id="theme-toggle-label" class="sidebar-label">Tema escuro</span>
+        </button>
+        <div id="menu-user" class="user-chip hidden">
+          <span>Usuario</span>
+          <strong id="menu-user-email">--</strong>
+        </div>
+        <button id="menu-logout" class="ghost hidden" type="button">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="sidebar-label">Sair</span>
+        </button>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+    <div class="app">
+      <header class="mobile-topbar">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="mobile-topbar-logo" />
+        <div class="mobile-topbar-actions">
+          <button
+            id="mobile-theme-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Ativar tema escuro"
+            title="Tema escuro"
+          >
+            <i class="bi bi-moon-stars"></i>
+          </button>
+          <button
+            id="sidebar-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+          >
+            <i class="bi bi-list"></i>
+          </button>
+        </div>
+      </header>
+      <section id="dashboard-panel" class="overview-shell">
+        <header class="overview-head">
+          <h1>Visão Geral</h1>
+          <p>Resumo analítico do estoque atual do CD.</p>
+        </header>
+
+        <section class="overview-metrics">
+          <article class="overview-metric metric-green">
+            <span class="overview-metric-label">Total de caixas</span>
+            <strong class="overview-metric-value" id="ov-total-caixas">--</strong>
+            <span class="overview-metric-meta" id="ov-total-caixas-meta">--</span>
+          </article>
+          <article class="overview-metric metric-amber">
+            <span class="overview-metric-label">Pallets</span>
+            <strong class="overview-metric-value" id="ov-total-pallets">--</strong>
+            <span class="overview-metric-meta" id="ov-total-pallets-meta">--</span>
+          </article>
+          <article class="overview-metric metric-blue">
+            <span class="overview-metric-label">Produtos distintos</span>
+            <strong class="overview-metric-value" id="ov-produtos-distintos">--</strong>
+            <span class="overview-metric-meta" id="ov-produtos-distintos-meta">--</span>
+          </article>
+          <article class="overview-metric metric-red">
+            <span class="overview-metric-label">Baixo estoque</span>
+            <strong class="overview-metric-value" id="ov-baixo-estoque">--</strong>
+            <span class="overview-metric-meta" id="ov-baixo-estoque-meta">--</span>
+          </article>
+        </section>
+
+        <section class="overview-grid-two">
+          <article class="overview-card">
+            <div class="overview-card-head">
+              <h2>Distribuição por Setor</h2>
+              <span class="overview-pill">caixas</span>
+            </div>
+            <div id="ov-setor-bars" class="overview-bars"></div>
+          </article>
+
+          <article class="overview-card">
+            <div class="overview-card-head">
+              <h2>Top Produtos em Estoque</h2>
+              <span class="overview-pill highlight">total cx</span>
+            </div>
+            <div id="ov-top-produtos-list" class="overview-top-list"></div>
+          </article>
+        </section>
+
+        <section class="overview-grid-two">
+          <article class="overview-card">
+            <div class="overview-card-head">
+              <h2><i class="bi bi-exclamation-triangle"></i> Alertas e Avisos</h2>
+            </div>
+            <div id="ov-alert-list" class="overview-alert-list"></div>
+          </article>
+
+          <article class="overview-card">
+            <div class="overview-card-head">
+              <h2>Histórico de Contagens</h2>
+              <span class="overview-pill">eventos</span>
+            </div>
+            <div class="table-wrap overview-history-wrap">
+              <table class="overview-history-table">
+                <thead>
+                  <tr>
+                    <th>Quando</th>
+                    <th>Operador</th>
+                    <th>Evento</th>
+                    <th>Variação</th>
+                  </tr>
+                </thead>
+                <tbody id="ov-history-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="overview-card">
+          <div class="overview-card-head">
+            <h2>Distribuição por Marca</h2>
+          </div>
+          <div class="overview-brand-layout">
+            <div class="overview-donut-wrap">
+              <div id="ov-brand-chart" class="overview-donut">
+                <div class="overview-donut-center">
+                  <strong id="ov-brand-chart-total">0</strong>
+                  <span>marcas</span>
+                </div>
+              </div>
+            </div>
+            <div id="ov-brand-grid" class="overview-brand-grid"></div>
+          </div>
+        </section>
+      </section>
+    </div>
+
+    <script src="assets/app.js?v=20260423-12"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./service-worker.js")
+            .catch((error) => console.warn("Falha ao registrar service worker.", error));
+        });
+      }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+

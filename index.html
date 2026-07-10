@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Estoque CD" />
+    <title>Estoque</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/img/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260423-7" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body data-page="view">
+    <!-- P?gina p?blica de estoque: consulta, filtro, exporta??o e impress?o. -->
+    <aside id="app-sidebar" class="sidebar" aria-label="Navega??o principal">
+      <div class="sidebar-top">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="sidebar-logo" />
+      </div>
+      <nav class="sidebar-nav">
+        <button id="menu-view" class="primary" type="button">
+          <i class="bi bi-box-seam"></i>
+          <span class="sidebar-label">Estoque</span>
+        </button>
+        <button id="menu-dashboard" class="ghost" data-href="visao-geral.html" type="button">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="sidebar-label">Visao geral</span>
+        </button>
+        <button id="menu-count" class="ghost" data-href="editar.html" type="button">
+          <i class="bi bi-pencil-square"></i>
+          <span class="sidebar-label">Editar estoque</span>
+        </button>
+        <button id="menu-products" class="ghost" data-href="produtos.html" type="button">
+          <i class="bi bi-boxes"></i>
+          <span class="sidebar-label">Produtos</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button
+          id="theme-toggle"
+          class="ghost theme-toggle"
+          type="button"
+          aria-label="Ativar tema escuro"
+          title="Tema escuro"
+        >
+          <i class="bi bi-moon-stars"></i>
+          <span id="theme-toggle-label" class="sidebar-label">Tema escuro</span>
+        </button>
+        <div id="menu-user" class="user-chip hidden">
+          <span>Usuario</span>
+          <strong id="menu-user-email">--</strong>
+        </div>
+        <button id="menu-logout" class="ghost hidden" type="button">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="sidebar-label">Sair</span>
+        </button>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+    <div class="app">
+      <header class="mobile-topbar">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="mobile-topbar-logo" />
+        <div class="mobile-topbar-actions">
+          <button
+            id="mobile-theme-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Ativar tema escuro"
+            title="Tema escuro"
+          >
+            <i class="bi bi-moon-stars"></i>
+          </button>
+          <button
+            id="sidebar-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+          >
+            <i class="bi bi-list"></i>
+          </button>
+        </div>
+      </header>
+      <!-- Cabecalho visual da pagina. -->
+      <header class="hero">
+        <div>
+          <img src="assets/img/logo.webp" alt="logo" class="logo" />
+          <p class="eyebrow">CD | Contagem do estoque</p>
+          <h1>Estoque</h1>
+        </div>
+      </header>
+
+      <!-- Painel principal com busca, filtros e tabela publica do estoque. -->
+      <section id="public-panel" class="card public-section">
+        <div class="public-section-header">
+          <h2>Contagem do Estoque</h2>
+          <p>Estoque atual. Para editar, acesse <a href="editar.html">Editar estoque</a>.</p>
+          <div class="last-update public-last-update">
+            Estoque atualizado por <strong id="public-last-update">--</strong>
+          </div>
+        </div>
+        <form id="public-search-form" class="public-toolbar" role="search" autocomplete="off">
+          <div class="autofill-trap" aria-hidden="true">
+            <input type="text" name="username" autocomplete="username" tabindex="-1" />
+            <input type="password" name="password" autocomplete="current-password" tabindex="-1" />
+          </div>
+          <label for="public-search" class="sr-only">Pesquisar</label>
+          <input
+            id="public-search"
+            type="search"
+            name="public-search"
+            placeholder="Pesquisar por produto, marca, tipo..."
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            inputmode="search"
+            aria-autocomplete="none"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            data-form-type="other"
+          />
+          <div class="public-toolbar-actions">
+            <button id="public-filter-btn" class="ghost" type="button">
+              <i class="bi bi-funnel"></i>
+              Filtros
+            </button>
+            <button id="public-refresh" class="ghost" type="button">
+              <i class="bi bi-arrow-clockwise"></i>
+              Atualizar
+            </button>
+            <button id="public-export-toggle" class="ghost" type="button">
+              <i class="bi bi-download"></i>
+              Exportar
+            </button>
+          </div>
+        </form>
+        <div class="public-table-controls">
+          <div class="table-modes public-table-modes">
+            <div id="public-view-toggle" class="view-toggle" role="group" aria-label="Modo de tabela">
+              <button
+                id="public-view-detailed"
+                class="view-toggle-btn"
+                type="button"
+                aria-pressed="true"
+                title="Detalhada"
+              >
+                <i class="bi bi-tablet-landscape"></i>
+              </button>
+              <button
+                id="public-view-summary"
+                class="view-toggle-btn"
+                type="button"
+                aria-pressed="false"
+                title="Resumo"
+              >
+                <i class="bi bi-file-spreadsheet"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div id="public-table-detailed">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Marca</th>
+                  <th>Tipo</th>
+                  <th>Caixas/Pallet</th>
+                  <th>Pallets</th>
+                  <th>Caixas avulsas</th>
+                  <th>Total Caixas</th>
+                </tr>
+              </thead>
+              <tbody id="public-table-body"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <div class="total">
+              Total geral do filtro: <strong id="public-total-geral">0</strong>
+            </div>
+          </div>
+        </div>
+        <div id="public-table-summary" class="hidden"></div>
+        <div id="public-msg" class="msg-area"></div>
+      </section>
+
+      <!-- Menu mobile de exportacao/compartilhamento. -->
+      <div id="public-export-sheet" class="share-sheet hidden">
+        <div class="share-backdrop" data-close="public"></div>
+        <div class="share-panel">
+          <div class="share-handle"></div>
+          <div class="share-header">
+            <h3>Exportar</h3>
+            <button id="public-export-close" class="ghost">Fechar</button>
+          </div>
+          <div class="share-options">
+            <button id="public-export-csv" class="share-option" type="button">
+              <i class="bi bi-filetype-csv"></i>
+              <span>CSV</span>
+            </button>
+            <button id="public-export-pdf" class="share-option" type="button">
+              <i class="bi bi-filetype-pdf"></i>
+              <span>PDF</span>
+            </button>
+            <button id="public-export-print" class="share-option" type="button">
+              <i class="bi bi-printer"></i>
+              <span>Impressão</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de filtros avancados da tabela publica. -->
+      <div id="filter-modal" class="modal hidden">
+        <div class="modal-backdrop" id="filter-close"></div>
+        <div class="modal-card">
+          <div class="modal-header">
+            <h3>Filtros</h3>
+            <button id="filter-close-btn" class="ghost">Fechar</button>
+          </div>
+          <div class="modal-body">
+            <label for="filter-setor">Setor</label>
+            <select id="filter-setor"></select>
+
+            <label for="filter-produto">Produto</label>
+            <select id="filter-produto"></select>
+
+            <label for="filter-marca">Marca</label>
+            <select id="filter-marca"></select>
+
+            <label for="filter-tipo">Tipo</label>
+            <input id="filter-tipo" type="number" placeholder="Ex: 4" />
+          </div>
+          <div class="modal-actions">
+            <button id="filter-clear" class="ghost">Limpar</button>
+            <button id="filter-apply" class="primary">Aplicar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel de login reaproveitado quando a pagina precisa autenticar para a parte de contagem. -->
+      <section id="auth-panel" class="card hidden">
+        <div class="card-header">
+          <h2>Acesso</h2>
+          <p>Entre com seu usuário do CD para começar a contagem.</p>
+        </div>
+        <div class="form-grid">
+          <label for="email">Usuário ou número</label>
+          <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
+          <label for="password">Senha</label>
+          <input id="password" type="password" placeholder="*******" />
+        </div>
+        <div class="actions">
+          <button id="login-btn" class="primary">Entrar</button>
+        </div>
+        <div id="auth-msg" class="msg-area"></div>
+      </section>
+
+      <!-- Painel legado de contagem mantido no index para compatibilidade do fluxo atual. -->
+      <section id="count-panel" class="hidden">
+        <div class="grid">
+          <section class="card">
+            <div class="card-header">
+              <h2>Contexto Travado</h2>
+              <p>Fale setor, marca/produto ou número.</p>
+            </div>
+            <div class="context">
+              <div class="context-item">
+                <span>Setor</span>
+                <strong id="ctx-setor">--</strong>
+              </div>
+              <div class="context-item">
+                <span>Produto</span>
+                <strong id="ctx-produto">--</strong>
+              </div>
+              <div class="context-item">
+                <span>Marca</span>
+                <strong id="ctx-marca">--</strong>
+              </div>
+            </div>
+            <div class="context-actions">
+              <label for="setor-select">Alterar setor</label>
+              <select id="setor-select"></select>
+              <button id="clear-context" class="ghost">Limpar contexto</button>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h2>Comando por Voz</h2>
+              <p>Use Chrome ou Edge e permita o microfone.</p>
+            </div>
+            <div class="voice">
+              <button id="voice-btn" class="primary">Iniciar escuta</button>
+              <div id="voice-status" class="voice-status">Microfone pronto.</div>
+              <textarea
+                id="voice-last"
+                rows="2"
+                readonly
+                placeholder="Último comando reconhecido..."
+              ></textarea>
+            </div>
+          </section>
+
+          <section class="card full">
+            <div class="card-header">
+              <h2>Comando Manual</h2>
+              <p>Também funciona digitando (ex: CHÃO, ANGEL, 4).</p>
+            </div>
+            <div class="command">
+              <input
+                id="command-input"
+                type="text"
+                placeholder="Diga o setor, produto/marca ou apenas o número"
+              />
+              <button id="process-btn" class="primary">Processar</button>
+            </div>
+            <div id="messages" class="msg-area"></div>
+          </section>
+
+          <section class="card full">
+            <div class="card-header">
+              <h2>Itens Contados</h2>
+              <p>Visualização por setor atual.</p>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Produto</th>
+                    <th>Marca</th>
+                    <th>Tipo</th>
+                    <th>Caixas/Pallet</th>
+                    <th>Pallets</th>
+                    <th>Caixas avulsas</th>
+                    <th>Total Caixas</th>
+                  </tr>
+                </thead>
+                <tbody id="count-table-body"></tbody>
+              </table>
+            </div>
+            <div class="table-footer">
+              <div class="total">
+                Total geral do setor: <strong id="count-total-geral">0</strong>
+              </div>
+              <div class="actions table-tools">
+                <button id="count-export-toggle" class="ghost">Exportar</button>
+                <button id="count-clear-btn" class="danger">Limpar contagem</button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+    <script src="assets/app.js?v=20260423-12"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./service-worker.js")
+            .catch((error) => console.warn("Falha ao registrar service worker.", error));
+        });
+      }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+

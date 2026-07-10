@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Estoque CD" />
+    <title>Editar Estoque</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/img/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260423-7" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body data-page="edit">
+    <aside id="app-sidebar" class="sidebar" aria-label="Navegação principal">
+      <div class="sidebar-top">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="sidebar-logo" />
+      </div>
+      <nav class="sidebar-nav">
+        <button id="menu-view" class="ghost" data-href="index.html" type="button">
+          <i class="bi bi-box-seam"></i>
+          <span class="sidebar-label">Estoque</span>
+        </button>
+        <button id="menu-dashboard" class="ghost" data-href="visao-geral.html" type="button">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="sidebar-label">Visão geral</span>
+        </button>
+        <button id="menu-count" class="primary" type="button">
+          <i class="bi bi-pencil-square"></i>
+          <span class="sidebar-label">Editar estoque</span>
+        </button>
+        <button id="menu-products" class="ghost" data-href="produtos.html" type="button">
+          <i class="bi bi-boxes"></i>
+          <span class="sidebar-label">Produtos</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button
+          id="theme-toggle"
+          class="ghost theme-toggle"
+          type="button"
+          aria-label="Ativar tema escuro"
+          title="Tema escuro"
+        >
+          <i class="bi bi-moon-stars"></i>
+          <span id="theme-toggle-label" class="sidebar-label">Tema escuro</span>
+        </button>
+        <div id="menu-user" class="user-chip hidden">
+          <span>Usuario</span>
+          <strong id="menu-user-email">--</strong>
+        </div>
+        <button id="menu-logout" class="ghost hidden" type="button">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="sidebar-label">Sair</span>
+        </button>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+    <div class="app">
+      <header class="mobile-topbar">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="mobile-topbar-logo" />
+        <div class="mobile-topbar-actions">
+          <button
+            id="mobile-theme-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Ativar tema escuro"
+            title="Tema escuro"
+          >
+            <i class="bi bi-moon-stars"></i>
+          </button>
+          <button
+            id="sidebar-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+          >
+            <i class="bi bi-list"></i>
+          </button>
+        </div>
+      </header>
+      <!-- Cabecalho visual da area de edicao. -->
+      <header class="hero">
+        <div>
+          <img src="assets/img/logo.webp" alt="logo" class="logo" />
+          <p class="eyebrow">CD | Contagem do estoque</p>
+          <h1>Editar Estoque</h1>
+        </div>
+      </header>
+
+      <!-- Login do operador antes de liberar a area de contagem. -->
+      <section id="auth-panel" class="card">
+        <div class="card-header">
+          <h2>Acesso</h2>
+          <p>Entre com seu usuario do CD para comecar a contagem.</p>
+        </div>
+        <div class="form-grid">
+          <label for="email">Usuario</label>
+          <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
+          <label for="password">Senha</label>
+          <input id="password" type="password" placeholder="Senha" />
+        </div>
+        <div class="actions">
+          <button id="login-btn" class="primary">Entrar</button>
+        </div>
+        <div id="auth-msg" class="msg-area"></div>
+      </section>
+
+      <!-- Painel principal da contagem depois do login. -->
+      <section id="count-panel" class="hidden">
+        <!-- Banner de status online/offline e estado do rascunho local. -->
+        <section id="count-sync-banner" class="sync-banner hidden">
+          <div id="count-sync-pill" class="sync-pill online">Online</div>
+          <div class="sync-copy">
+            <strong id="count-sync-title">Sistema pronto para contagem offline</strong>
+            <span id="count-sync-text">
+              Quando voce iniciar uma nova contagem, o rascunho sera salvo automaticamente neste aparelho.
+            </span>
+          </div>
+        </section>
+        <!-- Troca entre estoque atual e nova contagem offline. -->
+        <section id="count-mode-bar" class="count-mode-bar">
+          <div class="count-mode-row">
+            <div class="actions count-mode-toggle">
+              <button id="mode-current" class="primary" type="button">Estoque atual</button>
+              <button id="mode-new" class="ghost" type="button">Nova contagem</button>
+            </div>
+            <span id="count-mode-tag" class="count-mode-tag hidden">
+              Rascunho da nova contagem ativo
+            </span>
+          </div>
+          <div id="new-count-actions" class="actions hidden">
+            <button id="save-new-count" class="primary" type="button">
+              Salvar nova contagem
+            </button>
+            <button id="discard-new-count" class="ghost" type="button">
+              Descartar rascunho
+            </button>
+          </div>
+        </section>
+        <div class="grid count-layout">
+          <div class="count-left-column">
+            
+          <!-- Card de voz com contexto travado, escuta e comando manual. -->
+          <section class="card voice-card" id="voice-card">
+            <div class="voice-card-header">
+              <h2><i class="bi bi-mic"></i>Comando por Voz</h2>
+              <span class="voice-engine">Chrome / Edge</span>
+            </div>
+
+            <div class="voice-context-box">
+              <h3>Contexto travado</h3>
+              <p>
+                Setor: <strong id="ctx-setor">--</strong>
+                <span aria-hidden="true">&middot;</span>
+                Produto: <strong id="ctx-produto">--</strong>
+                <span aria-hidden="true">&middot;</span>
+                Marca: <strong id="ctx-marca">--</strong>
+              </p>
+            </div>
+
+            <button id="voice-btn" class="voice-action" type="button">Iniciar escuta</button>
+            <div id="voice-status" class="voice-status">Microfone pronto.</div>
+
+            <textarea
+              id="voice-last"
+              rows="2"
+              readonly
+              placeholder="O que a maquina esta ouvindo..."
+            ></textarea>
+
+          
+            <div id="messages" class="msg-area"></div>
+          </section>
+
+          <!-- Lancamento manual por tabela (setor, produto, marca, tipo e quantidade). -->
+          <section id="manual-card" class="card full">
+            <div class="card-header">
+              <h2>Comando Manual</h2>
+              <p>Selecione os campos abaixo para adicionar o item. Para lancar so caixas avulsas, deixe pallets em 0.</p>
+            </div>
+            <div class="table-wrap">
+              <table class="manual-table" id="manual-table">
+                <thead>
+                  <tr>
+                    <th>Setor</th>
+                    <th>Produto</th>
+                    <th>Marca</th>
+                    <th><span id="manual-label-tipo">Tipo</span></th>
+                    <th><span id="manual-label-qty">Pallets</span></th>
+                    <th>Caixas avulsas</th>
+                    <th>Ação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <select id="manual-setor"></select>
+                    </td>
+                    <td>
+                      <select id="manual-produto"></select>
+                    </td>
+                    <td>
+                      <select id="manual-marca"></select>
+                    </td>
+                    <td>
+                      <select id="manual-tipo"></select>
+                    </td>
+                    <td>
+                      <select id="manual-pallets"></select>
+                    </td>
+                    <td>
+                      <input
+                        id="manual-boxes"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value="0"
+                        inputmode="numeric"
+                        placeholder="0"
+                      />
+                    </td>
+                    <td>
+                      <button id="manual-add" class="primary">Adicionar</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          
+          </div>
+          <div class="count-right-column">
+          <!-- Tabela dos itens contados no setor atual, com edicao e remocao. -->
+          <section id="count-items-card" class="card full">
+            <div class="card-header">
+              <h2>Itens Contados</h2>
+              <p>Visualização por setor atual.</p>
+            </div>
+            <div class="card-actions">
+              <button id="edit-item-btn" class="ghost">Editar item</button>
+            </div>
+            <div class="table-modes">
+              <div id="count-view-toggle" class="view-toggle" role="group" aria-label="Modo de tabela">
+                <button
+                  id="count-view-detailed"
+                  class="view-toggle-btn"
+                  type="button"
+                  aria-pressed="true"
+                  title="Detalhada"
+                >
+                  <i class="bi bi-tablet-landscape"></i>
+                </button>
+                <button
+                  id="count-view-summary"
+                  class="view-toggle-btn"
+                  type="button"
+                  aria-pressed="false"
+                  title="Resumo"
+                >
+                  <i class="bi bi-file-spreadsheet"></i>
+                </button>
+              </div>
+            </div>
+            <div class="last-update">
+              Última atualização: <strong id="count-last-update">--</strong>
+            </div>
+            <div class="actions table-tools">
+              <button id="count-export-toggle" class="ghost">Exportar</button>
+              <button id="count-clear-btn" class="danger">Limpar contagem</button>
+            </div>
+            <div id="count-table-detailed">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Produto</th>
+                      <th>Marca</th>
+                      <th>Tipo</th>
+                      <th>Caixas/Pallet</th>
+                      <th>Pallets</th>
+                      <th>Caixas avulsas</th>
+                      <th>Total Caixas</th>
+                      <th>Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="count-table-body"></tbody>
+                </table>
+              </div>
+              <div class="table-footer">
+                <div class="total">
+                  Total geral do setor: <strong id="count-total-geral">0</strong>
+                </div>
+              </div>
+            </div>
+            <div id="count-table-summary" class="hidden"></div>
+          </section>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Menu mobile de exportacao da contagem. -->
+    <div id="count-export-sheet" class="share-sheet hidden">
+      <div class="share-backdrop" data-close="count"></div>
+      <div class="share-panel">
+        <div class="share-handle"></div>
+        <div class="share-header">
+          <h3>Exportar</h3>
+          <button id="count-export-close" class="ghost">Fechar</button>
+        </div>
+        <div class="share-options">
+          <button id="count-export-csv" class="share-option" type="button">
+            <i class="bi bi-filetype-csv"></i>
+            <span>CSV</span>
+          </button>
+          <button id="count-export-pdf" class="share-option" type="button">
+            <i class="bi bi-filetype-pdf"></i>
+            <span>PDF</span>
+          </button>
+          <button id="count-export-print" class="share-option" type="button">
+            <i class="bi bi-printer"></i>
+            <span>Impressão</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de manutencao manual dos itens ja lancados. -->
+    <div id="edit-modal" class="modal hidden">
+      <div class="modal-backdrop" id="edit-close"></div>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 id="edit-title">Editar item</h3>
+          <button id="edit-close-btn" class="ghost">Fechar</button>
+        </div>
+        <div class="modal-body">
+          <label for="edit-setor">Setor</label>
+          <select id="edit-setor"></select>
+
+          <label for="edit-produto">Produto</label>
+          <input id="edit-produto" type="text" />
+
+          <label for="edit-marca">Marca</label>
+          <input id="edit-marca" type="text" />
+
+          <label for="edit-tipo">Tipo</label>
+          <input id="edit-tipo" type="text" placeholder="Ex: 4 ou 6A" />
+
+          <label for="edit-caixas">Caixas por pallet</label>
+          <input id="edit-caixas" type="number" />
+
+          <label for="edit-pallets">Pallets</label>
+          <input id="edit-pallets" type="number" />
+
+          <label for="edit-loose-boxes">Caixas avulsas (sem pallet fechado)</label>
+          <input id="edit-loose-boxes" type="number" />
+        </div>
+        <div class="modal-actions">
+          <button id="edit-save" class="primary">Salvar</button>
+        </div>
+        <div class="debug-card hidden" id="debug-panel">
+          <h4>Diagnóstico</h4>
+          <div class="debug-row">
+            <strong>URL:</strong> <span id="debug-url">--</span>
+          </div>
+          <div class="debug-row">
+            <strong>Chave:</strong> <span id="debug-key">--</span>
+          </div>
+          <div class="debug-row">
+            <strong>Login:</strong> <span id="debug-user">--</span>
+          </div>
+          <div class="debug-row">
+            <strong>Resposta:</strong>
+            <pre id="debug-result">--</pre>
+          </div>
+          <button id="debug-hide" class="ghost">Fechar</button>
+        </div>
+        <div id="edit-msg" class="msg-area"></div>
+      </div>
+    </div>
+
+    <script src="assets/app.js?v=20260423-12"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./service-worker.js")
+            .catch((error) => console.warn("Falha ao registrar service worker.", error));
+        });
+      }
+    </script>
+  </body>
+</html>

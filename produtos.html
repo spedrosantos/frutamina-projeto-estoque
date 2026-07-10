@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Estoque CD" />
+    <title>Produtos</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./assets/img/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="styles.css?v=20260423-7" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body data-page="products">
+    <aside id="app-sidebar" class="sidebar" aria-label="Navegação principal">
+      <div class="sidebar-top">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="sidebar-logo" />
+      </div>
+      <nav class="sidebar-nav">
+        <button id="menu-view" class="ghost" data-href="index.html" type="button">
+          <i class="bi bi-box-seam"></i>
+          <span class="sidebar-label">Estoque</span>
+        </button>
+        <button id="menu-dashboard" class="ghost" data-href="visao-geral.html" type="button">
+          <i class="bi bi-bar-chart-line"></i>
+          <span class="sidebar-label">Visão geral</span>
+        </button>
+        <button id="menu-count" class="ghost" data-href="editar.html" type="button">
+          <i class="bi bi-pencil-square"></i>
+          <span class="sidebar-label">Editar estoque</span>
+        </button>
+        <button id="menu-products" class="primary" type="button">
+          <i class="bi bi-boxes"></i>
+          <span class="sidebar-label">Produtos</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <button
+          id="theme-toggle"
+          class="ghost theme-toggle"
+          type="button"
+          aria-label="Ativar tema escuro"
+          title="Tema escuro"
+        >
+          <i class="bi bi-moon-stars"></i>
+          <span id="theme-toggle-label" class="sidebar-label">Tema escuro</span>
+        </button>
+        <div id="menu-user" class="user-chip hidden">
+          <span>Usuário</span>
+          <strong id="menu-user-email">--</strong>
+        </div>
+        <button id="menu-logout" class="ghost hidden" type="button">
+          <i class="bi bi-box-arrow-right"></i>
+          <span class="sidebar-label">Sair</span>
+        </button>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
+    <div class="app">
+      <header class="mobile-topbar">
+        <img src="assets/img/logo.webp" alt="Frutamina" class="mobile-topbar-logo" />
+        <div class="mobile-topbar-actions">
+          <button
+            id="mobile-theme-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Ativar tema escuro"
+            title="Tema escuro"
+          >
+            <i class="bi bi-moon-stars"></i>
+          </button>
+          <button
+            id="sidebar-toggle"
+            class="sidebar-toggle"
+            type="button"
+            aria-label="Abrir menu"
+            aria-expanded="false"
+          >
+            <i class="bi bi-list"></i>
+          </button>
+        </div>
+      </header>
+
+      <header class="hero">
+        <div>
+          <img src="assets/img/logo.webp" alt="logo" class="logo" />
+          <p class="eyebrow">CD | Contagem do estoque</p>
+          <h1>Produtos</h1>
+        </div>
+      </header>
+
+      <section id="auth-panel" class="card">
+        <div class="card-header">
+          <h2>Acesso</h2>
+          <p>Entre com seu usuário do CD para gerenciar os produtos.</p>
+        </div>
+        <div class="form-grid">
+          <label for="email">Usuário</label>
+          <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
+          <label for="password">Senha</label>
+          <input id="password" type="password" placeholder="Senha" />
+        </div>
+        <div class="actions">
+          <button id="login-btn" class="primary">Entrar</button>
+        </div>
+        <div id="auth-msg" class="msg-area"></div>
+      </section>
+
+      <section id="products-panel" class="hidden">
+        <div class="grid">
+          <section id="catalog-card" class="card full">
+            <div class="card-header">
+              <h2>Cadastro de Produtos</h2>
+              <p>Adicione ou remova combinacoes de setor, produto e marca.</p>
+            </div>
+            <div class="form-grid catalog-form-grid">
+              <label for="catalog-setor">Setor</label>
+              <select id="catalog-setor"></select>
+
+              <label for="catalog-produto">Produto</label>
+              <input id="catalog-produto" type="text" placeholder="Ex: AMARELO PREMIUM" />
+
+              <label for="catalog-marca">Marca</label>
+              <input id="catalog-marca" type="text" placeholder="Ex: ANGEL" />
+
+              <label for="catalog-caixas">Caixas por pallet</label>
+              <input id="catalog-caixas" type="number" min="1" step="1" placeholder="Ex: 72" />
+
+              <label for="catalog-no-tipo">Sem tipo</label>
+              <label class="catalog-checkbox">
+                <input id="catalog-no-tipo" type="checkbox" />
+                Produto sem tipo (S/T)
+              </label>
+            </div>
+            <div class="actions">
+              <button id="catalog-add-btn" class="primary" type="button">Adicionar produto</button>
+              <button id="catalog-reset-btn" class="ghost" type="button">
+                Restaurar catalogo original
+              </button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Setor</th>
+                    <th>Produto</th>
+                    <th>Marca</th>
+                    <th>Caixas/Pallet</th>
+                    <th>Tipo</th>
+                    <th>Origem</th>
+                    <th>Acao</th>
+                  </tr>
+                </thead>
+                <tbody id="catalog-table-body"></tbody>
+              </table>
+            </div>
+            <div id="catalog-msg" class="msg-area"></div>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <script src="assets/app.js?v=20260423-12"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./service-worker.js")
+            .catch((error) => console.warn("Falha ao registrar service worker.", error));
+        });
+      }
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
