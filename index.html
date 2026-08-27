@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260423-13" />
+    <link rel="stylesheet" href="styles.css?v=20260827-01" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="view">
@@ -99,44 +99,46 @@
         </div>
       </header>
       <!-- Cabecalho visual da pagina. -->
-      <header class="hero">
-        <div>
-          <img src="assets/img/logo.webp" alt="logo" class="logo" />
+      <header class="view-head">
+        <div class="view-head-main">
           <p class="eyebrow">CD | Contagem do estoque</p>
           <h1>Estoque</h1>
+          <p class="view-head-sub">
+            Estoque atual. Para editar, acesse <a href="editar.html">Editar estoque</a>.
+          </p>
+        </div>
+        <div class="view-head-meta">
+          <span>Atualizado por</span>
+          <strong id="public-last-update">--</strong>
         </div>
       </header>
 
       <!-- Painel principal com busca, filtros e tabela publica do estoque. -->
       <section id="public-panel" class="card public-section">
-        <div class="public-section-header">
-          <h2>Contagem do Estoque</h2>
-          <p>Estoque atual. Para editar, acesse <a href="editar.html">Editar estoque</a>.</p>
-          <div class="last-update public-last-update">
-            Estoque atualizado por <strong id="public-last-update">--</strong>
-          </div>
-        </div>
         <form id="public-search-form" class="public-toolbar" role="search" autocomplete="off">
           <div class="autofill-trap" aria-hidden="true">
             <input type="text" name="username" autocomplete="username" tabindex="-1" />
             <input type="password" name="password" autocomplete="current-password" tabindex="-1" />
           </div>
           <label for="public-search" class="sr-only">Pesquisar</label>
-          <input
-            id="public-search"
-            type="search"
-            name="public-search"
-            placeholder="Pesquisar por produto, marca, tipo..."
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            inputmode="search"
-            aria-autocomplete="none"
-            data-lpignore="true"
-            data-1p-ignore="true"
-            data-form-type="other"
-          />
+          <div class="search-field">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input
+              id="public-search"
+              type="search"
+              name="public-search"
+              placeholder="Pesquisar por produto, marca, tipo..."
+              autocomplete="off"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+              inputmode="search"
+              aria-autocomplete="none"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              data-form-type="other"
+            />
+          </div>
           <div class="public-toolbar-actions">
             <button id="public-filter-btn" class="ghost" type="button">
               <i class="bi bi-funnel"></i>

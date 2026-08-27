@@ -3232,3 +3232,701 @@ body[data-theme="dark"] .print-overlay-card span {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   Redesign da pagina de estoque (index.html) - visual neutro moderno.
+   Tudo escopado em body[data-page="view"] para nao afetar as demais paginas.
+   ========================================================================== */
+
+body[data-page="view"] {
+  --vw-bg: #f5f6f8;
+  --vw-surface: #ffffff;
+  --vw-surface-soft: #f7f8fa;
+  --vw-border: #e4e7ec;
+  --vw-border-strong: #d2d7e0;
+  --vw-text: #101828;
+  --vw-text-soft: #667085;
+  --vw-accent: #2563eb;
+  --vw-accent-soft: #eef4ff;
+  --vw-radius: 14px;
+  --vw-radius-sm: 10px;
+  --vw-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 28px -22px rgba(16, 24, 40, 0.35);
+  background: var(--vw-bg);
+  color: var(--vw-text);
+}
+
+body[data-theme="dark"][data-page="view"] {
+  --vw-bg: #0a0d14;
+  --vw-surface: #10141d;
+  --vw-surface-soft: #151a25;
+  --vw-border: #212836;
+  --vw-border-strong: #2d3648;
+  --vw-text: #e6eaf2;
+  --vw-text-soft: #93a0b7;
+  --vw-accent: #4d8dff;
+  --vw-accent-soft: rgba(77, 141, 255, 0.12);
+  --vw-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  background: var(--vw-bg);
+  color: var(--vw-text);
+}
+
+body[data-page="view"] .app {
+  max-width: 1160px;
+  padding: 40px 28px 72px;
+}
+
+/* Cabecalho da pagina */
+body[data-page="view"] .view-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+body[data-page="view"] .view-head .eyebrow {
+  color: var(--vw-text-soft);
+  opacity: 1;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+body[data-page="view"] .view-head h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 6px 0 8px;
+}
+
+body[data-page="view"] .view-head-sub {
+  margin: 0;
+  color: var(--vw-text-soft);
+  font-size: 14px;
+}
+
+body[data-page="view"] .view-head-sub a {
+  color: var(--vw-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+body[data-page="view"] .view-head-sub a:hover {
+  text-decoration: underline;
+}
+
+body[data-page="view"] .view-head-meta {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius-sm);
+  background: var(--vw-surface);
+  font-size: 13px;
+  box-shadow: var(--vw-shadow);
+}
+
+body[data-page="view"] .view-head-meta span {
+  color: var(--vw-text-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Card principal */
+body[data-page="view"] .card {
+  background: var(--vw-surface);
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius);
+  box-shadow: var(--vw-shadow);
+  padding: 20px;
+}
+
+body[data-page="view"] .public-section {
+  gap: 16px;
+}
+
+/* Barra de busca e acoes */
+body[data-page="view"] .public-toolbar {
+  gap: 8px;
+}
+
+body[data-page="view"] .search-field {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  align-items: center;
+}
+
+body[data-page="view"] .search-field i {
+  position: absolute;
+  left: 12px;
+  font-size: 15px;
+  color: var(--vw-text-soft);
+  pointer-events: none;
+}
+
+body[data-page="view"] input,
+body[data-page="view"] select {
+  background: var(--vw-surface);
+  border: 1px solid var(--vw-border-strong);
+  border-radius: var(--vw-radius-sm);
+  color: var(--vw-text);
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+body[data-page="view"] .search-field input {
+  padding-left: 36px;
+  height: 42px;
+}
+
+body[data-page="view"] input:focus,
+body[data-page="view"] select:focus {
+  outline: none;
+  border-color: var(--vw-accent);
+  box-shadow: 0 0 0 3px var(--vw-accent-soft);
+}
+
+body[data-page="view"] input::placeholder {
+  color: var(--vw-text-soft);
+}
+
+body[data-page="view"] .public-toolbar-actions button {
+  height: 42px;
+  border-radius: var(--vw-radius-sm);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--vw-surface);
+  border: 1px solid var(--vw-border-strong);
+  color: var(--vw-text);
+  box-shadow: none;
+}
+
+body[data-page="view"] .public-toolbar-actions button:hover {
+  transform: none;
+  background: var(--vw-surface-soft);
+  border-color: var(--vw-accent);
+  color: var(--vw-accent);
+  box-shadow: none;
+}
+
+/* Segmentado de modo de tabela */
+body[data-page="view"] .view-toggle {
+  background: var(--vw-surface-soft);
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+
+body[data-page="view"] .view-toggle::before {
+  top: 3px;
+  left: 3px;
+  width: 42px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--vw-accent);
+}
+
+body[data-page="view"] .view-toggle.mode-summary::before {
+  transform: translateX(44px);
+}
+
+body[data-page="view"] .view-toggle-btn {
+  width: 42px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--vw-text-soft);
+}
+
+body[data-page="view"] .view-toggle:not(.mode-summary) .view-toggle-btn:first-child,
+body[data-page="view"] .view-toggle.mode-summary .view-toggle-btn:last-child {
+  color: #ffffff;
+}
+
+/* Tabela detalhada */
+body[data-page="view"] #public-table-detailed .table-wrap {
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius-sm);
+  background: var(--vw-surface);
+}
+
+body[data-page="view"] table {
+  font-size: 14px;
+}
+
+body[data-page="view"] th {
+  background: var(--vw-surface-soft);
+  color: var(--vw-text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px;
+  border-bottom: 1px solid var(--vw-border);
+  white-space: nowrap;
+}
+
+body[data-page="view"] td {
+  padding: 12px;
+  border-bottom: 1px solid var(--vw-border);
+  color: var(--vw-text);
+}
+
+body[data-page="view"] #public-table-body tr:last-child td {
+  border-bottom: none;
+}
+
+body[data-page="view"] #public-table-body tr:hover td {
+  background: var(--vw-accent-soft);
+}
+
+body[data-page="view"] #public-table-detailed th:nth-child(n + 4),
+body[data-page="view"] #public-table-body td:nth-child(n + 4) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="view"] #public-table-body td:first-child {
+  font-weight: 600;
+}
+
+body[data-page="view"] #public-table-body td:nth-child(7) {
+  font-weight: 700;
+}
+
+/* Rodape com total */
+body[data-page="view"] .table-footer {
+  margin-top: 14px;
+}
+
+body[data-page="view"] .table-footer .total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--vw-accent-soft);
+  color: var(--vw-accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+body[data-page="view"] .table-footer .total strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+}
+
+/* Cards do modo resumo */
+body[data-page="view"] .summary-card {
+  background: var(--vw-surface);
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius-sm);
+  padding: 14px;
+}
+
+body[data-page="view"] .summary-table,
+body[data-page="view"] .summary-table th,
+body[data-page="view"] .summary-table td {
+  border-color: var(--vw-border);
+}
+
+body[data-page="view"] .summary-table thead th {
+  background: var(--vw-surface-soft);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+  padding: 8px;
+}
+
+body[data-page="view"] .summary-table td {
+  padding: 8px;
+  font-size: 12px;
+}
+
+body[data-page="view"] .summary-table tfoot td {
+  background: var(--vw-surface-soft);
+}
+
+/* Modal de filtros e folha de exportacao */
+body[data-page="view"] .modal-card,
+body[data-page="view"] .share-panel {
+  background: var(--vw-surface);
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius);
+  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
+}
+
+body[data-page="view"] .share-panel {
+  border-radius: 18px 18px 0 0;
+}
+
+body[data-page="view"] .modal-backdrop,
+body[data-page="view"] .share-backdrop {
+  background: rgba(16, 24, 40, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+body[data-page="view"] .share-option {
+  background: var(--vw-surface-soft);
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius-sm);
+  color: var(--vw-text);
+}
+
+body[data-page="view"] .share-option:hover {
+  transform: none;
+  border-color: var(--vw-accent);
+  color: var(--vw-accent);
+  box-shadow: none;
+}
+
+body[data-page="view"] .ghost {
+  background: var(--vw-surface-soft);
+  border: 1px solid var(--vw-border-strong);
+  color: var(--vw-text);
+  border-radius: var(--vw-radius-sm);
+}
+
+body[data-page="view"] .primary {
+  background: var(--vw-accent);
+  color: #ffffff;
+  border-radius: var(--vw-radius-sm);
+  box-shadow: none;
+}
+
+body[data-page="view"] .primary:hover,
+body[data-page="view"] .ghost:hover {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.97);
+}
+
+@media (max-width: 980px) {
+  body[data-page="view"] .app {
+    padding: 14px 14px 48px;
+  }
+
+  body[data-page="view"] .mobile-topbar {
+    background: var(--vw-surface);
+    border: 1px solid var(--vw-border);
+    border-radius: var(--vw-radius-sm);
+  }
+
+  body[data-page="view"] .mobile-topbar .sidebar-toggle {
+    background: var(--vw-surface-soft);
+    border: 1px solid var(--vw-border);
+    color: var(--vw-text);
+  }
+
+  body[data-page="view"] .view-head {
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  body[data-page="view"] .view-head h1 {
+    font-size: 26px;
+  }
+
+  body[data-page="view"] .view-head-meta {
+    width: 100%;
+  }
+
+  body[data-page="view"] .public-toolbar-actions {
+    gap: 8px;
+  }
+
+  body[data-page="view"] .public-toolbar-actions button {
+    padding: 0 8px;
+    font-size: 13px;
+  }
+}
+
+/* ==========================================================================
+   Modal de pre-visualizacao de impressao (index.html e editar.html).
+   O conteudo fica em #print-area para o @media print imprimir so a folha.
+   ========================================================================== */
+
+.print-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.print-preview.hidden {
+  display: none;
+}
+
+body.print-preview-open {
+  overflow: hidden;
+}
+
+.print-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.6);
+  backdrop-filter: blur(3px);
+}
+
+.print-preview-panel {
+  position: relative;
+  z-index: 1;
+  width: min(920px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #eef0f4;
+  box-shadow: 0 30px 70px rgba(16, 24, 40, 0.35);
+}
+
+.print-preview-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid #e4e7ec;
+}
+
+.print-preview-heading {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.print-preview-heading strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 15px;
+  color: #101828;
+}
+
+.print-preview-subtitle {
+  font-size: 12px;
+  color: #667085;
+}
+
+.print-preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.print-preview-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  box-shadow: none;
+}
+
+.print-preview-actions button:hover {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.97);
+}
+
+.print-preview-scroll {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Folha A4 (794 x 1123 px @96dpi) */
+.print-sheet {
+  width: 794px;
+  max-width: 100%;
+  min-height: 400px;
+  margin: 0 auto;
+  padding: 40px 44px;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.14), 0 18px 40px -24px rgba(16, 24, 40, 0.4);
+}
+
+.print-sheet h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+  margin: 0 0 4px;
+  color: #101828;
+}
+
+.print-sheet .print-meta {
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d0d5dd;
+  font-size: 12px;
+  color: #667085;
+}
+
+.print-sheet table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  table-layout: fixed;
+}
+
+.print-sheet th,
+.print-sheet td {
+  border: 1px solid #111827;
+  padding: 5px 6px;
+  text-align: center;
+  color: #111827;
+  background: #ffffff;
+  word-break: break-word;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 11px;
+  white-space: normal;
+}
+
+.print-sheet th {
+  font-weight: 700;
+  background: #f2f4f7;
+}
+
+.print-sheet th:first-child,
+.print-sheet td:first-child {
+  text-align: left;
+}
+
+.print-sheet .table-wrap {
+  overflow: visible;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+
+.print-sheet .summary-grid {
+  display: block;
+  margin: 0;
+}
+
+.print-sheet .summary-card {
+  display: block;
+  width: 100%;
+  border: 1px solid #111827;
+  border-radius: 0;
+  padding: 8px;
+  margin-bottom: 12px;
+  background: #ffffff;
+}
+
+.print-sheet .summary-header h3,
+.print-sheet .summary-header p,
+.print-sheet .summary-legend {
+  color: #111827;
+}
+
+.print-sheet .summary-header h3 {
+  font-size: 14px;
+}
+
+.print-sheet .msg-area,
+.print-sheet .last-update {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .print-preview {
+    padding: 0;
+  }
+
+  .print-preview-panel {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  .print-preview-scroll {
+    padding: 12px;
+  }
+
+  .print-sheet {
+    padding: 20px 18px;
+  }
+}
+
+@media print {
+  .print-preview,
+  .print-preview-panel,
+  .print-preview-scroll {
+    position: static !important;
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-height: none !important;
+    width: auto !important;
+    background: #ffffff !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .print-preview-bar,
+  .print-preview-backdrop {
+    display: none !important;
+  }
+
+  #print-area.print-sheet {
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  #print-area .print-meta {
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    font-size: 11px;
+    text-align: left;
+  }
+
+  #print-area thead {
+    display: table-header-group;
+  }
+
+  #print-area tr,
+  #print-area .summary-card,
+  #print-area table {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* Tema escuro: apenas a moldura do modal muda; a folha continua branca. */
+body[data-theme="dark"] .print-preview-panel {
+  background: #0d111a;
+}
+
+body[data-theme="dark"] .print-preview-bar {
+  background: #10141d;
+  border-bottom-color: #212836;
+}
+
+body[data-theme="dark"] .print-preview-heading strong {
+  color: #e6eaf2;
+}
+
+body[data-theme="dark"] .print-preview-subtitle {
+  color: #93a0b7;
+}

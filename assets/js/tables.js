@@ -807,99 +807,79 @@ function getExportNode(scope) {
     : elements.countTableDetailed;
 }
 
-function openPrintWindow(title, contentNode) {
+// Modal de pre-visualizacao de impressao: mostra o conteudo em uma folha A4
+// dentro da propria pagina (sem popup) e usa o @media print de styles.css,
+// que imprime apenas #print-area.
+function closePrintPreview() {
+  const modal = document.getElementById("print-preview");
+  if (modal) modal.classList.add("hidden");
+  document.body.classList.remove("print-preview-open");
+}
+
+function ensurePrintPreview() {
+  const existing = document.getElementById("print-preview");
+  if (existing) return existing;
+
+  const modal = document.createElement("div");
+  modal.id = "print-preview";
+  modal.className = "print-preview hidden";
+  modal.innerHTML = `
+    <div class="print-preview-backdrop" data-print-close></div>
+    <div class="print-preview-panel">
+      <header class="print-preview-bar">
+        <div class="print-preview-heading">
+          <strong>Pre-visualizacao de impressao</strong>
+          <span class="print-preview-subtitle"></span>
+        </div>
+        <div class="print-preview-actions">
+          <button class="ghost" type="button" data-print-close>Fechar</button>
+          <button class="primary" type="button" data-print-now>
+            <i class="bi bi-printer"></i>
+            Imprimir
+          </button>
+        </div>
+      </header>
+      <div class="print-preview-scroll">
+        <div id="print-area" class="print-sheet">
+          <h1></h1>
+          <p class="print-meta"></p>
+          <div class="print-sheet-body"></div>
+        </div>
+      </div>
+    </div>`;
+
+  modal.addEventListener("click", (event) => {
+    if (event.target.closest("[data-print-close]")) closePrintPreview();
+    if (event.target.closest("[data-print-now]")) window.print();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closePrintPreview();
+  });
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function openPrintPreview(title, contentNode, meta) {
   if (!contentNode) return;
   const clone = contentNode.cloneNode(true);
   clone
-    .querySelectorAll(".actions, .table-modes, .view-toggle")
+    .querySelectorAll(".actions, .table-modes, .view-toggle, .table-footer")
     .forEach((node) => node.remove());
+  // Evita ids duplicados no documento (o clone e apenas visual).
+  clone.removeAttribute("id");
+  clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+  clone.classList.remove("hidden");
 
-  const isMobilePrint =
-    (window.matchMedia && window.matchMedia("(max-width: 820px)").matches) ||
-    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  const mobileStyles = isMobilePrint
-    ? `
-    @media print {
-      body { font-size: 10px; }
-      th, td { padding: 4px 5px; }
-    }
-  `
-    : "";
+  const modal = ensurePrintPreview();
+  modal.querySelector(".print-preview-subtitle").textContent = title;
+  modal.querySelector("#print-area h1").textContent = title;
+  modal.querySelector(".print-meta").textContent = meta;
+  const body = modal.querySelector(".print-sheet-body");
+  body.textContent = "";
+  body.appendChild(clone);
 
-  const styles = `
-    @page { size: A4 portrait; margin: 8mm; }
-    * { box-sizing: border-box; }
-    body { font-family: "Source Sans 3", Arial, sans-serif; padding: 0; margin: 0; color: #111827; }
-    .print-root { width: 100%; max-width: 194mm; margin: 0 auto; }
-    h1 { font-family: "Space Grotesk", sans-serif; font-size: 18px; margin: 0 0 12px; }
-    table { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
-    thead { display: table-header-group; }
-    th, td { border: 1px solid #111827; padding: 5px 6px; text-align: center; }
-    th:first-child, td:first-child { text-align: left; }
-    th, td { word-break: break-word; }
-    tr { break-inside: avoid; page-break-inside: avoid; }
-    .summary-grid { display: block; }
-    .summary-card {
-      display: block;
-      width: 100%;
-      border: 1px solid #111827;
-      padding: 6px;
-      margin-bottom: 12px;
-      break-inside: avoid;
-      break-inside: avoid-page;
-      page-break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-    }
-    .summary-header { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-    .summary-header h3 { margin: 0; font-size: 14px; }
-    .table-wrap {
-      overflow: visible;
-      break-inside: avoid;
-      page-break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-    }
-    table {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      -webkit-column-break-inside: avoid;
-    }
-    .table-footer, .table-modes, .view-toggle, .actions { display: none !important; }
-    .print-actions { display: flex; gap: 8px; margin: 0 0 16px; }
-    .print-actions button { padding: 8px 12px; border-radius: 10px; border: 1px solid #cbd5f5; background: #1d4ed8; color: #fff; cursor: pointer; }
-    .print-actions button.secondary { background: #e2e8f0; color: #0f172a; border-color: #e2e8f0; }
-    @media print {
-      .print-actions { display: none !important; }
-    }
-    ${mobileStyles}
-  `;
-
-  const win = window.open("", "_blank");
-  if (!win) {
-    pushMessage("warn", "Popup bloqueado. Permita pop-ups para imprimir.");
-    return;
-  }
-
-  win.document.open();
-  win.document.write(
-    `<!doctype html>
-    <html>
-      <head>
-        <title>${title}</title>
-        <style>${styles}</style>
-      </head>
-      <body>
-        <div class="print-actions">
-          <button onclick="window.print()">Imprimir</button>
-          <button class="secondary" onclick="window.close()">Fechar</button>
-        </div>
-        <div class="print-root">
-          <h1>${title}</h1>
-          ${clone.outerHTML}
-        </div>
-      </body>
-    </html>`
-  );
-  win.document.close();
+  modal.classList.remove("hidden");
+  document.body.classList.add("print-preview-open");
 }
 
 function handleExport(scope, format) {
@@ -923,7 +903,12 @@ function handleExport(scope, format) {
     scope === "public"
       ? "Estoque - Visao Geral"
       : `Estoque - ${state.setor}`;
-  openPrintWindow(title, node);
+  const totalCaixas = rows.reduce(
+    (sum, row) => sum + (hydrateInventoryRow(row).total_caixas || 0),
+    0
+  );
+  const meta = `${rows.length} ${rows.length === 1 ? "item" : "itens"} | Total ${totalCaixas} caixas | ${formatDateTime(new Date())}`;
+  openPrintPreview(title, node, meta);
 }
 
 function openExportSheet(scope) {
