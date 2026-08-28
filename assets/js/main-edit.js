@@ -30,6 +30,24 @@ import { setupCountModeEvents, updateCountModeUI } from "./count-mode.js";
 import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
 import { enhanceSelect } from "./select-menu.js";
 
+// Abas da area de contagem: "Contagem" (voz + comando manual) e "Conferencia"
+// (tabela dos itens lancados). O toggle Estoque atual / Nova contagem fica acima
+// porque diz *qual dado* esta sendo editado, nao o que se esta fazendo.
+function setupEditTabs() {
+  const tabs = document.getElementById("count-tabs");
+  if (!tabs) return;
+  tabs.addEventListener("click", (event) => {
+    const button = event.target.closest(".edit-tab");
+    if (!button) return;
+    tabs.querySelectorAll(".edit-tab").forEach((tab) => {
+      const active = tab === button;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+      document.getElementById(`panel-${tab.dataset.tab}`)?.classList.toggle("hidden", !active);
+    });
+  });
+}
+
 applyCatalogOverridesFromCache();
 initSetorSelects();
 initManualForm();
@@ -40,6 +58,7 @@ renderCountTable();
 setPublicViewMode(state.publicViewMode);
 setCountViewMode(state.countViewMode);
 updateCountModeUI();
+setupEditTabs();
 // Os selects do Comando Manual usam o mesmo dropdown da aba Tendencia; o
 // <select> original segue como fonte da verdade, entao manual-form.js nao muda.
 ["manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(

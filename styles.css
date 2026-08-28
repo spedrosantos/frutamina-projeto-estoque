@@ -3079,6 +3079,54 @@ body[data-page="edit"] #voice-card.listening #voice-status::before {
   background: var(--voice-listening-status-dot);
 }
 
+/* --- Abas Contagem / Conferencia ------------------------------------------ */
+body[data-page="edit"] .edit-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  background: var(--ed-surface);
+  border: 1px solid var(--ed-border);
+  overflow-x: auto;
+}
+
+body[data-page="edit"] .edit-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1 1 0;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ed-text-soft);
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+body[data-page="edit"] .edit-tab:hover {
+  background: var(--ed-surface-soft);
+  color: var(--ed-text);
+  box-shadow: none;
+}
+
+body[data-page="edit"] .edit-tab.active {
+  background: var(--ed-accent-soft);
+  color: var(--ed-accent);
+}
+
+body[data-page="edit"] .edit-tabpanel {
+  display: grid;
+  gap: 16px;
+}
+
 /* --- Cards internos (padrao .overview-card da Visao Geral) ---------------- */
 body[data-page="edit"] #manual-card,
 body[data-page="edit"] #count-items-card {

@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-13" />
+    <link rel="stylesheet" href="styles.css?v=20260828-14" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -172,6 +172,16 @@
             </button>
           </div>
         </section>
+        <nav id="count-tabs" class="edit-tabs" role="tablist" aria-label="Secoes da contagem">
+          <button class="edit-tab active" type="button" role="tab" data-tab="contagem" aria-selected="true" aria-controls="panel-contagem">
+            <i class="bi bi-pencil-square"></i><span>Contagem</span>
+          </button>
+          <button class="edit-tab" type="button" role="tab" data-tab="conferencia" aria-selected="false" aria-controls="panel-conferencia">
+            <i class="bi bi-list-check"></i><span>Conferência</span>
+          </button>
+        </nav>
+
+        <div id="panel-contagem" class="edit-tabpanel">
         <div class="grid count-layout">
           <div class="count-left-column">
             
@@ -207,6 +217,8 @@
             <div id="messages" class="msg-area"></div>
           </section>
 
+          </div>
+          <div class="count-right-column">
           <!-- Lancamento manual dos itens (setor, produto, marca, tipo e quantidade). -->
           <section id="manual-card" class="card full">
             <div class="card-header">
@@ -255,7 +267,10 @@
           </section>
           
           </div>
-          <div class="count-right-column">
+        </div>
+        </div>
+
+        <div id="panel-conferencia" class="edit-tabpanel hidden">
           <!-- Tabela dos itens contados no setor atual, com edicao e remocao. -->
           <section id="count-items-card" class="card full">
             <div class="card-header">
@@ -324,7 +339,6 @@
             </div>
             <div id="count-table-summary" class="hidden"></div>
           </section>
-          </div>
         </div>
       </section>
     </div>
@@ -409,7 +423,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260828-02"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260828-03"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
