@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-25" />
+    <link rel="stylesheet" href="styles.css?v=20260828-26" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -276,6 +276,23 @@
         </div>
 
         <div id="panel-conferencia" class="edit-tabpanel hidden">
+          <!-- Alteracoes ainda nao gravadas no estoque (modo "Estoque atual"). -->
+          <section id="pending-card" class="card hidden">
+            <div class="card-header">
+              <h2><i class="bi bi-clock"></i>Alterações pendentes (<span id="pending-count">0</span>)</h2>
+              <p>Elas só entram no estoque quando você salvar.</p>
+            </div>
+            <div id="pending-list" class="pending-list"></div>
+            <div class="pending-actions">
+              <button id="pending-discard" class="danger" type="button">
+                <i class="bi bi-x-lg"></i><span>Descartar</span>
+              </button>
+              <button id="pending-save" class="primary" type="button">
+                <i class="bi bi-floppy-fill"></i><span>Salvar</span>
+              </button>
+            </div>
+          </section>
+
           <!-- Tabela dos itens contados no setor atual, com edicao e remocao. -->
           <section id="count-items-card" class="card full">
             <div class="card-header">
@@ -309,6 +326,16 @@
                 </button>
               </div>
 
+                <button
+                  id="count-save-btn"
+                  class="primary icon-btn"
+                  type="button"
+                  title="Salvar alterações"
+                  aria-label="Salvar alterações"
+                  disabled
+                >
+                  <i class="bi bi-floppy-fill"></i>
+                </button>
                 <button
                   id="count-export-toggle"
                   class="ghost icon-btn"
@@ -441,7 +468,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260828-05"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260828-06"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

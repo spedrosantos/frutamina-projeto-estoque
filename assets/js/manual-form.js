@@ -41,6 +41,7 @@ import { requireAuthenticatedUser } from "./auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
 import { loadUserRecords, loadPublicRecords, probeSupabase } from "./supabase-api.js";
 import { registerInventoryChange, clearVoiceActionState } from "./voice-actions.js";
+import { queuePendingSet, queuePendingDelete } from "./pending-changes.js";
 
 function setEditMessage(type, text) {
   if (!elements.editMsg) return;
@@ -319,52 +320,18 @@ async function saveEditItem() {
     const hasLooseBoxesColumn =
       Object.prototype.hasOwnProperty.call(originalRow || {}, "caixas_avulsas") ||
       normalizedMetrics.caixas_avulsas > 0;
-    const updateResult = await withTimeout(
-      supabaseClient
-        .from(TABLE_NAME)
-        .update({
-          ...payload,
-          ...(hasLooseBoxesColumn
-            ? { caixas_avulsas: normalizedMetrics.caixas_avulsas }
-            : {}),
-        })
-        .eq("id", state.editTarget.rowKey)
-        .eq("user_id", state.user.id),
-      SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao atualizar item."
-    );
-    if (updateResult?.error) {
-      const message = isLooseBoxesSchemaError(updateResult.error)
-        ? "Erro ao atualizar item: rode a migracao de caixas avulsas no Supabase."
-        : `Erro ao atualizar item: ${updateResult.error.message}`;
-      setEditMessage("error", message);
-      showDebugPanel(updateResult);
-      clearTimeout(slowTimer);
-      return;
-    }
 
-    const userResult = await withTimeout(
-      loadUserRecords({ showError: false }),
-      SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao atualizar lista."
+    // A edicao tambem espera o Salvar: entra na fila e o modal fecha.
+    queuePendingSet(
+      state.editTarget.rowKey,
+      {
+        ...payload,
+        ...(hasLooseBoxesColumn
+          ? { caixas_avulsas: normalizedMetrics.caixas_avulsas }
+          : {}),
+      },
+      { produto, marca, tipo: tipoFinal }
     );
-    if (userResult?.error) {
-      setEditMessage(
-        "error",
-        `Erro ao atualizar lista: ${userResult.error.message}`
-      );
-      showDebugPanel(userResult);
-      clearTimeout(slowTimer);
-      return;
-    }
-    const publicResult = await withTimeout(
-      loadPublicRecords(),
-      SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao atualizar dados."
-    );
-    if (publicResult?.error) {
-      showDebugPanel(publicResult);
-    }
     clearTimeout(slowTimer);
     if (setor && state.setor !== setor) {
       state.setor = setor;
@@ -374,6 +341,7 @@ async function saveEditItem() {
     state.selectedRowKey = null;
     clearVoiceActionState();
     closeEditModal();
+    return;
   } catch (error) {
     console.error("Erro ao salvar item:", error);
     setEditMessage(
@@ -415,30 +383,14 @@ export async function removeRow(row) {
   }
 
   if (!state.user) return;
-  let error;
-  try {
-    ({ error } = await withTimeout(
-      supabaseClient
-        .from(TABLE_NAME)
-        .delete()
-        .eq("id", rowKey)
-        .eq("user_id", state.user.id),
-      SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao remover o item."
-    ));
-  } catch (timeoutError) {
-    error = timeoutError;
-  }
-  if (error) {
-    pushMessage("error", `Erro ao remover item: ${error.message}`);
-    return;
-  }
+
+  // A remocao vira pendencia: o item so sai do banco quando o operador salvar.
+  queuePendingDelete(rowKey, row);
+  clearVoiceActionState();
   if (state.selectedRowKey === rowKey) {
     state.selectedRowKey = null;
   }
-  clearVoiceActionState();
-  await loadUserRecords();
-  await loadPublicRecords();
+  return;
 }
 
 function updateManualBoxesOptions() {

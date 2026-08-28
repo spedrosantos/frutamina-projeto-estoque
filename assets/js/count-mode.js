@@ -19,6 +19,7 @@ import {
 import { buildPublicRowsAfterUserReplacement, calculateOutflowCaixas } from "./comparison.js";
 import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
 import { clearVoiceActionState } from "./voice-actions.js";
+import { hasPendingChanges, clearPendingChanges, renderPendingChanges } from "./pending-changes.js";
 
 export function updateCountModeUI() {
   if (elements.countModeSelect) {
@@ -41,6 +42,14 @@ function setCountMode(mode) {
     return;
   }
   if (mode === state.countMode) return;
+  // Trocar de modo com alteracoes na fila as perderia sem aviso.
+  if (hasPendingChanges()) {
+    const confirmed = window.confirm(
+      "Ha alteracoes do estoque atual que ainda nao foram salvas. Trocar de modo vai descarta-las."
+    );
+    if (!confirmed) return;
+    clearPendingChanges();
+  }
   state.selectedRowKey = null;
   clearVoiceActionState();
   if (mode === "new") {
@@ -73,6 +82,7 @@ function setCountMode(mode) {
     state.countMode = "current";
   }
   updateCountModeUI();
+  renderPendingChanges();
   renderContext();
   renderCountTable();
 }

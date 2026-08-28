@@ -3405,6 +3405,88 @@ body[data-page="edit"] #edit-save {
   font-weight: 600;
 }
 
+/* --- Alteracoes pendentes -------------------------------------------------- */
+body[data-page="edit"] #pending-card {
+  padding: var(--ed-pad);
+  border-radius: var(--ed-radius);
+  background: var(--ed-surface);
+  border: 1px solid color-mix(in srgb, #f59e0b 45%, var(--ed-border));
+  box-shadow: var(--ed-shadow);
+}
+
+body[data-page="edit"] #pending-card .card-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 18px;
+  color: var(--ed-text);
+}
+
+body[data-page="edit"] #pending-card .card-header h2 i {
+  font-size: 15px;
+  color: #b45309;
+}
+
+body[data-page="edit"] #pending-card .card-header p {
+  color: var(--ed-text-soft);
+  font-size: 13px;
+}
+
+body[data-page="edit"] .pending-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+body[data-page="edit"] .pending-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--ed-surface-soft);
+  border: 1px solid var(--ed-border);
+  font-size: 13.5px;
+  color: var(--ed-text);
+}
+
+body[data-page="edit"] .pending-item .icon-btn {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  flex: 0 0 auto;
+}
+
+body[data-page="edit"] .pending-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+body[data-page="edit"] .pending-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+body[data-page="edit"] .count-toolbar-actions .icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* --- Itens Contados: toolbar unica ---------------------------------------- */
 body[data-page="edit"] .count-toolbar {
   display: flex;

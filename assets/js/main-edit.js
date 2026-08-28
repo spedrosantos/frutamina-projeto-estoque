@@ -26,9 +26,15 @@ import {
 import { setupCommandEvents } from "./voice-actions.js";
 import { setupVoice } from "./voice-speech.js";
 import { initManualForm, setupManualFormEvents } from "./manual-form.js";
-import { setupCountModeEvents, updateCountModeUI } from "./count-mode.js";
+import { setupCountModeEvents, updateCountModeUI, saveNewCount } from "./count-mode.js";
 import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
 import { enhanceSelect } from "./select-menu.js";
+import {
+  applyPendingChanges,
+  clearPendingChanges,
+  hasPendingChanges,
+  renderPendingChanges,
+} from "./pending-changes.js";
 
 // Abas da area de contagem: "Contagem" (voz + comando manual) e "Conferencia"
 // (tabela dos itens lancados). O toggle Estoque atual / Nova contagem fica acima
@@ -48,6 +54,28 @@ function setupEditTabs() {
   });
 }
 
+// Salvar/descartar as alteracoes pendentes do modo "Estoque atual". No modo
+// "Nova contagem" quem grava continua sendo o botao da propria aba Contagem.
+function setupPendingActions() {
+  const save = () => {
+    if (state.countMode === "new") {
+      saveNewCount();
+      return;
+    }
+    if (!hasPendingChanges()) return;
+    if (window.confirm("Salvar as alterações no estoque?")) applyPendingChanges();
+  };
+  const discard = () => {
+    if (!hasPendingChanges()) return;
+    if (window.confirm("Descartar as alterações pendentes? Elas não foram gravadas.")) {
+      clearPendingChanges();
+    }
+  };
+  document.getElementById("count-save-btn")?.addEventListener("click", save);
+  document.getElementById("pending-save")?.addEventListener("click", save);
+  document.getElementById("pending-discard")?.addEventListener("click", discard);
+}
+
 applyCatalogOverridesFromCache();
 initSetorSelects();
 initManualForm();
@@ -59,6 +87,8 @@ setPublicViewMode(state.publicViewMode);
 setCountViewMode(state.countViewMode);
 updateCountModeUI();
 setupEditTabs();
+setupPendingActions();
+renderPendingChanges();
 // Os selects do Comando Manual usam o mesmo dropdown da aba Tendencia; o
 // <select> original segue como fonte da verdade, entao manual-form.js nao muda.
 ["count-mode-select", "manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(

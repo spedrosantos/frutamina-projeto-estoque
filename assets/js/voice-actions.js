@@ -59,8 +59,9 @@ import {
   formatInventoryMessage,
 } from "./inventory-core.js";
 import { requireAuthenticatedUser } from "./auth-ui.js";
-import { renderContext, renderCountTable, renderPublicTable, updateAggregateRecord, updateSessionAggregateRecord } from "./tables.js";
-import { upsertRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
+import { renderContext, renderCountTable, renderPublicTable, updateSessionAggregateRecord } from "./tables.js";
+import { loadUserRecords, loadPublicRecords } from "./supabase-api.js";
+import { queuePendingDelta, undoLastPending } from "./pending-changes.js";
 
 let notificationDebounceTimer = null;
 
@@ -210,6 +211,11 @@ function revertLaunchInSession(record) {
 
 async function revertLaunchInCurrentCount(record) {
   if (!record?.items?.length || !state.user) return false;
+
+  // O lancamento ainda esta na fila: basta tira-lo de la, sem tocar no banco.
+  if (undoLastPending()) {
+    return true;
+  }
 
   for (const item of record.items) {
     const currentRow = getInventoryRowByIdentity(state.userRows, item);
@@ -478,7 +484,9 @@ export async function registerInventoryChange({
     return launchRecord;
   }
 
-  updateAggregateRecord({
+  // No modo "Estoque atual" o lancamento entra na fila de pendencias: o estoque
+  // so muda quando o operador salva, para nao gravar de picado item por item.
+  queuePendingDelta({
     setor,
     produto,
     marca,
@@ -487,24 +495,9 @@ export async function registerInventoryChange({
     palletsDelta,
     caixasAvulsasDelta,
   });
-  renderPublicTable();
-  renderCountTable();
   pushMessage("success", successMessage);
 
-  isSavingLaunch = true;
-  try {
-    const saved = await upsertRecord({
-      setor,
-      produto,
-      marca,
-      tipo,
-      caixas_pallet: caixasPallet,
-      palletsDelta,
-      caixasAvulsasDelta,
-    });
-    if (!saved) return null;
-    await loadUserRecords();
-    await loadPublicRecords();
+  {
     const launchRecord = buildLaunchRecord({
       items: [
         {
@@ -523,11 +516,8 @@ export async function registerInventoryChange({
     });
     if (launchRecord) {
       setLastLaunch(launchRecord);
-      triggerDebouncedNotification();
     }
     return launchRecord;
-  } finally {
-    isSavingLaunch = false;
   }
 }
 
@@ -1412,43 +1402,21 @@ export async function processCommand(rawText) {
     } else {
       tipoCounts.forEach((count, tipo) => {
         const caixasPallet = regra(getTipoRuleValue(state.produto, tipo));
-        updateAggregateRecord({
+        queuePendingDelta({
           setor: state.setor,
           produto: state.produto,
           marca: state.marca,
           tipo,
           caixas_pallet: caixasPallet,
           palletsDelta: count,
+          caixasAvulsasDelta: 0,
         });
       });
-      renderPublicTable();
-      renderCountTable();
       pushMessage(
         "success",
         `Registrado: ${state.produto} ${state.marca} Tipos ${tipoLabel}`
       );
 
-      const upserts = [];
-      tipoCounts.forEach((count, tipo) => {
-        const caixasPallet = regra(getTipoRuleValue(state.produto, tipo));
-        upserts.push(
-          upsertRecord({
-            setor: state.setor,
-            produto: state.produto,
-            marca: state.marca,
-            tipo,
-            caixas_pallet: caixasPallet,
-            palletsDelta: count,
-          })
-        );
-      });
-      const results = await Promise.all(upserts);
-      if (results.some((result) => !result)) {
-        renderContext();
-        return;
-      }
-      await loadUserRecords();
-      await loadPublicRecords();
       const launchRecord = buildLaunchRecord({
         items: launchItems,
         correctionMode: launchItems.length === 1 && launchItems[0].palletsDelta === 1
