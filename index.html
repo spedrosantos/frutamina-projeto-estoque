@@ -158,22 +158,22 @@
           <div class="table-modes public-table-modes">
             <div id="public-view-toggle" class="view-toggle" role="group" aria-label="Modo de tabela">
               <button
-                id="public-view-detailed"
-                class="view-toggle-btn"
-                type="button"
-                aria-pressed="true"
-                title="Detalhada"
-              >
-                <i class="bi bi-tablet-landscape"></i>
-              </button>
-              <button
                 id="public-view-summary"
                 class="view-toggle-btn"
                 type="button"
-                aria-pressed="false"
+                aria-pressed="true"
                 title="Resumo"
               >
-                <i class="bi bi-file-spreadsheet"></i>
+                <i class="bi bi-table"></i>
+              </button>
+              <button
+                id="public-view-detailed"
+                class="view-toggle-btn"
+                type="button"
+                aria-pressed="false"
+                title="Detalhada"
+              >
+                <i class="bi bi-list-ul"></i>
               </button>
             </div>
           </div>
@@ -258,105 +258,8 @@
           </div>
         </div>
       </div>
-
-      <!-- Painel de login reaproveitado quando a pagina precisa autenticar para a parte de contagem. -->
-      <section id="auth-panel" class="card hidden">
-        <div class="card-header">
-          <h2>Acesso</h2>
-          <p>Entre com seu usuário do CD para começar a contagem.</p>
-        </div>
-        <div class="form-grid">
-          <label for="email">Usuário ou número</label>
-          <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
-          <label for="password">Senha</label>
-          <input id="password" type="password" placeholder="*******" />
-        </div>
-        <div class="actions">
-          <button id="login-btn" class="primary">Entrar</button>
-        </div>
-        <div id="auth-msg" class="msg-area"></div>
-      </section>
-
-      <!-- Painel legado de contagem mantido no index para compatibilidade do fluxo atual. -->
-      <section id="count-panel" class="hidden">
-        <div class="grid">
-          <section class="card">
-            <div class="card-header">
-              <h2>Contexto Travado</h2>
-              <p>Fale setor, marca/produto ou número.</p>
-            </div>
-            <div class="context">
-              <div class="context-item">
-                <span>Setor</span>
-                <strong id="ctx-setor">--</strong>
-              </div>
-              <div class="context-item">
-                <span>Produto</span>
-                <strong id="ctx-produto">--</strong>
-              </div>
-              <div class="context-item">
-                <span>Marca</span>
-                <strong id="ctx-marca">--</strong>
-              </div>
-            </div>
-            <div class="context-actions">
-              <label for="setor-select">Alterar setor</label>
-              <select id="setor-select"></select>
-              <button id="clear-context" class="ghost">Limpar contexto</button>
-            </div>
-          </section>
-
-          <section class="card full">
-            <div class="card-header">
-              <h2>Comando Manual</h2>
-              <p>Também funciona digitando (ex: CHÃO, ANGEL, 4).</p>
-            </div>
-            <div class="command">
-              <input
-                id="command-input"
-                type="text"
-                placeholder="Diga o setor, produto/marca ou apenas o número"
-              />
-              <button id="process-btn" class="primary">Processar</button>
-            </div>
-            <div id="messages" class="msg-area"></div>
-          </section>
-
-          <section class="card full">
-            <div class="card-header">
-              <h2>Itens Contados</h2>
-              <p>Visualização por setor atual.</p>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Produto</th>
-                    <th>Marca</th>
-                    <th>Tipo</th>
-                    <th>Caixas/Pallet</th>
-                    <th>Pallets</th>
-                    <th>Caixas avulsas</th>
-                    <th>Total Caixas</th>
-                  </tr>
-                </thead>
-                <tbody id="count-table-body"></tbody>
-              </table>
-            </div>
-            <div class="table-footer">
-              <div class="total">
-                Total geral do setor: <strong id="count-total-geral">0</strong>
-              </div>
-              <div class="actions table-tools">
-                <button id="count-export-toggle" class="ghost">Exportar</button>
-                <button id="count-clear-btn" class="danger">Limpar contagem</button>
-              </div>
-            </div>
-          </section>
-        </div>
-      </section>
     </div>
-    <script type="module" src="assets/js/main-view.js?v=20260423-18"></script>
+    <script type="module" src="assets/js/main-view.js?v=20260828-01"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
@@ -368,10 +271,3 @@
     </script>
   </body>
 </html>
-
-
-
-
-
-
-

@@ -23,7 +23,7 @@ export const state = {
     marca: "",
     tipo: "",
   },
-  publicViewMode: "detailed",
+  publicViewMode: "summary",
   countViewMode: "detailed",
   lastUpdatePublicAt: null,
   lastUpdateCountAt: null,

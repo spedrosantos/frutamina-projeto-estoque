@@ -7,8 +7,8 @@
   - atualizar o cache automaticamente quando a versao muda.
 */
 
-const STATIC_CACHE = "frutamina-static-v44";
-const RUNTIME_CACHE = "frutamina-runtime-v44";
+const STATIC_CACHE = "frutamina-static-v48";
+const RUNTIME_CACHE = "frutamina-runtime-v48";
 
 const APP_SHELL = [
   "./",
@@ -18,7 +18,7 @@ const APP_SHELL = [
   "./visao-geral.html",
   "./manifest.webmanifest",
   "./styles.css?v=20260827-01",
-  "./assets/js/main-view.js?v=20260423-18",
+  "./assets/js/main-view.js?v=20260828-01",
   "./assets/js/main-edit.js?v=20260423-18",
   "./assets/js/main-dashboard.js?v=20260423-21",
   "./assets/js/main-products.js?v=20260423-18",
@@ -91,6 +91,27 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Codigo do app (HTML/JS/CSS proprio) prioriza rede: evita servir versao antiga
+// congelada no STATIC_CACHE. Cache continua como fallback offline.
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok && !response.redirected) {
+      const cache = await caches.open(RUNTIME_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (request.mode === "navigate") {
+      const shell = await caches.match("./index.html");
+      if (shell) return shell;
+    }
+    return Response.error();
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -98,7 +119,13 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (isSupabaseApiRequest(url)) return;
 
-  event.respondWith(staleWhileRevalidate(request));
+  const isAppCode =
+    url.origin === self.location.origin &&
+    (request.mode === "navigate" || /\.(html|js|css)$/.test(url.pathname));
+
+  event.respondWith(
+    isAppCode ? networkFirst(request) : staleWhileRevalidate(request)
+  );
 });
 
 

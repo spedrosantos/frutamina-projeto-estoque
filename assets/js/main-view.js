@@ -1,11 +1,10 @@
-// Entry point de index.html (estoque publico + comando de texto).
+// Entry point de index.html (estoque publico, somente leitura).
 import { state, isRestrictedPageMode } from "./state.js";
 import {
   applyCatalogOverridesFromCache,
   refreshCatalogOverrides,
 } from "./catalog-overrides.js";
 import {
-  initSetorSelects,
   setupTheme,
   setupShellEvents,
   setupAuth,
@@ -16,30 +15,19 @@ import {
 } from "./auth-ui.js";
 import {
   buildFilterOptions,
-  renderContext,
   renderPublicTable,
-  renderCountTable,
   setPublicViewMode,
-  setCountViewMode,
   setupPublicTableEvents,
-  setupCountTableEvents,
 } from "./tables.js";
-import { setupCommandEvents } from "./voice-actions.js";
 import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
 
 applyCatalogOverridesFromCache();
-initSetorSelects();
 buildFilterOptions();
-renderContext();
 renderPublicTable();
-renderCountTable();
 setPublicViewMode(state.publicViewMode);
-setCountViewMode(state.countViewMode);
 setupTheme();
 setupShellEvents();
 setupPublicTableEvents({ loadPublicRecords });
-setupCountTableEvents();
-setupCommandEvents();
 if (isRestrictedPageMode()) {
   lockRestrictedAccess();
 }

@@ -1001,7 +1001,7 @@ th {
   transition: transform 0.2s ease;
 }
 
-.view-toggle.mode-summary::before {
+.view-toggle:not(.mode-summary)::before {
   transform: translateX(48px);
 }
 
@@ -1025,8 +1025,8 @@ th {
   box-shadow: none;
 }
 
-.view-toggle:not(.mode-summary) .view-toggle-btn:first-child,
-.view-toggle.mode-summary .view-toggle-btn:last-child {
+.view-toggle.mode-summary .view-toggle-btn:first-child,
+.view-toggle:not(.mode-summary) .view-toggle-btn:last-child {
   color: #ffffff;
 }
 
@@ -3433,7 +3433,7 @@ body[data-page="view"] .view-toggle::before {
   background: var(--vw-accent);
 }
 
-body[data-page="view"] .view-toggle.mode-summary::before {
+body[data-page="view"] .view-toggle:not(.mode-summary)::before {
   transform: translateX(44px);
 }
 
@@ -3444,8 +3444,8 @@ body[data-page="view"] .view-toggle-btn {
   color: var(--vw-text-soft);
 }
 
-body[data-page="view"] .view-toggle:not(.mode-summary) .view-toggle-btn:first-child,
-body[data-page="view"] .view-toggle.mode-summary .view-toggle-btn:last-child {
+body[data-page="view"] .view-toggle.mode-summary .view-toggle-btn:first-child,
+body[data-page="view"] .view-toggle:not(.mode-summary) .view-toggle-btn:last-child {
   color: #ffffff;
 }
 
