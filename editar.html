@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-07" />
+    <link rel="stylesheet" href="styles.css?v=20260828-11" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -98,18 +98,21 @@
         </div>
       </header>
       <!-- Cabecalho visual da area de edicao. -->
-      <header class="hero">
-        <div>
-          <img src="assets/img/logo.webp" alt="logo" class="logo" />
+      <header class="edit-head">
+        <div class="edit-head-main">
           <p class="eyebrow">CD | Contagem do estoque</p>
           <h1>Editar Estoque</h1>
+          <p class="edit-head-sub">
+            Lance a contagem por voz ou manualmente. Para so consultar, veja o
+            <a href="index.html">Estoque</a>.
+          </p>
         </div>
       </header>
 
       <!-- Login do operador antes de liberar a area de contagem. -->
-      <section id="auth-panel" class="card">
+      <section id="auth-panel" class="card edit-auth-card">
         <div class="card-header">
-          <h2>Acesso</h2>
+          <h2><i class="bi bi-shield-lock"></i>Acesso</h2>
           <p>Entre com seu usuario do CD para comecar a contagem.</p>
         </div>
         <div class="form-grid">
@@ -139,9 +142,13 @@
         <!-- Troca entre estoque atual e nova contagem offline. -->
         <section id="count-mode-bar" class="count-mode-bar">
           <div class="count-mode-row">
-            <div class="actions count-mode-toggle">
-              <button id="mode-current" class="primary" type="button">Estoque atual</button>
-              <button id="mode-new" class="ghost" type="button">Nova contagem</button>
+            <div class="actions count-mode-toggle" role="group" aria-label="Modo de contagem">
+              <button id="mode-current" class="primary" type="button">
+                <i class="bi bi-box-seam"></i><span>Estoque atual</span>
+              </button>
+              <button id="mode-new" class="ghost" type="button">
+                <i class="bi bi-plus-circle"></i><span>Nova contagem</span>
+              </button>
             </div>
             <span id="count-mode-tag" class="count-mode-tag hidden">
               Rascunho da nova contagem ativo
