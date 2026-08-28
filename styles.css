@@ -2404,16 +2404,6 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
   margin-top: 0;
 }
 
-.count-mode-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: #dbeafe;
-  color: #1d4ed8;
-  font-size: 13px;
-  font-weight: 700;
-}
 
 /*
   ===== Editar Estoque: tokens e shell =====
@@ -2678,24 +2668,72 @@ body[data-page="edit"] .count-mode-field .select-menu {
   width: 220px;
 }
 
-body[data-page="edit"] .count-mode-tag {
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  background: var(--ed-surface-soft);
-  color: var(--ed-text-soft);
-  border: 1px solid var(--ed-border);
-}
-
 body[data-page="edit"] #new-count-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin-top: 0;
 }
 
 body[data-page="edit"] #new-count-actions button {
-  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
+  line-height: 1;
+  box-shadow: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* No celular os dois botoes dividem a linha em vez de empilhar. */
+@media (max-width: 640px) {
+  body[data-page="edit"] #new-count-actions {
+    width: 100%;
+  }
+
+  body[data-page="edit"] #new-count-actions button {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+    padding: 10px 10px;
+  }
+
+  body[data-page="edit"] #new-count-actions button span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+body[data-page="edit"] #new-count-actions button i {
+  font-size: 13px;
+}
+
+body[data-page="edit"] #save-new-count {
+  background: var(--ed-accent);
+  border: 1px solid var(--ed-accent);
+  color: #ffffff;
+}
+
+body[data-page="edit"] #save-new-count:hover {
+  background: color-mix(in srgb, var(--ed-accent) 88%, #000);
+  border-color: color-mix(in srgb, var(--ed-accent) 88%, #000);
+  box-shadow: none;
+}
+
+body[data-page="edit"] #discard-new-count {
+  background: transparent;
+  border: 1px solid var(--ed-border-strong);
+  color: var(--ed-text-soft);
+}
+
+body[data-page="edit"] #discard-new-count:hover {
+  background: color-mix(in srgb, #dc2626 10%, transparent);
+  border-color: color-mix(in srgb, #dc2626 45%, transparent);
+  color: #dc2626;
   box-shadow: none;
 }
 
@@ -3244,10 +3282,6 @@ body[data-theme="dark"] .sync-copy strong {
   color: #e2ebff;
 }
 
-body[data-theme="dark"] .count-mode-tag {
-  background: #1d3256;
-  color: #93c5fd;
-}
 
 body[data-theme="dark"] .msg.info {
   background: rgba(29, 78, 216, 0.2);
@@ -3408,11 +3442,6 @@ body[data-theme="dark"] .print-overlay-card span {
     align-items: stretch;
   }
 
-  .count-mode-tag {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-  }
 
   .public-section-header h2 {
     font-size: 24px;

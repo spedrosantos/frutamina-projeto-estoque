@@ -111,7 +111,6 @@ export const elements = {
   ctxMarca: document.getElementById("ctx-marca"),
   clearContext: document.getElementById("clear-context"),
   countModeSelect: document.getElementById("count-mode-select"),
-  countModeTag: document.getElementById("count-mode-tag"),
   newCountActions: document.getElementById("new-count-actions"),
   saveNewCountBtn: document.getElementById("save-new-count"),
   discardNewCountBtn: document.getElementById("discard-new-count"),

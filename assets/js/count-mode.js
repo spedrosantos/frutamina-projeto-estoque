@@ -28,13 +28,6 @@ export function updateCountModeUI() {
     elements.countModeSelect.dispatchEvent(new Event("select-menu:sync"));
   }
 
-  if (elements.countModeTag) {
-    elements.countModeTag.classList.toggle(
-      "hidden",
-      state.countMode !== "new"
-    );
-  }
-
   if (elements.newCountActions) {
     elements.newCountActions.classList.toggle(
       "hidden",

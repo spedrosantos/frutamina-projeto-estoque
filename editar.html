@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-16" />
+    <link rel="stylesheet" href="styles.css?v=20260828-18" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -168,16 +168,13 @@
                   <option value="new">Nova contagem</option>
                 </select>
               </div>
-              <span id="count-mode-tag" class="count-mode-tag hidden">
-                Rascunho da nova contagem ativo
-              </span>
             </div>
             <div id="new-count-actions" class="actions hidden">
-              <button id="save-new-count" class="primary" type="button">
-                Salvar nova contagem
-              </button>
               <button id="discard-new-count" class="ghost" type="button">
-                Descartar rascunho
+                <i class="bi bi-x-lg"></i><span>Descartar rascunho</span>
+              </button>
+              <button id="save-new-count" class="primary" type="button">
+                <i class="bi bi-check2"></i><span>Salvar nova contagem</span>
               </button>
             </div>
           </section>
@@ -422,7 +419,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260828-04"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260828-05"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
