@@ -37,7 +37,7 @@ export function updateCountModeUI() {
   }
 }
 
-function setCountMode(mode) {
+async function setCountMode(mode) {
   if (!requireAuthenticatedUser("Faça login para alternar o modo de contagem.")) {
     return;
   }
@@ -61,6 +61,26 @@ function setCountMode(mode) {
         "Iniciar nova contagem? A contagem atual so sera substituida quando voce salvar."
       );
       if (!confirmed) return;
+      // Oferta que antes vivia no botao "Limpar contagem": guardar o total de
+      // hoje no historico antes de zerar a contagem.
+      const shouldSave = window.confirm(
+        "Salvar o total atual no histórico antes de iniciar?\nOK = salvar e iniciar\nCancelar = iniciar sem salvar"
+      );
+      if (shouldSave) {
+        const saved = await saveSnapshotRecord({
+          rows: aggregateRows(
+            cloneInventoryRows(state.rawPublicRows?.length ? state.rawPublicRows : state.userRows)
+          ),
+          outflowCaixas: 0,
+          showSuccess: false,
+        });
+        if (!saved) {
+          const proceed = window.confirm(
+            "Falha ao salvar o histórico. Deseja iniciar a nova contagem mesmo assim?"
+          );
+          if (!proceed) return;
+        }
+      }
       state.countMode = "new";
       state.sessionRows = [];
       state.previousCountRows = cloneInventoryRows(state.userRows);
@@ -292,8 +312,8 @@ export function discardNewCount() {
 // Liga o seletor de modo de contagem e o auto-save do rascunho (pagehide/visibilitychange).
 export function setupCountModeEvents() {
   if (elements.countModeSelect) {
-    elements.countModeSelect.addEventListener("change", () => {
-      setCountMode(elements.countModeSelect.value);
+    elements.countModeSelect.addEventListener("change", async () => {
+      await setCountMode(elements.countModeSelect.value);
       // setCountMode desiste em silencio se o login faltar ou o usuario cancelar
       // o confirm, entao o seletor volta para o modo que continua valendo.
       updateCountModeUI();
@@ -336,46 +356,19 @@ export function setupCountModeEvents() {
         return;
       }
 
-      if (!state.user) return;
-      const confirmClear = window.confirm(
-        "Deseja iniciar uma nova contagem do zero para todos os setores?"
-      );
-      if (!confirmClear) return;
-
-      const shouldSave = window.confirm(
-        "Salvar o total atual no histórico antes de iniciar a nova contagem?\nOK = salvar e iniciar\nCancelar = iniciar sem salvar"
-      );
-      if (shouldSave) {
-        const saved = await saveSnapshotRecord({
-          rows: aggregateRows(
-            cloneInventoryRows(state.rawPublicRows?.length ? state.rawPublicRows : state.userRows)
-          ),
-          outflowCaixas: 0,
-          showSuccess: false,
-        });
-        if (!saved) {
-          const proceed = window.confirm(
-            "Falha ao salvar o histórico. Deseja iniciar a nova contagem mesmo assim?"
-          );
-          if (!proceed) return;
-        }
+      // No modo "Estoque atual" nao ha contagem propria para limpar: o que
+      // existe e a fila de alteracoes ainda nao gravadas.
+      if (!hasPendingChanges()) {
+        pushMessage("info", "Nao ha alteracoes pendentes para descartar.");
+        return;
       }
-      state.previousCountRows = cloneInventoryRows(state.userRows);
-      state.previousPublicRows = getCurrentPublicAggregateRows();
-      state.sessionRows = [];
-      state.selectedRowKey = null;
-      state.countMode = "new";
-      clearVoiceActionState();
-      saveCountDraftLocally();
-      updateCountModeUI();
-      renderContext();
-      renderCountTable();
-      pushMessage(
-        "success",
-        shouldSave
-          ? "Nova contagem iniciada do zero. Estoque anterior salvo e guardado temporariamente para comparação."
-          : "Nova contagem iniciada do zero. Estoque anterior guardado temporariamente para comparação."
+      const confirmDiscard = window.confirm(
+        "Descartar as alterações pendentes? Elas não foram gravadas no estoque."
       );
+      if (!confirmDiscard) return;
+      clearPendingChanges();
+      clearVoiceActionState();
+      pushMessage("success", "Alterações pendentes descartadas.");
     });
   }
 }
