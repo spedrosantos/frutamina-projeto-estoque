@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-14" />
+    <link rel="stylesheet" href="styles.css?v=20260828-15" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -148,30 +148,6 @@
             </span>
           </div>
         </section>
-        <!-- Troca entre estoque atual e nova contagem offline. -->
-        <section id="count-mode-bar" class="count-mode-bar">
-          <div class="count-mode-row">
-            <div class="actions count-mode-toggle" role="group" aria-label="Modo de contagem">
-              <button id="mode-current" class="primary" type="button">
-                <i class="bi bi-box-seam"></i><span>Estoque atual</span>
-              </button>
-              <button id="mode-new" class="ghost" type="button">
-                <i class="bi bi-plus-circle"></i><span>Nova contagem</span>
-              </button>
-            </div>
-            <span id="count-mode-tag" class="count-mode-tag hidden">
-              Rascunho da nova contagem ativo
-            </span>
-          </div>
-          <div id="new-count-actions" class="actions hidden">
-            <button id="save-new-count" class="primary" type="button">
-              Salvar nova contagem
-            </button>
-            <button id="discard-new-count" class="ghost" type="button">
-              Descartar rascunho
-            </button>
-          </div>
-        </section>
         <nav id="count-tabs" class="edit-tabs" role="tablist" aria-label="Secoes da contagem">
           <button class="edit-tab active" type="button" role="tab" data-tab="contagem" aria-selected="true" aria-controls="panel-contagem">
             <i class="bi bi-pencil-square"></i><span>Contagem</span>
@@ -182,6 +158,27 @@
         </nav>
 
         <div id="panel-contagem" class="edit-tabpanel">
+        <!-- Troca entre estoque atual e nova contagem offline. -->
+          <section id="count-mode-bar" class="count-mode-bar">
+            <div class="count-mode-row">
+              <span class="count-mode-caption">Editando</span>
+              <div class="actions count-mode-toggle" role="group" aria-label="Modo de contagem">
+                <button id="mode-current" class="primary" type="button">Estoque atual</button>
+                <button id="mode-new" class="ghost" type="button">Nova contagem</button>
+              </div>
+              <span id="count-mode-tag" class="count-mode-tag hidden">
+                Rascunho da nova contagem ativo
+              </span>
+            </div>
+            <div id="new-count-actions" class="actions hidden">
+              <button id="save-new-count" class="primary" type="button">
+                Salvar nova contagem
+              </button>
+              <button id="discard-new-count" class="ghost" type="button">
+                Descartar rascunho
+              </button>
+            </div>
+          </section>
         <div class="grid count-layout">
           <div class="count-left-column">
             
