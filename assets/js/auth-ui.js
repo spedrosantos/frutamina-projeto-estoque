@@ -13,6 +13,7 @@ import {
 import { pushMessage, toAuthEmail, displayUserFromEmail, withTimeout } from "./utils.js";
 import { renderContext, renderCountTable, renderCountSyncStatus, storeUserLabel } from "./tables.js";
 import { restoreCountDraftForCurrentUser } from "./draft.js";
+import { restorePendingChanges, forgetPendingChangesInMemory } from "./pending-changes.js";
 import { loadUserRecords } from "./supabase-api.js";
 
 function setAuthMessage(type, text) {
@@ -268,6 +269,7 @@ async function handleAuthState(event, session) {
       updateCountModeUI();
       await loadUserRecords();
       await restoreCountDraftForCurrentUser();
+      restorePendingChanges();
       setEditSection();
     } else if (PAGE_MODE === "products") {
       hideAuthPanel();
@@ -292,6 +294,7 @@ async function handleAuthState(event, session) {
       lockRestrictedAccess("Faça login para acessar a edição de estoque.");
       state.userRows = [];
       state.sessionRows = [];
+      forgetPendingChangesInMemory();
       state.countMode = "current";
       state.countDraftSavedAt = null;
       state.countDraftHash = "";

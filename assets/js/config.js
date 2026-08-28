@@ -19,6 +19,7 @@ export const SNAPSHOT_FETCH_LIMIT = 5000;
 export const PUBLIC_CACHE_KEY = "cd_public_cache";
 export const PUBLIC_CACHE_AT_KEY = "cd_public_cache_at";
 export const COUNT_DRAFT_KEY_PREFIX = "cd_count_draft_v1";
+export const PENDING_CHANGES_KEY_PREFIX = "cd_pending_changes_v1";
 export const CATALOG_ADDITIONS_KEY = "cd_catalog_additions_v1";
 export const CATALOG_REMOVALS_KEY = "cd_catalog_removals_v1";
 export const THEME_PREFERENCE_KEY = "cd_theme_preference_v1";

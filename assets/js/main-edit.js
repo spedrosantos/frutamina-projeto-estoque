@@ -74,6 +74,14 @@ function setupPendingActions() {
   document.getElementById("count-save-btn")?.addEventListener("click", save);
   document.getElementById("pending-save")?.addEventListener("click", save);
   document.getElementById("pending-discard")?.addEventListener("click", discard);
+
+  // Rede de seguranca: a fila fica no aparelho, mas o aviso evita que alguem
+  // feche a aba achando que ja gravou.
+  window.addEventListener("beforeunload", (event) => {
+    if (!hasPendingChanges()) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
 }
 
 applyCatalogOverridesFromCache();

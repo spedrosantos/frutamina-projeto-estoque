@@ -7,7 +7,45 @@
 import { state, elements, supabaseClient } from "./state.js";
 import { pushMessage, formatTipoLabelValue } from "./utils.js";
 import { upsertRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
-import { TABLE_NAME } from "./config.js";
+import { TABLE_NAME, PENDING_CHANGES_KEY_PREFIX } from "./config.js";
+
+// A fila fica no aparelho: fechar o app (ou ficar sem bateria) no meio de uma
+// contagem nao pode custar os lancamentos que ainda nao foram gravados.
+function getStorageKey(userId = state.user?.id) {
+  return userId ? `${PENDING_CHANGES_KEY_PREFIX}_${userId}` : "";
+}
+
+function persistPendingChanges() {
+  const key = getStorageKey();
+  if (!key) return;
+  try {
+    const ops = getPendingChanges();
+    if (!ops.length) localStorage.removeItem(key);
+    else localStorage.setItem(key, JSON.stringify({ version: 1, ops }));
+  } catch (error) {
+    console.warn("Nao foi possivel salvar as alteracoes pendentes no aparelho.", error);
+  }
+}
+
+export function restorePendingChanges() {
+  const key = getStorageKey();
+  if (!key) return false;
+  let ops = [];
+  try {
+    ops = JSON.parse(localStorage.getItem(key) || "{}")?.ops || [];
+  } catch (error) {
+    console.warn("Rascunho de alteracoes pendentes invalido.", error);
+  }
+  state.pendingChanges = Array.isArray(ops) ? ops : [];
+  renderPendingChanges();
+  if (state.pendingChanges.length) {
+    pushMessage(
+      "info",
+      `${state.pendingChanges.length} alteracao(oes) do estoque atual foram recuperadas neste aparelho. Salve para grava-las.`
+    );
+  }
+  return state.pendingChanges.length > 0;
+}
 
 export function getPendingChanges() {
   if (!Array.isArray(state.pendingChanges)) state.pendingChanges = [];
@@ -32,7 +70,8 @@ function describePending(op) {
   return `${nome}${tipoLabel && tipoLabel !== "--" ? ` Tipo ${tipoLabel}` : ""}: ${detalhe}`;
 }
 
-export function renderPendingChanges() {
+export function renderPendingChanges({ persist = true } = {}) {
+  if (persist) persistPendingChanges();
   const list = elements.pendingList;
   const card = elements.pendingCard;
   const counter = elements.pendingCount;
@@ -99,6 +138,13 @@ export function undoLastPending() {
 export function clearPendingChanges() {
   state.pendingChanges = [];
   renderPendingChanges();
+}
+
+// No logout a fila sai da tela, mas continua guardada no aparelho para quando o
+// mesmo usuario voltar - descartar aqui apagaria contagem que ninguem mandou apagar.
+export function forgetPendingChangesInMemory() {
+  state.pendingChanges = [];
+  renderPendingChanges({ persist: false });
 }
 
 export async function applyPendingChanges() {
