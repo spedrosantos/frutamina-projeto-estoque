@@ -1461,6 +1461,51 @@ body[data-page="dashboard"] .app {
   font-size: 16px;
 }
 
+/* --- Abas da Visao Geral -------------------------------------------------- */
+.overview-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: var(--ov-card, rgba(127, 127, 127, 0.08));
+  border: 1px solid var(--ov-border, rgba(127, 127, 127, 0.18));
+  overflow-x: auto;
+}
+
+.overview-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 0;
+  justify-content: center;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ov-text-soft);
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.overview-tab:hover {
+  color: var(--ov-text);
+}
+
+.overview-tab.active {
+  background: var(--ov-bg, #fff);
+  color: var(--ov-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.overview-tabpanel {
+  display: grid;
+  gap: 22px;
+}
+
 /* --- KPIs ---------------------------------------------------------------- */
 .overview-metrics {
   display: grid;

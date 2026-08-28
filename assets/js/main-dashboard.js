@@ -15,7 +15,33 @@ import {
 } from "./auth-ui.js";
 import { renderDashboard } from "./dashboard.js";
 import { loadPublicRecords, loadSnapshotRecords, loadUserLabels } from "./supabase-api.js";
-import { setupHistoricoProduto } from "./historico-produto.js";
+
+// Abas da Visao Geral: "Agora" (foto do estoque), "Movimento" (contagens) e
+// "Tendencia" (sazonalidade). O grafico so e montado quando a aba abre, porque
+// canvas escondido nao tem largura para medir e o boot fica mais leve.
+let historicoIniciado = false;
+
+function setupOverviewTabs() {
+  const tabs = document.getElementById("overview-tabs");
+  if (!tabs) return;
+
+  tabs.addEventListener("click", (event) => {
+    const button = event.target.closest(".overview-tab");
+    if (!button) return;
+
+    tabs.querySelectorAll(".overview-tab").forEach((tab) => {
+      const active = tab === button;
+      tab.classList.toggle("active", active);
+      tab.setAttribute("aria-selected", String(active));
+      document.getElementById(tab.dataset.tab ? `tab-${tab.dataset.tab}` : "")?.classList.toggle("hidden", !active);
+    });
+
+    if (button.dataset.tab === "tendencia" && !historicoIniciado) {
+      historicoIniciado = true;
+      import("./historico-produto.js").then((m) => m.setupHistoricoProduto());
+    }
+  });
+}
 
 applyCatalogOverridesFromCache();
 setupTheme();
@@ -25,7 +51,7 @@ if (isRestrictedPageMode()) {
 }
 setSidebarOpen(false);
 renderDashboard();
-setupHistoricoProduto();
+setupOverviewTabs();
 setupAuth();
 loadPublicRecords();
 loadUserLabels();

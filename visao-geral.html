@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-07" />
+    <link rel="stylesheet" href="styles.css?v=20260828-08" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="dashboard">
@@ -105,52 +105,84 @@
           <p>Resumo analítico do estoque atual do CD.</p>
         </header>
 
-        <section class="overview-metrics">
-          <article class="overview-metric metric-green">
-            <div class="overview-metric-top">
-              <span class="overview-metric-label">Total de caixas</span>
-              <span class="overview-metric-icon"><i class="bi bi-box-seam"></i></span>
-            </div>
-            <strong class="overview-metric-value" id="ov-total-caixas">--</strong>
-            <span class="overview-metric-meta" id="ov-total-caixas-meta">--</span>
-          </article>
-          <article class="overview-metric metric-amber">
-            <div class="overview-metric-top">
-              <span class="overview-metric-label">Pallets</span>
-              <span class="overview-metric-icon"><i class="bi bi-stack"></i></span>
-            </div>
-            <strong class="overview-metric-value" id="ov-total-pallets">--</strong>
-            <span class="overview-metric-meta" id="ov-total-pallets-meta">--</span>
-          </article>
-          <article class="overview-metric metric-blue">
-            <div class="overview-metric-top">
-              <span class="overview-metric-label">Produtos distintos</span>
-              <span class="overview-metric-icon"><i class="bi bi-boxes"></i></span>
-            </div>
-            <strong class="overview-metric-value" id="ov-produtos-distintos">--</strong>
-            <span class="overview-metric-meta" id="ov-produtos-distintos-meta">--</span>
-          </article>
-        </section>
+        <nav id="overview-tabs" class="overview-tabs" role="tablist" aria-label="Secoes da visao geral">
+          <button class="overview-tab active" type="button" role="tab" data-tab="agora" aria-selected="true" aria-controls="tab-agora">
+            <i class="bi bi-grid-1x2"></i><span>Agora</span>
+          </button>
+          <button class="overview-tab" type="button" role="tab" data-tab="movimento" aria-selected="false" aria-controls="tab-movimento">
+            <i class="bi bi-clock-history"></i><span>Movimento</span>
+          </button>
+          <button class="overview-tab" type="button" role="tab" data-tab="tendencia" aria-selected="false" aria-controls="tab-tendencia">
+            <i class="bi bi-graph-up"></i><span>Tendência</span>
+          </button>
+        </nav>
 
-        <section class="overview-grid-two">
+        <div id="tab-agora" class="overview-tabpanel" role="tabpanel">
+          <section class="overview-metrics">
+            <article class="overview-metric metric-green">
+              <div class="overview-metric-top">
+                <span class="overview-metric-label">Total de caixas</span>
+                <span class="overview-metric-icon"><i class="bi bi-box-seam"></i></span>
+              </div>
+              <strong class="overview-metric-value" id="ov-total-caixas">--</strong>
+              <span class="overview-metric-meta" id="ov-total-caixas-meta">--</span>
+            </article>
+            <article class="overview-metric metric-amber">
+              <div class="overview-metric-top">
+                <span class="overview-metric-label">Pallets</span>
+                <span class="overview-metric-icon"><i class="bi bi-stack"></i></span>
+              </div>
+              <strong class="overview-metric-value" id="ov-total-pallets">--</strong>
+              <span class="overview-metric-meta" id="ov-total-pallets-meta">--</span>
+            </article>
+            <article class="overview-metric metric-blue">
+              <div class="overview-metric-top">
+                <span class="overview-metric-label">Produtos distintos</span>
+                <span class="overview-metric-icon"><i class="bi bi-boxes"></i></span>
+              </div>
+              <strong class="overview-metric-value" id="ov-produtos-distintos">--</strong>
+              <span class="overview-metric-meta" id="ov-produtos-distintos-meta">--</span>
+            </article>
+          </section>
+
+          <section class="overview-grid-two">
+            <article class="overview-card">
+              <div class="overview-card-head">
+                <h2><i class="bi bi-diagram-3"></i>Distribuição por Setor</h2>
+                <span class="overview-pill">caixas</span>
+              </div>
+              <div id="ov-setor-bars" class="overview-bars"></div>
+            </article>
+
+            <article class="overview-card">
+              <div class="overview-card-head">
+                <h2><i class="bi bi-trophy"></i>Top Produtos em Estoque</h2>
+                <span class="overview-pill highlight">total cx</span>
+              </div>
+              <div id="ov-top-produtos-list" class="overview-top-list"></div>
+            </article>
+          </section>
+
           <article class="overview-card">
             <div class="overview-card-head">
-              <h2><i class="bi bi-diagram-3"></i>Distribuição por Setor</h2>
-              <span class="overview-pill">caixas</span>
+              <h2><i class="bi bi-pie-chart"></i>Distribuição por Marca</h2>
+              <span class="overview-pill">participação</span>
             </div>
-            <div id="ov-setor-bars" class="overview-bars"></div>
-          </article>
-
-          <article class="overview-card">
-            <div class="overview-card-head">
-              <h2><i class="bi bi-trophy"></i>Top Produtos em Estoque</h2>
-              <span class="overview-pill highlight">total cx</span>
+            <div class="overview-brand-layout">
+              <div class="overview-donut-wrap">
+                <div id="ov-brand-chart" class="overview-donut">
+                  <div class="overview-donut-center">
+                    <strong id="ov-brand-chart-total">0</strong>
+                    <span>marcas</span>
+                  </div>
+                </div>
+              </div>
+              <div id="ov-brand-grid" class="overview-brand-grid"></div>
             </div>
-            <div id="ov-top-produtos-list" class="overview-top-list"></div>
           </article>
-        </section>
+        </div>
 
-        <section class="overview-grid-two">
+        <div id="tab-movimento" class="overview-tabpanel hidden" role="tabpanel">
           <article class="overview-card">
             <div class="overview-card-head">
               <h2><i class="bi bi-clock-history"></i>Histórico de Contagens</h2>
@@ -170,58 +202,42 @@
               </table>
             </div>
           </article>
+        </div>
 
-          <article class="overview-card">
+        <div id="tab-tendencia" class="overview-tabpanel hidden" role="tabpanel">
+          <section class="overview-card">
             <div class="overview-card-head">
-              <h2><i class="bi bi-pie-chart"></i>Distribuição por Marca</h2>
-              <span class="overview-pill">participação</span>
+              <h2><i class="bi bi-graph-up"></i>Histórico por Produto (Sazonalidade)</h2>
+              <span class="overview-pill">caixas/dia</span>
             </div>
-            <div class="overview-brand-layout">
-              <div class="overview-donut-wrap">
-                <div id="ov-brand-chart" class="overview-donut">
-                  <div class="overview-donut-center">
-                    <strong id="ov-brand-chart-total">0</strong>
-                    <span>marcas</span>
-                  </div>
-                </div>
+            <div class="historico-filtros">
+              <select id="historico-produto-select"></select>
+              <select id="historico-marca-select" disabled></select>
+            </div>
+            <div id="historico-range" class="chart-range">
+              <button type="button" class="range-btn" data-dias="30">30D</button>
+              <button type="button" class="range-btn active" data-dias="90">90D</button>
+              <button type="button" class="range-btn" data-dias="180">6M</button>
+              <button type="button" class="range-btn" data-dias="365">1A</button>
+              <button type="button" class="range-btn" data-dias="all">Tudo</button>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="historico-produto-canvas"></canvas>
+              <div id="historico-produto-tooltip" class="chart-tooltip"></div>
+            </div>
+            <div class="chart-summary historico-summary">
+              <span id="historico-produto-summary" class="chart-sub">Carregando historico...</span>
+              <div class="historico-extremos">
+                <span id="historico-max-label" class="chart-chip chart-chip-max"></span>
+                <span id="historico-min-label" class="chart-chip chart-chip-min"></span>
               </div>
-              <div id="ov-brand-grid" class="overview-brand-grid"></div>
             </div>
-          </article>
-        </section>
-
-        <section class="overview-card">
-          <div class="overview-card-head">
-            <h2><i class="bi bi-graph-up"></i>Histórico por Produto (Sazonalidade)</h2>
-            <span class="overview-pill">caixas/dia</span>
-          </div>
-          <div class="historico-filtros">
-            <select id="historico-produto-select"></select>
-            <select id="historico-marca-select" disabled></select>
-          </div>
-          <div id="historico-range" class="chart-range">
-            <button type="button" class="range-btn" data-dias="30">30D</button>
-            <button type="button" class="range-btn active" data-dias="90">90D</button>
-            <button type="button" class="range-btn" data-dias="180">6M</button>
-            <button type="button" class="range-btn" data-dias="365">1A</button>
-            <button type="button" class="range-btn" data-dias="all">Tudo</button>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="historico-produto-canvas"></canvas>
-            <div id="historico-produto-tooltip" class="chart-tooltip"></div>
-          </div>
-          <div class="chart-summary historico-summary">
-            <span id="historico-produto-summary" class="chart-sub">Carregando historico...</span>
-            <div class="historico-extremos">
-              <span id="historico-max-label" class="chart-chip chart-chip-max"></span>
-              <span id="historico-min-label" class="chart-chip chart-chip-min"></span>
-            </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </section>
     </div>
 
-    <script type="module" src="assets/js/main-dashboard.js?v=20260828-04"></script>
+    <script type="module" src="assets/js/main-dashboard.js?v=20260828-05"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
