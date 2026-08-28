@@ -3429,8 +3429,13 @@ body[data-page="edit"] .count-toolbar-meta strong {
 body[data-page="edit"] .count-toolbar-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+}
+
+/* Separa a navegacao de visualizacao das acoes destrutivas/de saida. */
+body[data-page="edit"] .count-toolbar-actions .view-toggle + .icon-btn {
+  margin-left: 10px;
 }
 
 /* O seletor de visualizacao nasceu com 44px de altura, num tempo em que ficava
@@ -3470,8 +3475,21 @@ body[data-page="edit"] .count-toolbar-actions .view-toggle i {
   font-size: 15px;
 }
 
-body[data-page="edit"] .count-toolbar-actions button:not(.view-toggle-btn) {
+/* Exportar e Limpar viraram so icone: com rotulo, os tres controles brigavam
+   por espaco na mesma linha. O texto continua no title/aria-label. */
+body[data-page="edit"] .count-toolbar-actions .icon-btn {
+  width: 36px;
+  height: 36px;
   min-height: 36px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+body[data-page="edit"] .count-toolbar-actions .icon-btn i {
+  font-size: 15px;
 }
 
 body[data-page="edit"] #count-items-card .table-footer {
@@ -3498,10 +3516,8 @@ body[data-page="edit"] #count-table-detailed .table-wrap table {
     width: 100%;
   }
 
-  body[data-page="edit"] .count-toolbar-actions button:not(.view-toggle-btn) {
-    flex: 1 1 0;
-    justify-content: center;
-    min-width: 0;
+  body[data-page="edit"] .count-toolbar-actions {
+    justify-content: space-between;
   }
 
   body[data-page="edit"] .count-toolbar-actions .view-toggle {
