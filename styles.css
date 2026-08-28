@@ -3395,6 +3395,16 @@ body[data-page="edit"] .select-menu-item.active {
   font-weight: 600;
 }
 
+body[data-page="edit"] #edit-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 /* --- Itens Contados: toolbar unica ---------------------------------------- */
 body[data-page="edit"] .count-toolbar {
   display: flex;

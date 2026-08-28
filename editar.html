@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-23" />
+    <link rel="stylesheet" href="styles.css?v=20260828-24" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -174,7 +174,7 @@
                 <i class="bi bi-x-lg"></i><span>Descartar</span>
               </button>
               <button id="save-new-count" class="primary" type="button">
-                <i class="bi bi-check2"></i><span>Salvar</span>
+                <i class="bi bi-floppy"></i><span>Salvar</span>
               </button>
             </div>
           </section>
@@ -416,7 +416,9 @@
           <input id="edit-loose-boxes" type="number" />
         </div>
         <div class="modal-actions">
-          <button id="edit-save" class="primary">Salvar</button>
+          <button id="edit-save" class="primary" type="button">
+            <i class="bi bi-floppy"></i><span>Salvar</span>
+          </button>
         </div>
         <div class="debug-card hidden" id="debug-panel">
           <h4>Diagnóstico</h4>
