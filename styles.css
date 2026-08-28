@@ -3180,7 +3180,13 @@ body[data-page="edit"] .edit-tab.active {
 
 body[data-page="edit"] .edit-tabpanel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
+}
+
+body[data-page="edit"] .edit-tabpanel > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* --- Cards internos (padrao .overview-card da Visao Geral) ---------------- */
@@ -3422,8 +3428,49 @@ body[data-page="edit"] .count-toolbar-meta strong {
 
 body[data-page="edit"] .count-toolbar-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle {
+  margin: 0;
+}
+
+body[data-page="edit"] #count-items-card .table-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* A tabela detalhada tem oito colunas: ela rola dentro do proprio quadro em vez
+   de esticar o card e, com ele, a pagina inteira. */
+body[data-page="edit"] #count-items-card .table-wrap {
+  -webkit-overflow-scrolling: touch;
+}
+
+body[data-page="edit"] #count-table-detailed .table-wrap table {
+  min-width: 640px;
+}
+
+@media (max-width: 640px) {
+  body[data-page="edit"] .count-toolbar {
+    align-items: stretch;
+  }
+
+  body[data-page="edit"] .count-toolbar-actions {
+    width: 100%;
+  }
+
+  body[data-page="edit"] .count-toolbar-actions button:not(.view-toggle-btn) {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  body[data-page="edit"] .count-toolbar-actions .view-toggle {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 body[data-page="edit"] .count-toolbar-actions button {
