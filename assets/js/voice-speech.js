@@ -8,6 +8,12 @@ import { processCommand } from "./voice-actions.js";
 export function setupVoice() {
   if (PAGE_MODE !== "edit") return;
   if (!elements.voiceBtn) return;
+  // O botao tem um icone fixo, entao o texto vai no span e nao no botao inteiro.
+  const setVoiceBtnLabel = (text) => {
+    const label = document.getElementById("voice-btn-label");
+    if (label) label.textContent = text;
+    else elements.voiceBtn.textContent = text;
+  };
   const SpeechRecognition =
     window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
@@ -15,7 +21,7 @@ export function setupVoice() {
       elements.voiceStatus.textContent =
         "Navegador nao suporta reconhecimento de voz. Use Chrome ou Edge.";
     }
-    elements.voiceBtn.textContent = "Sem suporte";
+    setVoiceBtnLabel("Sem suporte");
     elements.voiceBtn.disabled = true;
     return;
   }
@@ -36,7 +42,7 @@ export function setupVoice() {
       if (elements.voiceStatus) {
         elements.voiceStatus.textContent = "Ouvindo...";
       }
-      elements.voiceBtn.textContent = "Parar escuta";
+      setVoiceBtnLabel("Parar escuta");
       if (elements.voiceCard) {
         elements.voiceCard.classList.add("listening");
       }
@@ -46,7 +52,7 @@ export function setupVoice() {
     if (elements.voiceStatus) {
       elements.voiceStatus.textContent = "Parado.";
     }
-    elements.voiceBtn.textContent = "Iniciar escuta";
+    setVoiceBtnLabel("Iniciar escuta");
     if (elements.voiceCard) {
       elements.voiceCard.classList.remove("listening");
     }
@@ -113,7 +119,7 @@ export function setupVoice() {
     if (event.error === "not-allowed" || event.error === "service-not-allowed") {
       shouldListen = false;
       setVoiceListeningUi(false);
-      elements.voiceBtn.textContent = "Sem permissao";
+      setVoiceBtnLabel("Sem permissao");
       elements.voiceBtn.disabled = true;
       if (elements.voiceStatus) {
         elements.voiceStatus.textContent = "Sem permissao para usar o microfone.";

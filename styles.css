@@ -2744,38 +2744,40 @@ body[data-page="edit"] #discard-new-count:hover {
 
 body[data-page="edit"],
 body[data-page="products"] {
-  --voice-card-border: #d8e3f3;
-  --voice-card-bg: linear-gradient(180deg, #ffffff 0%, #f5f8ff 100%);
-  --voice-card-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-  --voice-divider: #dce7f6;
-  --voice-text: #0f172a;
-  --voice-muted: #64748b;
-  --voice-engine-border: #d1deef;
-  --voice-engine-text: #475569;
-  --voice-context-border: #d1deef;
-  --voice-context-bg: #f8fbff;
-  --voice-context-title: #0f172a;
-  --voice-context-text: #475569;
-  --voice-context-strong: #0f172a;
-  --voice-action-border: #9db2d0;
-  --voice-action-bg: #eef4ff;
-  --voice-action-text: #1e293b;
-  --voice-action-dot: #64748b;
-  --voice-status-text: #64748b;
-  --voice-status-dot: #94a3b8;
-  --voice-input-border: #d1deef;
-  --voice-input-bg: #ffffff;
-  --voice-input-text: #0f172a;
-  --voice-input-placeholder: #64748b;
-  --voice-manual-label: #64748b;
-  --voice-btn-border: #d1deef;
-  --voice-btn-bg: #ffffff;
-  --voice-btn-text: #334155;
+  /* O card de voz tinha paleta azulada propria, de antes do redesign. Agora ele
+     herda os mesmos tokens dos outros cards e so o estado "ouvindo" foge disso. */
+  --voice-card-border: var(--ed-border, #e4e7ec);
+  --voice-card-bg: var(--ed-surface, #ffffff);
+  --voice-card-shadow: var(--ed-shadow, 0 1px 2px rgba(16, 24, 40, 0.05));
+  --voice-divider: var(--ed-border, #e4e7ec);
+  --voice-text: var(--ed-text, #101828);
+  --voice-muted: var(--ed-text-soft, #667085);
+  --voice-engine-border: var(--ed-border, #e4e7ec);
+  --voice-engine-text: var(--ed-text-dim, #8a94a6);
+  --voice-context-border: var(--ed-border, #e4e7ec);
+  --voice-context-bg: var(--ed-surface-soft, #f7f8fa);
+  --voice-context-title: var(--ed-text-dim, #8a94a6);
+  --voice-context-text: var(--ed-text-soft, #667085);
+  --voice-context-strong: var(--ed-text, #101828);
+  --voice-action-border: var(--ed-accent, #2563eb);
+  --voice-action-bg: var(--ed-accent, #2563eb);
+  --voice-action-text: #ffffff;
+  --voice-action-dot: rgba(255, 255, 255, 0.85);
+  --voice-status-text: var(--ed-text-soft, #667085);
+  --voice-status-dot: var(--ed-text-dim, #8a94a6);
+  --voice-input-border: var(--ed-border-strong, #d2d7e0);
+  --voice-input-bg: var(--ed-surface-soft, #f7f8fa);
+  --voice-input-text: var(--ed-text, #101828);
+  --voice-input-placeholder: var(--ed-text-dim, #8a94a6);
+  --voice-manual-label: var(--ed-text-dim, #8a94a6);
+  --voice-btn-border: var(--ed-border-strong, #d2d7e0);
+  --voice-btn-bg: var(--ed-surface, #ffffff);
+  --voice-btn-text: var(--ed-text-soft, #667085);
   --voice-clear-border: #fca5a5;
   --voice-clear-text: #dc2626;
   --voice-listening-action-border: #b91c1c;
-  --voice-listening-action-bg: rgba(185, 28, 28, 0.12);
-  --voice-listening-action-text: #b91c1c;
+  --voice-listening-action-bg: #b91c1c;
+  --voice-listening-action-text: #ffffff;
   --voice-listening-dot: #ef4444;
   --voice-listening-status-text: #dc2626;
   --voice-listening-status-dot: #ef4444;
@@ -2783,29 +2785,29 @@ body[data-page="products"] {
 
 body[data-theme="dark"][data-page="edit"],
 body[data-theme="dark"][data-page="products"] {
-  --voice-card-border: #22324a;
-  --voice-card-bg: linear-gradient(180deg, #0f172a 0%, #08101d 100%);
-  --voice-card-shadow: 0 14px 30px rgba(2, 6, 23, 0.35);
-  --voice-divider: #1e2d44;
-  --voice-text: #dbe7ff;
-  --voice-muted: #9fb2d4;
-  --voice-engine-border: #2a3a57;
-  --voice-engine-text: #9fb2d4;
-  --voice-context-border: #2a3a57;
-  --voice-context-bg: rgba(17, 28, 49, 0.68);
-  --voice-context-title: #e2ecff;
-  --voice-context-text: #b4c3dd;
-  --voice-context-strong: #e2ecff;
-  --voice-action-border: #51637f;
-  --voice-action-bg: rgba(71, 85, 105, 0.2);
-  --voice-action-text: #dbe7ff;
-  --voice-action-dot: #94a3b8;
-  --voice-status-text: #9fb2d4;
-  --voice-status-dot: #64748b;
-  --voice-input-border: #2a3a57;
-  --voice-input-bg: rgba(12, 23, 40, 0.95);
-  --voice-input-text: #dbe7ff;
-  --voice-input-placeholder: #8ea3c5;
+  --voice-card-border: var(--ed-border, #212836);
+  --voice-card-bg: var(--ed-surface, #10141d);
+  --voice-card-shadow: var(--ed-shadow, 0 1px 2px rgba(0, 0, 0, 0.4));
+  --voice-divider: var(--ed-border, #212836);
+  --voice-text: var(--ed-text, #e6eaf2);
+  --voice-muted: var(--ed-text-soft, #93a0b7);
+  --voice-engine-border: var(--ed-border, #212836);
+  --voice-engine-text: var(--ed-text-dim, #6f7d94);
+  --voice-context-border: var(--ed-border, #212836);
+  --voice-context-bg: var(--ed-surface-soft, #151a25);
+  --voice-context-title: var(--ed-text-dim, #6f7d94);
+  --voice-context-text: var(--ed-text-soft, #93a0b7);
+  --voice-context-strong: var(--ed-text, #e6eaf2);
+  --voice-action-border: var(--ed-accent, #4d8dff);
+  --voice-action-bg: var(--ed-accent, #4d8dff);
+  --voice-action-text: #0a0d14;
+  --voice-action-dot: rgba(10, 13, 20, 0.75);
+  --voice-status-text: var(--ed-text-soft, #93a0b7);
+  --voice-status-dot: var(--ed-text-dim, #6f7d94);
+  --voice-input-border: var(--ed-border-strong, #2d3648);
+  --voice-input-bg: var(--ed-surface-soft, #151a25);
+  --voice-input-text: var(--ed-text, #e6eaf2);
+  --voice-input-placeholder: var(--ed-text-dim, #6f7d94);
   --voice-manual-label: #64748b;
   --voice-btn-border: #2a3a57;
   --voice-btn-bg: transparent;
@@ -2813,8 +2815,8 @@ body[data-theme="dark"][data-page="products"] {
   --voice-clear-border: #7f1d1d;
   --voice-clear-text: #f87171;
   --voice-listening-action-border: #b91c1c;
-  --voice-listening-action-bg: rgba(153, 27, 27, 0.2);
-  --voice-listening-action-text: #fecaca;
+  --voice-listening-action-bg: #b91c1c;
+  --voice-listening-action-text: #ffffff;
   --voice-listening-dot: #ef4444;
   --voice-listening-status-text: #fca5a5;
   --voice-listening-status-dot: #ef4444;
@@ -2910,17 +2912,6 @@ body[data-page="edit"] #voice-card .voice-card-header i {
   opacity: 0.9;
 }
 
-body[data-page="edit"] #voice-card .voice-engine {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 4px 10px;
-  border: 1px solid var(--voice-engine-border);
-  border-radius: 8px;
-  font-size: 12px;
-  color: var(--voice-engine-text);
-  white-space: nowrap;
-}
 
 body[data-page="edit"] #voice-card .voice-context-box {
   display: grid;
@@ -2939,13 +2930,36 @@ body[data-page="edit"] #voice-card .voice-context-box h3 {
   color: var(--voice-context-title);
 }
 
-body[data-page="edit"] #voice-card .voice-context-box p {
-  margin: 0;
-  font-size: 15px;
-  color: var(--voice-context-text);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+body[data-page="edit"] #voice-card .voice-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+body[data-page="edit"] #voice-card .voice-chip {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--ed-surface);
+  border: 1px solid var(--ed-border);
+}
+
+body[data-page="edit"] #voice-card .voice-chip span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ed-text-dim);
+}
+
+body[data-page="edit"] #voice-card .voice-chip strong {
+  font-size: 14px;
+  color: var(--ed-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 body[data-page="edit"] #voice-card .voice-context-box strong {
@@ -2956,25 +2970,30 @@ body[data-page="edit"] #voice-card .voice-action {
   width: 100%;
   display: inline-flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 10px;
-  min-height: 46px;
+  min-height: 48px;
   border: 1px solid var(--voice-action-border);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--voice-action-bg);
   color: var(--voice-action-text);
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   box-shadow: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-body[data-page="edit"] #voice-card .voice-action::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--voice-action-dot);
-  flex: 0 0 auto;
+body[data-page="edit"] #voice-card .voice-action i {
+  font-size: 16px;
+}
+
+body[data-page="edit"] #voice-card .voice-action:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--voice-action-bg) 88%, #000);
+  border-color: color-mix(in srgb, var(--voice-action-bg) 88%, #000);
+}
+
+body[data-page="edit"] #voice-card .voice-action:disabled {
+  opacity: 0.6;
 }
 
 body[data-page="edit"] #voice-card .voice-action:hover {

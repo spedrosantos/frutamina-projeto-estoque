@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-19" />
+    <link rel="stylesheet" href="styles.css?v=20260828-20" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -185,21 +185,30 @@
           <section class="card voice-card" id="voice-card">
             <div class="voice-card-header">
               <h2><i class="bi bi-mic"></i>Comando por Voz</h2>
-              <span class="voice-engine">Chrome / Edge</span>
             </div>
 
             <div class="voice-context-box">
               <h3>Contexto travado</h3>
-              <p>
-                Setor: <strong id="ctx-setor">--</strong>
-                <span aria-hidden="true">&middot;</span>
-                Produto: <strong id="ctx-produto">--</strong>
-                <span aria-hidden="true">&middot;</span>
-                Marca: <strong id="ctx-marca">--</strong>
-              </p>
+              <div class="voice-context-grid">
+                <div class="voice-chip">
+                  <span>Setor</span>
+                  <strong id="ctx-setor">--</strong>
+                </div>
+                <div class="voice-chip">
+                  <span>Produto</span>
+                  <strong id="ctx-produto">--</strong>
+                </div>
+                <div class="voice-chip">
+                  <span>Marca</span>
+                  <strong id="ctx-marca">--</strong>
+                </div>
+              </div>
             </div>
 
-            <button id="voice-btn" class="voice-action" type="button">Iniciar escuta</button>
+            <button id="voice-btn" class="voice-action" type="button">
+              <i class="bi bi-mic-fill" aria-hidden="true"></i>
+              <span id="voice-btn-label">Iniciar escuta</span>
+            </button>
             <div id="voice-status" class="voice-status">Microfone pronto.</div>
 
             <textarea
