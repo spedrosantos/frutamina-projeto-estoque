@@ -5,6 +5,7 @@ import { state, elements, PAGE_MODE } from "./state.js";
 import { listProductsBySetor, listBrands, setSelectOptionsWithPlaceholder, formatNumber } from "./utils.js";
 import { loadHistoricoDiario, loadHistoricoDiarioTotal } from "./supabase-api.js";
 import { renderLineChart } from "./dashboard.js";
+import { enhanceSelect } from "./select-menu.js";
 
 let chartMeta = null;
 let hoverIndex = null;
@@ -190,6 +191,8 @@ export function setupHistoricoProduto() {
 
   setSelectOptionsWithPlaceholder(elements.historicoProdutoSelect, listProductsBySetor(null), "", "Selecione");
   updateHistoricoMarcaOptions();
+  enhanceSelect(elements.historicoProdutoSelect);
+  enhanceSelect(elements.historicoMarcaSelect);
   reloadHistoricoSerie();
 
   elements.historicoProdutoSelect.addEventListener("change", () => {

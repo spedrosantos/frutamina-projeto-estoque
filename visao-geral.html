@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-08" />
+    <link rel="stylesheet" href="styles.css?v=20260828-10" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="dashboard">
@@ -211,8 +211,14 @@
               <span class="overview-pill">caixas/dia</span>
             </div>
             <div class="historico-filtros">
-              <select id="historico-produto-select"></select>
-              <select id="historico-marca-select" disabled></select>
+              <label class="historico-filtro">
+                <span class="historico-filtro-label">Produto</span>
+                <select id="historico-produto-select"></select>
+              </label>
+              <label class="historico-filtro">
+                <span class="historico-filtro-label">Marca</span>
+                <select id="historico-marca-select" disabled></select>
+              </label>
             </div>
             <div id="historico-range" class="chart-range">
               <button type="button" class="range-btn" data-dias="30">30D</button>
@@ -237,7 +243,7 @@
       </section>
     </div>
 
-    <script type="module" src="assets/js/main-dashboard.js?v=20260828-05"></script>
+    <script type="module" src="assets/js/main-dashboard.js?v=20260828-06"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

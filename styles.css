@@ -1960,12 +1960,176 @@ body[data-page="dashboard"] .historico-filtros {
   padding: var(--ov-pad) var(--ov-pad) 0;
 }
 
-body[data-page="dashboard"] .historico-filtros select {
-  width: auto;
+body[data-page="dashboard"] .historico-filtro {
+  display: grid;
+  gap: 6px;
   flex: 1 1 200px;
+  min-width: 0;
+}
+
+body[data-page="dashboard"] .historico-filtro-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ov-text-dim);
+}
+
+body[data-page="dashboard"] .historico-filtros select {
+  width: 100%;
+  /* appearance: none troca a seta nativa (que ignora o tema) por um chevron
+     em cinza neutro, legivel no claro e no escuro. */
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 11px 38px 11px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  background-color: var(--ov-surface-soft);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  background-size: 15px;
+  border: 1px solid var(--ov-border-strong);
+  color: var(--ov-text);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+body[data-page="dashboard"] .historico-filtros select:hover:not(:disabled) {
+  border-color: var(--ov-text-dim);
+}
+
+body[data-page="dashboard"] .historico-filtros select:focus-visible {
+  outline: none;
+  border-color: var(--ov-accent, #16a34a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ov-accent, #16a34a) 22%, transparent);
+}
+
+body[data-page="dashboard"] .historico-filtros select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Dropdown customizado (select-menu.js): o <select> real fica escondido, mas
+   segue recebendo valor e evento change. */
+body[data-page="dashboard"] .select-menu {
+  position: relative;
+}
+
+body[data-page="dashboard"] .select-menu select {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body[data-page="dashboard"] .select-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
   background: var(--ov-surface-soft);
   border: 1px solid var(--ov-border-strong);
   color: var(--ov-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body[data-page="dashboard"] .select-menu-trigger:hover:not(:disabled) {
+  border-color: var(--ov-text-dim);
+  background: var(--ov-surface-soft);
+}
+
+body[data-page="dashboard"] .select-menu-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+body[data-page="dashboard"] .select-menu-trigger:focus-visible {
+  outline: none;
+  border-color: var(--ov-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ov-accent) 22%, transparent);
+}
+
+body[data-page="dashboard"] .select-menu-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-page="dashboard"] .select-menu-value.is-placeholder {
+  color: var(--ov-text-dim);
+  font-weight: 500;
+}
+
+body[data-page="dashboard"] .select-menu-trigger i {
+  font-size: 13px;
+  color: var(--ov-text-dim);
+  transition: transform 0.18s ease;
+}
+
+body[data-page="dashboard"] .select-menu.open .select-menu-trigger {
+  border-color: var(--ov-accent);
+}
+
+body[data-page="dashboard"] .select-menu.open .select-menu-trigger i {
+  transform: rotate(180deg);
+}
+
+body[data-page="dashboard"] .select-menu-list {
+  display: none;
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--ov-bg);
+  border: 1px solid var(--ov-border-strong);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+}
+
+body[data-page="dashboard"] .select-menu.open .select-menu-list {
+  display: block;
+}
+
+body[data-page="dashboard"] .select-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ov-text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+body[data-page="dashboard"] .select-menu-item:hover {
+  background: var(--ov-surface-soft);
+  box-shadow: none;
+}
+
+body[data-page="dashboard"] .select-menu-item.active {
+  background: var(--ov-accent-soft);
+  color: var(--ov-accent);
+  font-weight: 600;
 }
 
 body[data-page="dashboard"] .chart-range {
