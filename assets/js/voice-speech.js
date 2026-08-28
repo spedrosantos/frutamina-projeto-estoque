@@ -1,5 +1,5 @@
 // Reconhecimento de voz real (Web Speech API) — usado somente em editar.html.
-import { state, elements, PAGE_MODE } from "./state.js";
+import { elements, PAGE_MODE } from "./state.js";
 import { normalizeText } from "./utils.js";
 import { requireAuthenticatedUser } from "./auth-ui.js";
 import { processCommand } from "./voice-actions.js";

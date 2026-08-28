@@ -52,14 +52,13 @@ import {
 import {
   hydrateInventoryRow,
   normalizeInventoryMetrics,
-  applyInventoryDeltas,
   buildDbRowPayload,
   isLooseBoxesSchemaError,
   getInventoryRowByIdentity,
   formatInventoryMessage,
 } from "./inventory-core.js";
 import { requireAuthenticatedUser } from "./auth-ui.js";
-import { renderContext, renderCountTable, renderPublicTable, updateSessionAggregateRecord } from "./tables.js";
+import { renderContext, renderCountTable, updateSessionAggregateRecord } from "./tables.js";
 import { loadUserRecords, loadPublicRecords } from "./supabase-api.js";
 import { queuePendingDelta, undoLastPending } from "./pending-changes.js";
 

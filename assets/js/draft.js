@@ -1,5 +1,5 @@
 // Rascunho offline da nova contagem: protege os lancamentos no localStorage do aparelho.
-import { state, elements } from "./state.js";
+import { state } from "./state.js";
 import { COUNT_DRAFT_KEY_PREFIX } from "./config.js";
 import { pushMessage, normalizeSetorValue } from "./utils.js";
 import { aggregateRows, hydrateInventoryRow, cloneInventoryRows, getCurrentPublicAggregateRows } from "./inventory-core.js";

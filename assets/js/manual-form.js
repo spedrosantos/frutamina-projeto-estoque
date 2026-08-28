@@ -1,12 +1,10 @@
 // Formulario manual de lancamento e modal de edicao/remocao de item — so editar.html.
-import { state, elements, supabaseClient } from "./state.js";
+import { state, elements } from "./state.js";
 import {
   CONFIG_GERAL,
   NO_TIPO_VALUE,
   TIPO_MIN,
   TIPO_MAX,
-  TABLE_NAME,
-  SUPABASE_TIMEOUT_MS,
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
 } from "./config.js";
@@ -24,7 +22,6 @@ import {
   cleanLabel,
   normalizeSetorValue,
   pushMessage,
-  withTimeout,
   listProductsBySetor,
   listBrands,
   setSelectOptionsWithPlaceholder,
@@ -32,14 +29,11 @@ import {
   getRowKey,
 } from "./utils.js";
 import {
-  hydrateInventoryRow,
   normalizeInventoryMetrics,
-  buildDbRowPayload,
-  isLooseBoxesSchemaError,
 } from "./inventory-core.js";
 import { requireAuthenticatedUser } from "./auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
-import { loadUserRecords, loadPublicRecords, probeSupabase } from "./supabase-api.js";
+import { probeSupabase } from "./supabase-api.js";
 import { registerInventoryChange, clearVoiceActionState } from "./voice-actions.js";
 import { queuePendingSet, queuePendingDelete } from "./pending-changes.js";
 

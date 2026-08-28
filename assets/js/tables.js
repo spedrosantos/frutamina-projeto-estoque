@@ -661,40 +661,6 @@ function getCountRowsForSetor() {
   return source.filter((row) => row.setor === state.setor);
 }
 
-export function updateAggregateRecord({
-  setor,
-  produto,
-  marca,
-  tipo,
-  caixas_pallet,
-  palletsDelta = 1,
-  caixasAvulsasDelta = 0,
-}) {
-  const found = state.publicRows.find(
-    (row) =>
-      row.setor === setor &&
-      row.produto === produto &&
-      row.marca === marca &&
-      row.tipo === tipo
-  );
-  if (found) {
-    applyInventoryDeltas(found, {
-      caixas_pallet,
-      palletsDelta,
-      caixasAvulsasDelta,
-    });
-  } else {
-    state.publicRows.push(hydrateInventoryRow({
-      setor,
-      produto,
-      marca,
-      tipo,
-      caixas_pallet,
-      pallets: palletsDelta,
-      caixas_avulsas: caixasAvulsasDelta,
-    }));
-  }
-}
 
 function openFilterModal() {
   if (!elements.filterModal) return;

@@ -1029,15 +1029,7 @@ th {
   word-break: break-word;
 }
 
-.last-update {
-  font-size: 13px;
-  color: #6b7280;
-}
 
-.table-tools {
-  justify-content: flex-end;
-  margin-top: 8px;
-}
 
 .table-modes {
   display: flex;
@@ -2400,9 +2392,6 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
   flex-wrap: wrap;
 }
 
-.count-mode-toggle {
-  margin-top: 0;
-}
 
 
 /*
@@ -3754,7 +3743,6 @@ body[data-theme="dark"] .card-header p,
 body[data-theme="dark"] .public-section-header p,
 body[data-theme="dark"] .summary-header p,
 body[data-theme="dark"] .summary-legend,
-body[data-theme="dark"] .last-update,
 body[data-theme="dark"] .voice-status,
 body[data-theme="dark"] .catalog-empty,
 body[data-theme="dark"] .sync-copy span {
@@ -4837,8 +4825,7 @@ body.print-preview-open {
   font-size: 14px;
 }
 
-.print-sheet .msg-area,
-.print-sheet .last-update {
+.print-sheet .msg-area {
   display: none;
 }
 
