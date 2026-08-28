@@ -28,6 +28,7 @@ import { setupVoice } from "./voice-speech.js";
 import { initManualForm, setupManualFormEvents } from "./manual-form.js";
 import { setupCountModeEvents, updateCountModeUI } from "./count-mode.js";
 import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
+import { enhanceSelect } from "./select-menu.js";
 
 applyCatalogOverridesFromCache();
 initSetorSelects();
@@ -39,6 +40,11 @@ renderCountTable();
 setPublicViewMode(state.publicViewMode);
 setCountViewMode(state.countViewMode);
 updateCountModeUI();
+// Os selects do Comando Manual usam o mesmo dropdown da aba Tendencia; o
+// <select> original segue como fonte da verdade, entao manual-form.js nao muda.
+["manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(
+  (id) => enhanceSelect(document.getElementById(id))
+);
 setupTheme();
 setupVoice();
 setupShellEvents();

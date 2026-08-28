@@ -831,18 +831,8 @@ table {
   font-size: 14px;
 }
 
-table.manual-table select {
-  min-width: 120px;
-}
 
-table.manual-table input {
-  min-width: 120px;
-  width: 100%;
-}
 
-table.manual-table td:last-child {
-  white-space: nowrap;
-}
 
 .public-toolbar {
   position: relative;
@@ -916,10 +906,6 @@ table.manual-table td:last-child {
   color: #64748b;
 }
 
-table.manual-table.box-mode th:nth-child(5),
-table.manual-table.box-mode td:nth-child(5) {
-  display: none;
-}
 
 th,
 td {
@@ -2855,7 +2841,8 @@ body[data-page="edit"] #voice-card {
   gap: 12px;
   place-items: initial;
   text-align: left;
-  padding: 16px;
+  padding: var(--ed-pad);
+  border-radius: var(--ed-radius);
   border: 1px solid var(--voice-card-border);
   background: var(--voice-card-bg);
   box-shadow: var(--voice-card-shadow);
@@ -2873,7 +2860,7 @@ body[data-page="edit"] #voice-card .voice-card-header {
 
 body[data-page="edit"] #voice-card .voice-card-header h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: 18px;
   line-height: 1.2;
   display: inline-flex;
   align-items: center;
@@ -2909,7 +2896,9 @@ body[data-page="edit"] #voice-card .voice-context-box {
 
 body[data-page="edit"] #voice-card .voice-context-box h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--voice-context-title);
 }
 
@@ -3088,6 +3077,260 @@ body[data-page="edit"] #voice-card.listening #voice-status {
 
 body[data-page="edit"] #voice-card.listening #voice-status::before {
   background: var(--voice-listening-status-dot);
+}
+
+/* --- Cards internos (padrao .overview-card da Visao Geral) ---------------- */
+body[data-page="edit"] #manual-card,
+body[data-page="edit"] #count-items-card {
+  padding: var(--ed-pad);
+  border-radius: var(--ed-radius);
+  background: var(--ed-surface);
+  border: 1px solid var(--ed-border);
+  box-shadow: var(--ed-shadow);
+}
+
+body[data-page="edit"] #manual-card .card-header h2,
+body[data-page="edit"] #count-items-card .card-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--ed-text);
+}
+
+body[data-page="edit"] #manual-card .card-header h2 i,
+body[data-page="edit"] #count-items-card .card-header h2 i {
+  font-size: 15px;
+  color: var(--ed-text-dim);
+}
+
+body[data-page="edit"] #manual-card .card-header p,
+body[data-page="edit"] #count-items-card .card-header p {
+  color: var(--ed-text-soft);
+  font-size: 13px;
+}
+
+/* --- Comando Manual: grid no lugar da tabela de 7 colunas ----------------- */
+body[data-page="edit"] .manual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+body[data-page="edit"] .manual-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+body[data-page="edit"] .manual-field-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ed-text-dim);
+}
+
+body[data-page="edit"] .manual-field input {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--ed-border-strong);
+  background: var(--ed-surface-soft);
+  color: var(--ed-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+body[data-page="edit"] .manual-field input:focus {
+  outline: none;
+  border-color: var(--ed-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ed-accent) 20%, transparent);
+}
+
+body[data-page="edit"] .manual-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+body[data-page="edit"] .manual-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Dropdown customizado tambem no Comando Manual. */
+body[data-page="edit"] .select-menu {
+  position: relative;
+}
+
+body[data-page="edit"] .select-menu select {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body[data-page="edit"] .select-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: var(--ed-surface-soft);
+  border: 1px solid var(--ed-border-strong);
+  color: var(--ed-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+body[data-page="edit"] .select-menu-trigger:hover:not(:disabled) {
+  border-color: var(--ed-text-dim);
+}
+
+body[data-page="edit"] .select-menu-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+body[data-page="edit"] .select-menu-trigger:focus-visible {
+  outline: none;
+  border-color: var(--ed-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ed-accent) 20%, transparent);
+}
+
+body[data-page="edit"] .select-menu-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-page="edit"] .select-menu-value.is-placeholder {
+  color: var(--ed-text-dim);
+  font-weight: 500;
+}
+
+body[data-page="edit"] .select-menu-trigger i {
+  font-size: 13px;
+  color: var(--ed-text-dim);
+  transition: transform 0.18s ease;
+}
+
+body[data-page="edit"] .select-menu.open .select-menu-trigger {
+  border-color: var(--ed-accent);
+}
+
+body[data-page="edit"] .select-menu.open .select-menu-trigger i {
+  transform: rotate(180deg);
+}
+
+body[data-page="edit"] .select-menu-list {
+  display: none;
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--ed-surface);
+  border: 1px solid var(--ed-border-strong);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+}
+
+body[data-page="edit"] .select-menu.open .select-menu-list {
+  display: block;
+}
+
+body[data-page="edit"] .select-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ed-text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+body[data-page="edit"] .select-menu-item:hover {
+  background: var(--ed-surface-soft);
+  box-shadow: none;
+}
+
+body[data-page="edit"] .select-menu-item.active {
+  background: var(--ed-accent-soft);
+  color: var(--ed-accent);
+  font-weight: 600;
+}
+
+/* --- Itens Contados: toolbar unica ---------------------------------------- */
+body[data-page="edit"] .count-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--ed-surface-soft);
+  border: 1px solid var(--ed-border);
+}
+
+body[data-page="edit"] .count-toolbar-meta {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+}
+
+body[data-page="edit"] .count-toolbar-meta span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ed-text-dim);
+}
+
+body[data-page="edit"] .count-toolbar-meta strong {
+  color: var(--ed-text);
+}
+
+body[data-page="edit"] .count-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+body[data-page="edit"] .count-toolbar-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: none;
 }
 
 body[data-page="edit"] #count-items-card {

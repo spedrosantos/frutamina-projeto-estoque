@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-12" />
+    <link rel="stylesheet" href="styles.css?v=20260828-13" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -207,59 +207,50 @@
             <div id="messages" class="msg-area"></div>
           </section>
 
-          <!-- Lancamento manual por tabela (setor, produto, marca, tipo e quantidade). -->
+          <!-- Lancamento manual dos itens (setor, produto, marca, tipo e quantidade). -->
           <section id="manual-card" class="card full">
             <div class="card-header">
-              <h2>Comando Manual</h2>
-              <p>Selecione os campos abaixo para adicionar o item. Para lancar so caixas avulsas, deixe pallets em 0.</p>
+              <h2><i class="bi bi-pencil-square"></i>Comando Manual</h2>
+              <p>Preencha os campos para adicionar o item. Para lancar so caixas avulsas, deixe pallets em 0.</p>
             </div>
-            <div class="table-wrap">
-              <table class="manual-table" id="manual-table">
-                <thead>
-                  <tr>
-                    <th>Setor</th>
-                    <th>Produto</th>
-                    <th>Marca</th>
-                    <th><span id="manual-label-tipo">Tipo</span></th>
-                    <th><span id="manual-label-qty">Pallets</span></th>
-                    <th>Caixas avulsas</th>
-                    <th>Ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <select id="manual-setor"></select>
-                    </td>
-                    <td>
-                      <select id="manual-produto"></select>
-                    </td>
-                    <td>
-                      <select id="manual-marca"></select>
-                    </td>
-                    <td>
-                      <select id="manual-tipo"></select>
-                    </td>
-                    <td>
-                      <select id="manual-pallets"></select>
-                    </td>
-                    <td>
-                      <input
-                        id="manual-boxes"
-                        type="number"
-                        min="0"
-                        step="1"
-                        value="0"
-                        inputmode="numeric"
-                        placeholder="0"
-                      />
-                    </td>
-                    <td>
-                      <button id="manual-add" class="primary">Adicionar</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <div id="manual-table" class="manual-grid">
+              <div class="manual-field">
+                <span class="manual-field-label">Setor</span>
+                <select id="manual-setor"></select>
+              </div>
+              <div class="manual-field">
+                <span class="manual-field-label">Produto</span>
+                <select id="manual-produto"></select>
+              </div>
+              <div class="manual-field">
+                <span class="manual-field-label">Marca</span>
+                <select id="manual-marca"></select>
+              </div>
+              <div class="manual-field">
+                <span class="manual-field-label"><span id="manual-label-tipo">Tipo</span></span>
+                <select id="manual-tipo"></select>
+              </div>
+              <div class="manual-field">
+                <span class="manual-field-label"><span id="manual-label-qty">Pallets</span></span>
+                <select id="manual-pallets"></select>
+              </div>
+              <label class="manual-field">
+                <span class="manual-field-label">Caixas avulsas</span>
+                <input
+                  id="manual-boxes"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value="0"
+                  inputmode="numeric"
+                  placeholder="0"
+                />
+              </label>
+            </div>
+            <div class="manual-actions">
+              <button id="manual-add" class="primary" type="button">
+                <i class="bi bi-plus-lg"></i><span>Adicionar item</span>
+              </button>
             </div>
           </section>
           
@@ -268,11 +259,25 @@
           <!-- Tabela dos itens contados no setor atual, com edicao e remocao. -->
           <section id="count-items-card" class="card full">
             <div class="card-header">
-              <h2>Itens Contados</h2>
+              <h2><i class="bi bi-list-check"></i>Itens Contados</h2>
               <p>Visualização por setor atual.</p>
             </div>
-            <div class="card-actions">
-              <button id="edit-item-btn" class="ghost">Editar item</button>
+            <div class="count-toolbar">
+              <div class="count-toolbar-meta">
+                <span>Última atualização</span>
+                <strong id="count-last-update">--</strong>
+              </div>
+              <div class="count-toolbar-actions">
+                <button id="edit-item-btn" class="ghost" type="button">
+                  <i class="bi bi-pencil"></i>Editar item
+                </button>
+                <button id="count-export-toggle" class="ghost" type="button">
+                  <i class="bi bi-download"></i>Exportar
+                </button>
+                <button id="count-clear-btn" class="danger" type="button">
+                  <i class="bi bi-trash3"></i>Limpar contagem
+                </button>
+              </div>
             </div>
             <div class="table-modes">
               <div id="count-view-toggle" class="view-toggle" role="group" aria-label="Modo de tabela">
@@ -295,13 +300,6 @@
                   <i class="bi bi-table"></i>
                 </button>
               </div>
-            </div>
-            <div class="last-update">
-              Última atualização: <strong id="count-last-update">--</strong>
-            </div>
-            <div class="actions table-tools">
-              <button id="count-export-toggle" class="ghost">Exportar</button>
-              <button id="count-clear-btn" class="danger">Limpar contagem</button>
             </div>
             <div id="count-table-detailed">
               <div class="table-wrap">
@@ -414,7 +412,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260423-18"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260828-01"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
