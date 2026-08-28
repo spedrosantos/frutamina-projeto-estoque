@@ -3433,8 +3433,45 @@ body[data-page="edit"] .count-toolbar-actions {
   flex-wrap: wrap;
 }
 
+/* O seletor de visualizacao nasceu com 44px de altura, num tempo em que ficava
+   sozinho numa linha. Dentro da toolbar ele encolhe para a mesma altura dos
+   botoes ao lado. */
 body[data-page="edit"] .count-toolbar-actions .view-toggle {
   margin: 0;
+  flex: 0 0 auto;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--ed-surface);
+  border: 1px solid var(--ed-border);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle::before {
+  top: 3px;
+  left: 3px;
+  width: 34px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--ed-accent);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle:not(.mode-summary)::before {
+  transform: translateX(36px);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle-btn {
+  width: 34px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--ed-text-soft);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle i {
+  font-size: 15px;
+}
+
+body[data-page="edit"] .count-toolbar-actions button:not(.view-toggle-btn) {
+  min-height: 36px;
 }
 
 body[data-page="edit"] #count-items-card .table-footer {
@@ -3468,8 +3505,7 @@ body[data-page="edit"] #count-table-detailed .table-wrap table {
   }
 
   body[data-page="edit"] .count-toolbar-actions .view-toggle {
-    width: 100%;
-    justify-content: center;
+    order: -1;
   }
 }
 
