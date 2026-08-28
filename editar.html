@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-11" />
+    <link rel="stylesheet" href="styles.css?v=20260828-12" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -111,18 +111,27 @@
 
       <!-- Login do operador antes de liberar a area de contagem. -->
       <section id="auth-panel" class="card edit-auth-card">
+        <div class="edit-auth-badge"><i class="bi bi-shield-lock"></i></div>
         <div class="card-header">
-          <h2><i class="bi bi-shield-lock"></i>Acesso</h2>
+          <h2>Acesso restrito</h2>
           <p>Entre com seu usuario do CD para comecar a contagem.</p>
         </div>
-        <div class="form-grid">
+        <div class="form-grid edit-auth-form">
           <label for="email">Usuario</label>
-          <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
+          <div class="edit-auth-field">
+            <i class="bi bi-person" aria-hidden="true"></i>
+            <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
+          </div>
           <label for="password">Senha</label>
-          <input id="password" type="password" placeholder="Senha" />
+          <div class="edit-auth-field">
+            <i class="bi bi-key" aria-hidden="true"></i>
+            <input id="password" type="password" placeholder="Senha" />
+          </div>
         </div>
         <div class="actions">
-          <button id="login-btn" class="primary">Entrar</button>
+          <button id="login-btn" class="primary">
+            <i class="bi bi-box-arrow-in-right"></i><span>Entrar</span>
+          </button>
         </div>
         <div id="auth-msg" class="msg-area"></div>
       </section>
