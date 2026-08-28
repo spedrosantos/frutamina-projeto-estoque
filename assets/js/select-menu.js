@@ -93,5 +93,7 @@ export function enhanceSelect(select) {
     attributeFilter: ["disabled"],
   });
   select.addEventListener("change", sync);
+  // Quem troca o valor por codigo dispara este evento para reconciliar o rotulo.
+  select.addEventListener("select-menu:sync", sync);
   sync();
 }

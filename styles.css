@@ -2641,8 +2641,8 @@ body[data-page="edit"] .sync-copy span {
 /* --- Seletor de modo -------------------------------------------------------
    Fica dentro da aba Contagem, mas deliberadamente diferente das abas: as abas
    sao a navegacao (pill grande, com icone, na cor de destaque) e o modo e um
-   seletor menor, cinza, precedido do rotulo "Editando", para os dois nao serem
-   lidos como o mesmo controle. */
+   campo suspenso precedido do rotulo "Editando", com a forma dos dropdowns do
+   Comando Manual, para os dois nao serem lidos como o mesmo controle. */
 body[data-page="edit"] .count-mode-bar {
   display: flex;
   align-items: center;
@@ -2668,39 +2668,14 @@ body[data-page="edit"] .count-mode-caption {
   color: var(--ed-text-dim);
 }
 
-body[data-page="edit"] .count-mode-toggle {
-  gap: 3px;
-  margin-top: 0;
-  padding: 3px;
-  border-radius: 10px;
-  background: var(--ed-surface-soft);
-  border: 1px solid var(--ed-border);
+body[data-page="edit"] .count-mode-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-body[data-page="edit"] .count-mode-toggle button {
-  padding: 6px 14px;
-  border: 0;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  box-shadow: none;
-}
-
-body[data-page="edit"] .count-mode-toggle button.ghost {
-  background: transparent;
-  color: var(--ed-text-soft);
-}
-
-body[data-page="edit"] .count-mode-toggle button.ghost:hover {
-  background: transparent;
-  color: var(--ed-text);
-  box-shadow: none;
-}
-
-body[data-page="edit"] .count-mode-toggle button.primary {
-  background: var(--ed-surface);
-  color: var(--ed-text);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.12);
+body[data-page="edit"] .count-mode-field .select-menu {
+  width: 220px;
 }
 
 body[data-page="edit"] .count-mode-tag {

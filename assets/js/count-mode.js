@@ -21,18 +21,11 @@ import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "./supaba
 import { clearVoiceActionState } from "./voice-actions.js";
 
 export function updateCountModeUI() {
-  if (elements.modeCurrentBtn && elements.modeNewBtn) {
-    if (state.countMode === "new") {
-      elements.modeCurrentBtn.classList.remove("primary");
-      elements.modeCurrentBtn.classList.add("ghost");
-      elements.modeNewBtn.classList.remove("ghost");
-      elements.modeNewBtn.classList.add("primary");
-    } else {
-      elements.modeCurrentBtn.classList.remove("ghost");
-      elements.modeCurrentBtn.classList.add("primary");
-      elements.modeNewBtn.classList.remove("primary");
-      elements.modeNewBtn.classList.add("ghost");
-    }
+  if (elements.countModeSelect) {
+    elements.countModeSelect.value = state.countMode === "new" ? "new" : "current";
+    // Valor trocado por codigo nao dispara "change": avisa o dropdown customizado
+    // para ele redesenhar o rotulo (inclusive quando a troca e cancelada).
+    elements.countModeSelect.dispatchEvent(new Event("select-menu:sync"));
   }
 
   if (elements.countModeTag) {
@@ -293,17 +286,14 @@ export function discardNewCount() {
   pushMessage("info", "Nova contagem descartada.");
 }
 
-// Liga os botoes de modo de contagem e o auto-save do rascunho (pagehide/visibilitychange).
+// Liga o seletor de modo de contagem e o auto-save do rascunho (pagehide/visibilitychange).
 export function setupCountModeEvents() {
-  if (elements.modeCurrentBtn) {
-    elements.modeCurrentBtn.addEventListener("click", () => {
-      setCountMode("current");
-    });
-  }
-
-  if (elements.modeNewBtn) {
-    elements.modeNewBtn.addEventListener("click", () => {
-      setCountMode("new");
+  if (elements.countModeSelect) {
+    elements.countModeSelect.addEventListener("change", () => {
+      setCountMode(elements.countModeSelect.value);
+      // setCountMode desiste em silencio se o login faltar ou o usuario cancelar
+      // o confirm, entao o seletor volta para o modo que continua valendo.
+      updateCountModeUI();
     });
   }
 

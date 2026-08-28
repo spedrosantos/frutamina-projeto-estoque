@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260828-15" />
+    <link rel="stylesheet" href="styles.css?v=20260828-16" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -161,10 +161,12 @@
         <!-- Troca entre estoque atual e nova contagem offline. -->
           <section id="count-mode-bar" class="count-mode-bar">
             <div class="count-mode-row">
-              <span class="count-mode-caption">Editando</span>
-              <div class="actions count-mode-toggle" role="group" aria-label="Modo de contagem">
-                <button id="mode-current" class="primary" type="button">Estoque atual</button>
-                <button id="mode-new" class="ghost" type="button">Nova contagem</button>
+              <div class="count-mode-field">
+                <span class="count-mode-caption">Editando</span>
+                <select id="count-mode-select" aria-label="Modo de contagem">
+                  <option value="current">Estoque atual</option>
+                  <option value="new">Nova contagem</option>
+                </select>
               </div>
               <span id="count-mode-tag" class="count-mode-tag hidden">
                 Rascunho da nova contagem ativo
@@ -420,7 +422,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260828-03"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260828-04"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

@@ -61,7 +61,7 @@ updateCountModeUI();
 setupEditTabs();
 // Os selects do Comando Manual usam o mesmo dropdown da aba Tendencia; o
 // <select> original segue como fonte da verdade, entao manual-form.js nao muda.
-["manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(
+["count-mode-select", "manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(
   (id) => enhanceSelect(document.getElementById(id))
 );
 setupTheme();
