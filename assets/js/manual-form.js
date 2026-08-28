@@ -664,23 +664,8 @@ async function addManualItem() {
   }
 }
 
-// Liga o formulario manual, o modal de edicao e o botao "Editar" da linha selecionada.
+// Liga o formulario manual e o modal de edicao (aberto pelo botao de cada linha).
 export function setupManualFormEvents() {
-  if (elements.editItemBtn) {
-    elements.editItemBtn.addEventListener("click", () => {
-      if (!state.selectedRowKey) {
-        window.alert("Selecione um item na tabela para editar.");
-        return;
-      }
-      const row = findCurrentRowByKey(state.selectedRowKey);
-      if (!row) {
-        window.alert("Item selecionado não encontrado.");
-        return;
-      }
-      openEditModal(row);
-    });
-  }
-
   if (elements.editClose) {
     elements.editClose.addEventListener("click", closeEditModal);
   }

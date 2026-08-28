@@ -116,7 +116,6 @@ export const elements = {
   newCountActions: document.getElementById("new-count-actions"),
   saveNewCountBtn: document.getElementById("save-new-count"),
   discardNewCountBtn: document.getElementById("discard-new-count"),
-  editItemBtn: document.getElementById("edit-item-btn"),
   editModal: document.getElementById("edit-modal"),
   editClose: document.getElementById("edit-close"),
   editCloseBtn: document.getElementById("edit-close-btn"),
