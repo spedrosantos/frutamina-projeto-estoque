@@ -126,7 +126,7 @@ function getStoredThemePreference() {
 }
 
 function getDefaultThemePreference() {
-  return PAGE_MODE === "dashboard" ? "dark" : "light";
+  return "light";
 }
 
 function updateThemeToggleButtons(theme) {

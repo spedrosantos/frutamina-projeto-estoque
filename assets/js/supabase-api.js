@@ -6,6 +6,7 @@ import {
   TABLE_NAME,
   SNAPSHOT_TABLE,
   HISTORICO_DIARIO_TABLE,
+  HISTORICO_DIARIO_TOTAL_VIEW,
   USER_LABELS_TABLE,
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
@@ -91,6 +92,31 @@ export async function loadHistoricoDiario(produto, marca) {
     return data || [];
   } catch (error) {
     pushMessage("error", error?.message || "Erro ao carregar historico do produto.");
+    return [];
+  }
+}
+
+// Total diario do CD (soma de todos os produtos/marcas), para o grafico de
+// sazonalidade sem filtro. Vem da view estoque_historico_diario_total — ver
+// supabase-historico-diario-total.sql. Se a view ainda nao existe no banco,
+// devolve [] em silencio: o grafico apenas mostra o estado vazio.
+export async function loadHistoricoDiarioTotal() {
+  try {
+    const { data, error } = await withTimeout(
+      supabaseClient
+        .from(HISTORICO_DIARIO_TOTAL_VIEW)
+        .select("data,total_caixas")
+        .order("data", { ascending: true }),
+      SUPABASE_TIMEOUT_MS,
+      "Tempo limite ao carregar o historico do CD."
+    );
+    if (error) {
+      console.warn("Erro ao carregar historico total:", error.message);
+      return [];
+    }
+    return data || [];
+  } catch (error) {
+    console.warn("Erro ao carregar historico total:", error?.message || error);
     return [];
   }
 }
@@ -204,9 +230,6 @@ export async function loadPublicRecords() {
     const cached = loadPublicCache();
     if (cached.length) {
       state.rawPublicRows = cached;
-      state.dashboardSeries = null;
-      state.dashboardHover.total = null;
-      state.dashboardHover.outflow = null;
       state.publicRows = aggregateRows(cached);
       updateLastUpdateFromRows(cached, "public");
       renderPublicTable();
@@ -224,9 +247,6 @@ export async function loadPublicRecords() {
 
   state.rawPublicRows = data || [];
   savePublicCache(state.rawPublicRows);
-  state.dashboardSeries = null;
-  state.dashboardHover.total = null;
-  state.dashboardHover.outflow = null;
   state.publicRows = aggregateRows(data || []);
   updateLastUpdateFromRows(data || [], "public");
   renderPublicTable();

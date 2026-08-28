@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta name="theme-color" content="#f5f6f8" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Estoque CD" />
@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260827-01" />
+    <link rel="stylesheet" href="styles.css?v=20260828-07" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="dashboard">
@@ -100,6 +100,7 @@
       </header>
       <section id="dashboard-panel" class="overview-shell">
         <header class="overview-head">
+          <p class="eyebrow">CD | Analítico do estoque</p>
           <h1>Visão Geral</h1>
           <p>Resumo analítico do estoque atual do CD.</p>
         </header>
@@ -116,7 +117,7 @@
           <article class="overview-metric metric-amber">
             <div class="overview-metric-top">
               <span class="overview-metric-label">Pallets</span>
-              <span class="overview-metric-icon"><i class="bi bi-pallet"></i></span>
+              <span class="overview-metric-icon"><i class="bi bi-stack"></i></span>
             </div>
             <strong class="overview-metric-value" id="ov-total-pallets">--</strong>
             <span class="overview-metric-meta" id="ov-total-pallets-meta">--</span>
@@ -128,14 +129,6 @@
             </div>
             <strong class="overview-metric-value" id="ov-produtos-distintos">--</strong>
             <span class="overview-metric-meta" id="ov-produtos-distintos-meta">--</span>
-          </article>
-          <article class="overview-metric metric-red">
-            <div class="overview-metric-top">
-              <span class="overview-metric-label">Baixo estoque</span>
-              <span class="overview-metric-icon"><i class="bi bi-exclamation-triangle"></i></span>
-            </div>
-            <strong class="overview-metric-value" id="ov-baixo-estoque">--</strong>
-            <span class="overview-metric-meta" id="ov-baixo-estoque-meta">--</span>
           </article>
         </section>
 
@@ -160,13 +153,6 @@
         <section class="overview-grid-two">
           <article class="overview-card">
             <div class="overview-card-head">
-              <h2><i class="bi bi-exclamation-triangle"></i> Alertas e Avisos</h2>
-            </div>
-            <div id="ov-alert-list" class="overview-alert-list"></div>
-          </article>
-
-          <article class="overview-card">
-            <div class="overview-card-head">
               <h2><i class="bi bi-clock-history"></i>Histórico de Contagens</h2>
               <span class="overview-pill">eventos</span>
             </div>
@@ -184,24 +170,24 @@
               </table>
             </div>
           </article>
-        </section>
 
-        <section class="overview-card">
-          <div class="overview-card-head">
-            <h2><i class="bi bi-pie-chart"></i>Distribuição por Marca</h2>
-            <span class="overview-pill">participação</span>
-          </div>
-          <div class="overview-brand-layout">
-            <div class="overview-donut-wrap">
-              <div id="ov-brand-chart" class="overview-donut">
-                <div class="overview-donut-center">
-                  <strong id="ov-brand-chart-total">0</strong>
-                  <span>marcas</span>
+          <article class="overview-card">
+            <div class="overview-card-head">
+              <h2><i class="bi bi-pie-chart"></i>Distribuição por Marca</h2>
+              <span class="overview-pill">participação</span>
+            </div>
+            <div class="overview-brand-layout">
+              <div class="overview-donut-wrap">
+                <div id="ov-brand-chart" class="overview-donut">
+                  <div class="overview-donut-center">
+                    <strong id="ov-brand-chart-total">0</strong>
+                    <span>marcas</span>
+                  </div>
                 </div>
               </div>
+              <div id="ov-brand-grid" class="overview-brand-grid"></div>
             </div>
-            <div id="ov-brand-grid" class="overview-brand-grid"></div>
-          </div>
+          </article>
         </section>
 
         <section class="overview-card">
@@ -225,7 +211,7 @@
             <div id="historico-produto-tooltip" class="chart-tooltip"></div>
           </div>
           <div class="chart-summary historico-summary">
-            <span id="historico-produto-summary" class="chart-sub">Selecione um produto e uma marca para ver o historico.</span>
+            <span id="historico-produto-summary" class="chart-sub">Carregando historico...</span>
             <div class="historico-extremos">
               <span id="historico-max-label" class="chart-chip chart-chip-max"></span>
               <span id="historico-min-label" class="chart-chip chart-chip-min"></span>
@@ -235,7 +221,7 @@
       </section>
     </div>
 
-    <script type="module" src="assets/js/main-dashboard.js?v=20260423-21"></script>
+    <script type="module" src="assets/js/main-dashboard.js?v=20260828-04"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

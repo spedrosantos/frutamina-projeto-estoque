@@ -5,7 +5,6 @@ import {
   refreshCatalogOverrides,
 } from "./catalog-overrides.js";
 import {
-  initSetorSelects,
   setupTheme,
   setupShellEvents,
   setupAuth,
@@ -14,19 +13,18 @@ import {
   setSidebarOpen,
   showNotificationInvite,
 } from "./auth-ui.js";
-import { setupDashboard, renderDashboard } from "./dashboard.js";
+import { renderDashboard } from "./dashboard.js";
 import { loadPublicRecords, loadSnapshotRecords, loadUserLabels } from "./supabase-api.js";
 import { setupHistoricoProduto } from "./historico-produto.js";
 
 applyCatalogOverridesFromCache();
-initSetorSelects();
 setupTheme();
 setupShellEvents();
 if (isRestrictedPageMode()) {
   lockRestrictedAccess();
 }
 setSidebarOpen(false);
-setupDashboard();
+renderDashboard();
 setupHistoricoProduto();
 setupAuth();
 loadPublicRecords();

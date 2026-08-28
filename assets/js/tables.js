@@ -989,8 +989,17 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
   }
 
   if (elements.publicRefresh) {
-    elements.publicRefresh.addEventListener("click", () => {
-      loadPublicRecords();
+    elements.publicRefresh.addEventListener("click", async () => {
+      const button = elements.publicRefresh;
+      if (button.disabled) return;
+      button.disabled = true;
+      button.classList.add("is-loading");
+      try {
+        await loadPublicRecords();
+      } finally {
+        button.disabled = false;
+        button.classList.remove("is-loading");
+      }
     });
   }
 

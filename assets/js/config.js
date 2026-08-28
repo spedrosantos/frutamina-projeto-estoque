@@ -6,6 +6,7 @@ export const TABLE_NAME = "estoque_registros";
 export const SNAPSHOT_TABLE = "estoque_snapshots";
 export const CATALOG_TABLE = "catalog_overrides";
 export const HISTORICO_DIARIO_TABLE = "estoque_historico_diario";
+export const HISTORICO_DIARIO_TOTAL_VIEW = "estoque_historico_diario_total";
 export const USER_LABELS_TABLE = "usuarios_label";
 export const SESSION_MAX_MS = 60 * 60 * 1000;
 export const SUPABASE_TIMEOUT_MS = 45000;

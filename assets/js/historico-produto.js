@@ -3,11 +3,14 @@
 // Supabase (ver supabase-historico-diario.sql), independente de "Nova Contagem".
 import { state, elements, PAGE_MODE } from "./state.js";
 import { listProductsBySetor, listBrands, setSelectOptionsWithPlaceholder, formatNumber } from "./utils.js";
-import { loadHistoricoDiario } from "./supabase-api.js";
+import { loadHistoricoDiario, loadHistoricoDiarioTotal } from "./supabase-api.js";
 import { renderLineChart } from "./dashboard.js";
 
 let chartMeta = null;
 let hoverIndex = null;
+// Sem produto/marca escolhidos o grafico mostra o total de caixas do CD, para
+// nunca ficar vazio.
+let totalMode = true;
 
 function readThemeColor(token, fallback) {
   const value = getComputedStyle(document.body).getPropertyValue(token).trim();
@@ -64,24 +67,24 @@ function renderHistoricoEmpty(message) {
 }
 
 function renderHistoricoChartAndSummary() {
-  if (!state.historicoProduto || !state.historicoMarca) {
-    renderHistoricoEmpty("Selecione um produto e uma marca para ver o historico.");
-    return;
-  }
-
   const dias = getRangeDias();
   state.historicoRangeDias = dias;
   const serieFiltrada = filterSerieByRange(state.historicoSerie, dias);
 
   if (!serieFiltrada.length) {
-    renderHistoricoEmpty("Sem dados historicos ainda para esse periodo.");
+    renderHistoricoEmpty(
+      totalMode
+        ? "Sem historico diario ainda. O primeiro ponto e gravado na virada do dia."
+        : "Sem dados historicos ainda para esse periodo."
+    );
     return;
   }
 
   const dates = serieFiltrada.map((ponto) => new Date(`${ponto.data}T00:00:00`));
   const values = serieFiltrada.map((ponto) => ponto.total_caixas);
 
-  const accent = readThemeColor("--ov-green", "#2ee981");
+  // Total do CD usa o acento; produto especifico usa o verde.
+  const accent = readThemeColor(totalMode ? "--ov-accent" : "--ov-green", "#2563eb");
   chartMeta = renderLineChart(elements.historicoCanvas, { dates, values }, {
     lineColor: accent,
     fillStart: withAlpha(accent, "4d"),
@@ -95,7 +98,12 @@ function renderHistoricoChartAndSummary() {
 
   const { min, max } = computeMinMax(serieFiltrada);
   if (elements.historicoSummary) {
-    elements.historicoSummary.textContent = `${formatNumber(values[values.length - 1])} cx hoje · ${serieFiltrada.length} dia(s) no periodo`;
+    const escopo = totalMode
+      ? "Total do CD"
+      : `${state.historicoProduto} — ${state.historicoMarca}`;
+    elements.historicoSummary.textContent = `${escopo}: ${formatNumber(
+      values[values.length - 1]
+    )} cx hoje · ${serieFiltrada.length} dia(s) no periodo`;
   }
   if (elements.historicoMaxLabel && max) {
     elements.historicoMaxLabel.textContent = `Maior estoque: ${formatNumber(max.total_caixas)} cx em ${formatDiaLabel(max.data)}`;
@@ -106,12 +114,11 @@ function renderHistoricoChartAndSummary() {
 }
 
 async function reloadHistoricoSerie() {
-  if (!state.historicoProduto || !state.historicoMarca) {
-    renderHistoricoEmpty("Selecione um produto e uma marca para ver o historico.");
-    return;
-  }
+  totalMode = !state.historicoProduto || !state.historicoMarca;
   renderHistoricoEmpty("Carregando historico...");
-  state.historicoSerie = await loadHistoricoDiario(state.historicoProduto, state.historicoMarca);
+  state.historicoSerie = totalMode
+    ? await loadHistoricoDiarioTotal()
+    : await loadHistoricoDiario(state.historicoProduto, state.historicoMarca);
   renderHistoricoChartAndSummary();
 }
 
@@ -183,7 +190,7 @@ export function setupHistoricoProduto() {
 
   setSelectOptionsWithPlaceholder(elements.historicoProdutoSelect, listProductsBySetor(null), "", "Selecione");
   updateHistoricoMarcaOptions();
-  renderHistoricoEmpty("Selecione um produto e uma marca para ver o historico.");
+  reloadHistoricoSerie();
 
   elements.historicoProdutoSelect.addEventListener("change", () => {
     state.historicoProduto = elements.historicoProdutoSelect.value || null;
