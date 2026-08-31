@@ -57,6 +57,9 @@ export function enhanceSelect(select) {
       item.setAttribute("role", "option");
       item.dataset.value = option.value;
       item.textContent = option.textContent;
+      // Opcao desabilitada no <select> tambem fica inerte no menu customizado.
+      item.disabled = option.disabled;
+      item.classList.toggle("is-disabled", option.disabled);
       const active = option.value === select.value;
       item.classList.toggle("active", active);
       item.setAttribute("aria-selected", String(active));

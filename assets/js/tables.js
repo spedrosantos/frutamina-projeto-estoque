@@ -603,6 +603,7 @@ function matchesPublicFilters(row) {
 
 export function renderCountTable() {
   if (!elements.countTableBody || !elements.countTotalGeral) return;
+  syncCountSourceAvailability();
   elements.countTableBody.innerHTML = "";
   let total = 0;
   const showActions = PAGE_MODE === "edit";
@@ -743,8 +744,9 @@ async function removePendingCountRow(row) {
   replacePendingDelta(buildInventoryIdentityKey(row));
 }
 
-export function setCountSource(source) {
-  state.countSource = source === "estoque" ? "estoque" : "contagem";
+// Aplica a visao escolhida na UI, sem redesenhar a tabela: quem chama decide
+// quando renderizar (renderCountTable ja passa por aqui no proprio ciclo).
+function applyCountSourceUI() {
   if (elements.countSourceSelect) {
     elements.countSourceSelect.value = state.countSource;
     elements.countSourceSelect.dispatchEvent(new Event("select-menu:sync"));
@@ -754,6 +756,24 @@ export function setCountSource(source) {
   const editingStock = state.countSource === "estoque";
   elements.countSaveBtn?.classList.toggle("hidden", editingStock);
   elements.countClearBtn?.classList.toggle("hidden", editingStock);
+}
+
+// "Contagem" so faz sentido quando existe contagem: sem nada lancado a opcao
+// fica travada e a tela cai no estoque gravado.
+function syncCountSourceAvailability() {
+  const counting =
+    state.countMode === "new"
+      ? state.sessionRows.length > 0
+      : getPendingChanges().length > 0;
+  const option = elements.countSourceSelect?.querySelector('option[value="contagem"]');
+  if (option) option.disabled = !counting;
+  if (!counting && state.countSource !== "estoque") state.countSource = "estoque";
+  applyCountSourceUI();
+}
+
+export function setCountSource(source) {
+  state.countSource = source === "estoque" ? "estoque" : "contagem";
+  applyCountSourceUI();
   renderCountTable();
 }
 

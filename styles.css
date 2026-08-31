@@ -3484,6 +3484,12 @@ body[data-page="edit"] .select-menu.open .select-menu-list {
   display: block;
 }
 
+/* Opcao travada (ex: "Contagem" sem nada contado). */
+.select-menu-item.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 body[data-page="edit"] .select-menu-item {
   display: block;
   width: 100%;
