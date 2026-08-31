@@ -317,16 +317,6 @@
               </div>
 
                 <button
-                  id="count-save-btn"
-                  class="primary icon-btn"
-                  type="button"
-                  title="Salvar alterações"
-                  aria-label="Salvar alterações"
-                  disabled
-                >
-                  <i class="bi bi-floppy-fill"></i>
-                </button>
-                <button
                   id="count-export-toggle"
                   class="ghost icon-btn"
                   type="button"
@@ -339,10 +329,20 @@
                   id="count-clear-btn"
                   class="danger icon-btn"
                   type="button"
-                  title="Descartar alterações pendentes"
-                  aria-label="Descartar alterações pendentes"
+                  title="Limpar a contagem desta tela"
+                  aria-label="Limpar a contagem desta tela"
                 >
                   <i class="bi bi-trash3"></i>
+                </button>
+                <button
+                  id="count-save-btn"
+                  class="primary icon-btn"
+                  type="button"
+                  title="Salvar a contagem no estoque"
+                  aria-label="Salvar a contagem no estoque"
+                  disabled
+                >
+                  <i class="bi bi-floppy-fill"></i>
                 </button>
               </div>
             </div>
@@ -459,7 +459,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260831-13"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260831-17"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

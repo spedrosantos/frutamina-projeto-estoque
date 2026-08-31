@@ -3592,16 +3592,42 @@ body[data-page="edit"] #count-table-body td:nth-child(8) {
     align-items: stretch;
   }
 
-  body[data-page="edit"] .count-toolbar-actions {
+  /* "Ultima atualizacao" vira uma linha unica (rotulo: valor) com um risco
+     separando as acoes - em grid, o rotulo e o valor empilhados comiam duas
+     linhas de altura no celular. */
+  body[data-page="edit"] .count-toolbar-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--ed-border);
   }
 
+  body[data-page="edit"] .count-toolbar-meta span::after {
+    content: ":";
+  }
+
+  /* No celular a toolbar quebra em duas linhas: tudo encostado a direita, para
+     os icones nao ficarem espalhados pela largura do card. */
   body[data-page="edit"] .count-toolbar-actions {
-    justify-content: space-between;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* Select do que a tabela mostra ocupa a largura toda; na linha de baixo o
+     toggle fica na esquerda e os botoes na direita. */
+  body[data-page="edit"] .count-toolbar-actions .select-menu {
+    flex: 1 0 100%;
+    min-width: 0;
   }
 
   body[data-page="edit"] .count-toolbar-actions .view-toggle {
-    order: -1;
+    margin-right: auto;
+  }
+
+  body[data-page="edit"] .count-toolbar-actions .view-toggle + .icon-btn {
+    margin-left: 0;
   }
 }
 
