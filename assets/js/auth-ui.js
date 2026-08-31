@@ -483,10 +483,6 @@ export function setupShellEvents() {
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      import("./tables.js").then((m) => {
-        m.closeExportSheet("public");
-        m.closeExportSheet("count");
-      });
       setSidebarOpen(false);
     }
   });

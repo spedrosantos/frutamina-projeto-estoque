@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260831-07" />
+    <link rel="stylesheet" href="styles.css?v=20260831-11" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -317,13 +317,22 @@
               </div>
 
                 <button
-                  id="count-export-toggle"
+                  id="count-whatsapp-btn"
+                  class="ghost icon-btn whatsapp-btn"
+                  type="button"
+                  title="Enviar por WhatsApp (PDF)"
+                  aria-label="Enviar por WhatsApp em PDF"
+                >
+                  <i class="bi bi-whatsapp"></i>
+                </button>
+                <button
+                  id="count-print-btn"
                   class="ghost icon-btn"
                   type="button"
-                  title="Exportar"
-                  aria-label="Exportar"
+                  title="Imprimir"
+                  aria-label="Imprimir"
                 >
-                  <i class="bi bi-download"></i>
+                  <i class="bi bi-printer"></i>
                 </button>
                 <button
                   id="count-clear-btn"
@@ -377,33 +386,6 @@
       </section>
     </div>
 
-    <!-- Menu mobile de exportacao da contagem. -->
-    <div id="count-export-sheet" class="share-sheet hidden">
-      <div class="share-backdrop" data-close="count"></div>
-      <div class="share-panel">
-        <div class="share-handle"></div>
-        <div class="share-header">
-          <h3><i class="bi bi-download"></i>Exportar</h3>
-          <button id="count-export-close" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-        <div class="share-options">
-          <button id="count-export-csv" class="share-option" type="button">
-            <i class="bi bi-filetype-csv"></i>
-            <span>CSV</span>
-          </button>
-          <button id="count-export-pdf" class="share-option" type="button">
-            <i class="bi bi-filetype-pdf"></i>
-            <span>PDF</span>
-          </button>
-          <button id="count-export-print" class="share-option" type="button">
-            <i class="bi bi-printer"></i>
-            <span>Impressão</span>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Modal de manutencao manual dos itens ja lancados. -->
     <div id="edit-modal" class="modal hidden">
@@ -463,7 +445,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260831-24"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260831-27"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

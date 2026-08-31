@@ -852,62 +852,14 @@ function updateFilterDependencies() {
   setSelectOptions(elements.filterMarca, listBrands(setor, elements.filterProduto.value), elements.filterMarca.value);
 }
 
-function exportRows(rows, filename) {
-  if (!rows.length) {
-    pushMessage("warn", "Nenhum item para exportar.");
-    return;
-  }
-  const header = [
-    "Setor",
-    "Produto",
-    "Marca",
-    "Tipo",
-    "Caixas/Pallet",
-    "Pallets",
-    "Caixas Avulsas",
-    "Total Caixas",
-  ];
-  const csv = [
-    header.join(";"),
-    ...rows.map((row) => {
-      const normalizedRow = hydrateInventoryRow(row);
-      const tipoLabel = formatTipoLabelValue(
-        normalizedRow.produto,
-        normalizedRow.tipo,
-        normalizedRow.marca
-      );
-      return [
-        normalizedRow.setor,
-        normalizedRow.produto,
-        normalizedRow.marca,
-        tipoLabel,
-        normalizedRow.caixas_pallet,
-        normalizedRow.pallets,
-        normalizedRow.caixas_avulsas,
-        normalizedRow.total_caixas,
-      ].join(";");
-    }),
-  ].join("\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function getExportRows(scope) {
+function getPrintRows(scope) {
   if (scope === "public") {
     return state.publicRows.filter(matchesPublicFilters);
   }
   return getCountRows();
 }
 
-function getExportNode(scope) {
+function getPrintNode(scope) {
   if (scope === "public") {
     return state.publicViewMode === "summary"
       ? elements.publicTableSummary
@@ -918,59 +870,25 @@ function getExportNode(scope) {
     : elements.countTableDetailed;
 }
 
-// Modal de pre-visualizacao de impressao: mostra o conteudo em uma folha A4
-// dentro da propria pagina (sem popup) e usa o @media print de styles.css,
-// que imprime apenas #print-area.
-function closePrintPreview() {
-  const modal = document.getElementById("print-preview");
-  if (modal) modal.classList.add("hidden");
-  document.body.classList.remove("print-preview-open");
-}
-
-function ensurePrintPreview() {
-  const existing = document.getElementById("print-preview");
+// Impressao: monta a folha em #print-area (fora da tela) e chama o dialogo do
+// navegador. O @media print de styles.css imprime apenas esse bloco, e de la o
+// proprio navegador salva em PDF se o operador quiser - por isso nao existe mais
+// pre-visualizacao propria nem exportacao em CSV/PDF.
+function ensurePrintArea() {
+  const existing = document.getElementById("print-area");
   if (existing) return existing;
-
-  const modal = document.createElement("div");
-  modal.id = "print-preview";
-  modal.className = "print-preview hidden";
-  modal.innerHTML = `
-    <div class="print-preview-backdrop" data-print-close></div>
-    <div class="print-preview-panel">
-      <header class="print-preview-bar">
-        <div class="print-preview-heading">
-          <strong>Pre-visualizacao de impressao</strong>
-          <span class="print-preview-subtitle"></span>
-        </div>
-        <div class="print-preview-actions">
-          <button class="ghost" type="button" data-print-close>Fechar</button>
-          <button class="primary" type="button" data-print-now>
-            <i class="bi bi-printer"></i>
-            Imprimir
-          </button>
-        </div>
-      </header>
-      <div class="print-preview-scroll">
-        <div id="print-area" class="print-sheet">
-          <h1></h1>
-          <p class="print-meta"></p>
-          <div class="print-sheet-body"></div>
-        </div>
-      </div>
-    </div>`;
-
-  modal.addEventListener("click", (event) => {
-    if (event.target.closest("[data-print-close]")) closePrintPreview();
-    if (event.target.closest("[data-print-now]")) window.print();
-  });
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closePrintPreview();
-  });
-  document.body.appendChild(modal);
-  return modal;
+  const area = document.createElement("div");
+  area.id = "print-area";
+  area.className = "print-sheet print-offscreen";
+  area.innerHTML = `
+    <h1></h1>
+    <p class="print-meta"></p>
+    <div class="print-sheet-body"></div>`;
+  document.body.appendChild(area);
+  return area;
 }
 
-function openPrintPreview(title, contentNode, meta) {
+function printContent(title, contentNode, meta) {
   if (!contentNode) return;
   const clone = contentNode.cloneNode(true);
   clone
@@ -981,58 +899,65 @@ function openPrintPreview(title, contentNode, meta) {
   clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
   clone.classList.remove("hidden");
 
-  const modal = ensurePrintPreview();
-  modal.querySelector(".print-preview-subtitle").textContent = title;
-  modal.querySelector("#print-area h1").textContent = title;
-  modal.querySelector(".print-meta").textContent = meta;
-  const body = modal.querySelector(".print-sheet-body");
+  const area = ensurePrintArea();
+  area.querySelector("h1").textContent = title;
+  area.querySelector(".print-meta").textContent = meta;
+  const body = area.querySelector(".print-sheet-body");
   body.textContent = "";
   body.appendChild(clone);
-
-  modal.classList.remove("hidden");
-  document.body.classList.add("print-preview-open");
+  // Um frame antes de imprimir: garante que o navegador ja calculou o layout da
+  // folha (ela so entra no layout no proprio @media print).
+  requestAnimationFrame(() => window.print());
 }
 
-function handleExport(scope, format) {
-  const rows = getExportRows(scope);
-  if (!rows.length) {
-    pushMessage("warn", "Nenhum item para exportar.");
-    return;
-  }
-  if (format === "csv") {
-    const filename =
-      scope === "public"
-        ? "estoque_filtro.csv"
-        : `estoque_${state.setor}.csv`;
-    exportRows(rows, filename);
-    return;
-  }
-
-  const node = getExportNode(scope);
-  if (!node) return;
+// Titulo e contexto usados tanto na impressao quanto no PDF do WhatsApp.
+function buildPrintHeading(scope, rows) {
   const title =
     scope === "public"
       ? "Estoque - Visao Geral"
-      : `Estoque - ${state.setor}`;
+      : state.countSource === "estoque"
+        ? "Estoque atual"
+        : "Contagem em andamento";
   const totalCaixas = rows.reduce(
     (sum, row) => sum + (hydrateInventoryRow(row).total_caixas || 0),
     0
   );
   const meta = `${rows.length} ${rows.length === 1 ? "item" : "itens"} | Total ${totalCaixas} caixas | ${formatDateTime(new Date())}`;
-  openPrintPreview(title, node, meta);
+  return { title, meta };
 }
 
-function openExportSheet(scope) {
-  const sheet = scope === "public" ? elements.publicExportSheet : elements.countExportSheet;
-  if (sheet) sheet.classList.remove("hidden");
+// Manda a tabela atual por WhatsApp em PDF (o wa.me nao leva anexo, entao quem
+// entrega o arquivo e o Web Share do aparelho - ver share-pdf.js).
+function handleWhatsApp(scope) {
+  const rows = getPrintRows(scope);
+  if (!rows.length) {
+    pushMessage("warn", "Nenhum item para enviar.");
+    return;
+  }
+  const { title, meta } = buildPrintHeading(scope, rows);
+  import("./share-pdf.js").then((m) =>
+    m.shareRowsAsPdf({
+      title,
+      meta,
+      rows,
+      filename: `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`,
+    })
+  );
 }
 
-export function closeExportSheet(scope) {
-  const sheet = scope === "public" ? elements.publicExportSheet : elements.countExportSheet;
-  if (sheet) sheet.classList.add("hidden");
+function handlePrint(scope) {
+  const rows = getPrintRows(scope);
+  if (!rows.length) {
+    pushMessage("warn", "Nenhum item para imprimir.");
+    return;
+  }
+  const node = getPrintNode(scope);
+  if (!node) return;
+  const { title, meta } = buildPrintHeading(scope, rows);
+  printContent(title, node, meta);
 }
 
-// Liga os eventos da tabela publica (busca, filtro, exportacao, atualizar).
+// Liga os eventos da tabela publica (busca, filtro, impressao, atualizar).
 // Usado por index.html e editar.html (a tabela publica so existe em index.html,
 // mas a funcao e segura de chamar em ambas por causa dos guards de elemento).
 export function setupPublicTableEvents({ loadPublicRecords }) {
@@ -1126,49 +1051,12 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
     });
   }
 
-  if (elements.publicExportToggle) {
-    elements.publicExportToggle.addEventListener("click", () => {
-      openExportSheet("public");
-    });
-  }
-
-  if (elements.publicExportClose) {
-    elements.publicExportClose.addEventListener("click", () => {
-      closeExportSheet("public");
-    });
-  }
-
-  if (elements.publicExportSheet) {
-    elements.publicExportSheet.addEventListener("click", (event) => {
-      if (event.target.classList.contains("share-backdrop")) {
-        closeExportSheet("public");
-      }
-    });
-  }
-
-  if (elements.publicExportCsv) {
-    elements.publicExportCsv.addEventListener("click", () => {
-      handleExport("public", "csv");
-      closeExportSheet("public");
-    });
-  }
-
-  if (elements.publicExportPdf) {
-    elements.publicExportPdf.addEventListener("click", () => {
-      handleExport("public", "pdf");
-      closeExportSheet("public");
-    });
-  }
-
-  if (elements.publicExportPrint) {
-    elements.publicExportPrint.addEventListener("click", () => {
-      handleExport("public", "print");
-      closeExportSheet("public");
-    });
+  if (elements.publicPrintBtn) {
+    elements.publicPrintBtn.addEventListener("click", () => handlePrint("public"));
   }
 }
 
-// Liga os eventos da tabela de contagem (view toggle, exportacao).
+// Liga os eventos da tabela de contagem (view toggle, impressao).
 function setupCountSourceEvents() {
   elements.countSourceSelect?.addEventListener("change", () => {
     setCountSource(elements.countSourceSelect.value);
@@ -1189,45 +1077,12 @@ export function setupCountTableEvents() {
     });
   }
 
-  if (elements.countExportToggle) {
-    elements.countExportToggle.addEventListener("click", () => {
-      openExportSheet("count");
-    });
+  if (elements.countPrintBtn) {
+    elements.countPrintBtn.addEventListener("click", () => handlePrint("count"));
   }
 
-  if (elements.countExportClose) {
-    elements.countExportClose.addEventListener("click", () => {
-      closeExportSheet("count");
-    });
-  }
-
-  if (elements.countExportSheet) {
-    elements.countExportSheet.addEventListener("click", (event) => {
-      if (event.target.classList.contains("share-backdrop")) {
-        closeExportSheet("count");
-      }
-    });
-  }
-
-  if (elements.countExportCsv) {
-    elements.countExportCsv.addEventListener("click", () => {
-      handleExport("count", "csv");
-      closeExportSheet("count");
-    });
-  }
-
-  if (elements.countExportPdf) {
-    elements.countExportPdf.addEventListener("click", () => {
-      handleExport("count", "pdf");
-      closeExportSheet("count");
-    });
-  }
-
-  if (elements.countExportPrint) {
-    elements.countExportPrint.addEventListener("click", () => {
-      handleExport("count", "print");
-      closeExportSheet("count");
-    });
+  if (elements.countWhatsAppBtn) {
+    elements.countWhatsAppBtn.addEventListener("click", () => handleWhatsApp("count"));
   }
 }
 

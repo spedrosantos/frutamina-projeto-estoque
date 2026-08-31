@@ -1045,83 +1045,6 @@ th {
   margin-top: 16px;
 }
 
-.share-sheet {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 60;
-}
-
-.share-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-}
-
-.share-panel {
-  position: relative;
-  width: min(720px, 100%);
-  background: #ffffff;
-  border-radius: 20px 20px 0 0;
-  padding: 16px 20px 24px;
-  box-shadow: 0 -16px 40px rgba(15, 23, 42, 0.2);
-  z-index: 1;
-}
-
-.share-handle {
-  width: 48px;
-  height: 4px;
-  border-radius: 999px;
-  background: #e2e8f0;
-  margin: 0 auto 12px;
-}
-
-.share-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.share-header h3 {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0;
-  font-size: 16px;
-  font-family: "Space Grotesk", sans-serif;
-}
-
-.share-header h3 i {
-  color: #2563eb;
-  font-size: 16px;
-}
-
-.share-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-}
-
-.share-option {
-  background: #f8fafc;
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 14px 10px;
-  display: grid;
-  gap: 8px;
-  justify-items: center;
-  text-transform: none;
-  font-weight: 600;
-}
-
-.share-option i {
-  font-size: 22px;
-}
-
 .debug-card {
   margin-top: 12px;
   padding: 12px;
@@ -3530,6 +3453,11 @@ body[data-page="edit"] .count-toolbar-actions .select-menu {
   min-width: 152px;
 }
 
+/* Enviar por WhatsApp: mesmo botao de icone, com a cor da marca. */
+body[data-page="edit"] .count-toolbar-actions .whatsapp-btn i {
+  color: #25d366;
+}
+
 body[data-page="edit"] .count-toolbar-actions .icon-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -3873,18 +3801,6 @@ body[data-theme="dark"] {
   color: #dbe7ff;
 }
 
-body[data-theme="dark"] .card,
-body[data-theme="dark"] .modal-card,
-body[data-theme="dark"] .share-panel,
-body[data-theme="dark"] .summary-card,
-body[data-theme="dark"] .debug-card,
-body[data-theme="dark"] .print-overlay-card {
-  background: #0f172a;
-  color: #dbe7ff;
-  border: 1px solid #22324a;
-  box-shadow: 0 20px 46px rgba(2, 6, 23, 0.38);
-}
-
 body[data-theme="dark"] .modal-body > p,
 body[data-theme="dark"] .confirm-message,
 body[data-theme="dark"] .card-header p,
@@ -3956,16 +3872,6 @@ body[data-theme="dark"] th {
 
 body[data-theme="dark"] td {
   color: #dbe7ff;
-}
-
-body[data-theme="dark"] .share-option {
-  background: #121d31;
-  border-color: #2b3d5c;
-  color: #dbe7ff;
-}
-
-body[data-theme="dark"] .share-handle {
-  background: #324866;
 }
 
 body[data-theme="dark"] .view-toggle {
@@ -4292,17 +4198,14 @@ body[data-theme="dark"] .print-overlay-card span {
 }
 
 @media print {
-  body * {
-    visibility: hidden !important;
-  }
-  #print-area,
-  #print-area * {
-    visibility: visible !important;
+  /* Esconder o app com visibility deixava paginas em branco (os blocos
+     continuavam ocupando espaco): fora da folha nada entra no layout. */
+  body > *:not(#print-area) {
+    display: none !important;
   }
   #print-area {
-    position: absolute;
-    left: 0;
-    top: 0;
+    display: block !important;
+    position: static;
     width: 100%;
     padding: 24px;
     color: #111827;
@@ -4695,38 +4598,6 @@ body[data-page="view"] .summary-table tfoot td {
 }
 
 /* Modal de filtros e folha de exportacao */
-body[data-page="view"] .modal-card,
-body[data-page="view"] .share-panel {
-  background: var(--vw-surface);
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius);
-  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
-}
-
-body[data-page="view"] .share-panel {
-  border-radius: 18px 18px 0 0;
-}
-
-body[data-page="view"] .modal-backdrop,
-body[data-page="view"] .share-backdrop {
-  background: rgba(16, 24, 40, 0.5);
-  backdrop-filter: blur(2px);
-}
-
-body[data-page="view"] .share-option {
-  background: var(--vw-surface-soft);
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius-sm);
-  color: var(--vw-text);
-}
-
-body[data-page="view"] .share-option:hover {
-  transform: none;
-  border-color: var(--vw-accent);
-  color: var(--vw-accent);
-  box-shadow: none;
-}
-
 body[data-page="view"] .ghost {
   background: var(--vw-surface-soft);
   border: 1px solid var(--vw-border-strong);
@@ -4785,102 +4656,6 @@ body[data-page="view"] .ghost:hover {
    Modal de pre-visualizacao de impressao (index.html e editar.html).
    O conteudo fica em #print-area para o @media print imprimir so a folha.
    ========================================================================== */
-
-.print-preview {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.print-preview.hidden {
-  display: none;
-}
-
-body.print-preview-open {
-  overflow: hidden;
-}
-
-.print-preview-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(16, 24, 40, 0.6);
-  backdrop-filter: blur(3px);
-}
-
-.print-preview-panel {
-  position: relative;
-  z-index: 1;
-  width: min(920px, 100%);
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border-radius: 16px;
-  background: #eef0f4;
-  box-shadow: 0 30px 70px rgba(16, 24, 40, 0.35);
-}
-
-.print-preview-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 14px 18px;
-  background: #ffffff;
-  border-bottom: 1px solid #e4e7ec;
-}
-
-.print-preview-heading {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.print-preview-heading strong {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 15px;
-  color: #101828;
-}
-
-.print-preview-subtitle {
-  font-size: 12px;
-  color: #667085;
-}
-
-.print-preview-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.print-preview-actions button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  height: 38px;
-  padding: 0 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  box-shadow: none;
-}
-
-.print-preview-actions button:hover {
-  transform: none;
-  box-shadow: none;
-  filter: brightness(0.97);
-}
-
-.print-preview-scroll {
-  flex: 1;
-  overflow: auto;
-  padding: 24px;
-  -webkit-overflow-scrolling: touch;
-}
 
 /* Folha A4 (794 x 1123 px @96dpi) */
 .print-sheet {
@@ -4978,45 +4753,16 @@ body.print-preview-open {
 }
 
 @media (max-width: 720px) {
-  .print-preview {
-    padding: 0;
-  }
-
-  .print-preview-panel {
-    width: 100%;
-    height: 100%;
-    max-height: 100%;
-    border-radius: 0;
-  }
-
-  .print-preview-scroll {
-    padding: 12px;
-  }
-
   .print-sheet {
     padding: 20px 18px;
   }
 }
 
 @media print {
-  .print-preview,
-  .print-preview-panel,
-  .print-preview-scroll {
-    position: static !important;
+  /* Na tela a folha esta fora do layout; na impressao ela volta a existir. */
+  #print-area.print-offscreen {
     display: block !important;
-    overflow: visible !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    max-height: none !important;
-    width: auto !important;
-    background: #ffffff !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-
-  .print-preview-bar,
-  .print-preview-backdrop {
-    display: none !important;
+    position: static;
   }
 
   #print-area.print-sheet {
@@ -5046,65 +4792,49 @@ body.print-preview-open {
   }
 }
 
-/* A folha da pre-visualizacao e papel: fica clara mesmo com o app no escuro.
-   Os seletores usam o id #print-preview de proposito - o tema escuro mora em
-   body[data-theme="dark"] X, sem id, entao o id garante a vitoria na cascata sem
-   precisar de !important. A moldura em volta continua seguindo o tema do app. */
-#print-preview .print-sheet {
+/* A folha vive fora da tela: existe so para o @media print, que reposiciona o
+   #print-area em cima da pagina. O id vence body[data-theme="dark"] X na cascata
+   (que nao tem id), entao o papel sai claro mesmo com o app no escuro. */
+/* Fora da impressao a folha nem entra no layout; o @media print a devolve.
+   (Tirar da tela com left negativo fazia o Chrome imprimir a pagina em branco.) */
+#print-area.print-offscreen {
+  display: none;
   color-scheme: light;
 }
 
-#print-preview .print-sheet,
-#print-preview .print-sheet .summary-card,
-#print-preview .print-sheet .summary-table,
-#print-preview .print-sheet th,
-#print-preview .print-sheet td {
+#print-area.print-sheet,
+#print-area .summary-card,
+#print-area .summary-table,
+#print-area th,
+#print-area td {
   background: #ffffff;
   color: #111827;
   border-color: #111827;
 }
 
-#print-preview .print-sheet th,
-#print-preview .print-sheet .summary-table thead th {
+#print-area th,
+#print-area .summary-table thead th {
   background: #f2f4f7;
   color: #111827;
 }
 
-#print-preview .print-sheet .summary-table tfoot td {
+#print-area .summary-table tfoot td {
   background: #f8fafc;
 }
 
-#print-preview .print-sheet .summary-header h3,
-#print-preview .print-sheet .summary-header p,
-#print-preview .print-sheet .summary-legend {
+#print-area .summary-header h3,
+#print-area .summary-header p,
+#print-area .summary-legend {
   color: #111827;
 }
 
-#print-preview .print-sheet h1 {
+#print-area h1 {
   color: #101828;
 }
 
-#print-preview .print-sheet .print-meta {
+#print-area .print-meta {
   color: #667085;
   border-bottom-color: #d0d5dd;
-}
-
-/* Moldura (fundo, barra e titulos) acompanha o tema do app. */
-body[data-theme="dark"] .print-preview-panel {
-  background: #0d111a;
-}
-
-body[data-theme="dark"] .print-preview-bar {
-  background: #10141d;
-  border-bottom-color: #212836;
-}
-
-body[data-theme="dark"] .print-preview-heading strong {
-  color: #e6eaf2;
-}
-
-body[data-theme="dark"] .print-preview-subtitle {
-  color: #93a0b7;
 }
 
 /* Botao em carregamento: icone girando e clique bloqueado. */
