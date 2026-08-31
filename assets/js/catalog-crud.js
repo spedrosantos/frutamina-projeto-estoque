@@ -16,6 +16,7 @@ import {
   sanitizeContextAfterCatalogChange,
   writeCatalogCache,
 } from "./catalog-overrides.js";
+import { confirmAction } from "./confirm-modal.js";
 
 function setMessageIn(target, type, text) {
   if (!target) return;
@@ -313,9 +314,13 @@ async function resetCatalogOverridesToDefault() {
     return;
   }
 
-  const confirmed = window.confirm(
-    "Deseja restaurar o catalogo original para TODOS os usuarios? Isso remove todas as personalizacoes cadastradas."
-  );
+  const confirmed = await confirmAction({
+    title: "Restaurar catalogo",
+    message:
+      "Restaurar o catalogo original para TODOS os usuarios? Isso remove todas as personalizacoes cadastradas.",
+    confirmLabel: "Restaurar",
+    danger: true,
+  });
   if (!confirmed) return;
 
   setCatalogListMessage("info", "Restaurando...");

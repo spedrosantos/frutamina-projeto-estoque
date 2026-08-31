@@ -44,7 +44,6 @@ import {
   buildNormalizedMap,
   findExactMatch,
   matchSpecialTipoAtTokens,
-  displayUserFromEmail,
   pushMessage,
   withTimeout,
   getRowKey,
@@ -62,7 +61,6 @@ import { renderContext, renderCountTable, updateSessionAggregateRecord } from ".
 import { loadUserRecords, loadPublicRecords } from "./supabase-api.js";
 import { queuePendingDelta, undoLastPending } from "./pending-changes.js";
 
-let notificationDebounceTimer = null;
 
 // ===== Estruturas auxiliares para desfazer/remover/corrigir o ultimo lancamento =====
 
@@ -385,27 +383,6 @@ function buildInventoryResultMessage({
 
 function hasBoxKeyword(text) {
   return tokenizeText(text).some((token) => BOX_KEYWORDS.has(token));
-}
-
-/**
- * Dispara uma notificação push agrupada após um período de inatividade.
- */
-function triggerDebouncedNotification() {
-  if (notificationDebounceTimer) {
-    clearTimeout(notificationDebounceTimer);
-  }
-
-  notificationDebounceTimer = setTimeout(async () => {
-    if (Notification.permission === "granted" && state.user) {
-      const userLabel = displayUserFromEmail(state.user.email);
-
-      new Notification("Estoque Atualizado", {
-        body: `O estoque do CD recebeu novas alterações por ${userLabel}`,
-        icon: "./assets/img/icon-192.png",
-      });
-    }
-    notificationDebounceTimer = null;
-  }, 120000);
 }
 
 export async function registerInventoryChange({

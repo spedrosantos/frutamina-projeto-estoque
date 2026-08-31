@@ -1,7 +1,6 @@
 // Utilitarios transversais: numeros, texto/voz, tipos especiais e mensagens de UI.
 import {
   NO_TIPO_PRODUCTS,
-  NO_TIPO_VALUE,
   TIPO_MIN,
   TIPO_MAX,
   SPECIAL_TIPO_VARIANTS,

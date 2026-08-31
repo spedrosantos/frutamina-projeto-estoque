@@ -27,6 +27,7 @@ import { scheduleCountDraftPersist } from "./draft.js";
 // Ciclo proposital com pending-changes.js: sao funcoes declaradas, chamadas so
 // em runtime, entao os dois modulos se resolvem sem problema.
 import { applyPendingRow, getPendingChanges, replacePendingDelta } from "./pending-changes.js";
+import { confirmAction } from "./confirm-modal.js";
 
 export function formatDateTime(value) {
   if (!value) return "--";
@@ -724,7 +725,21 @@ function buildPendingCountRows() {
 }
 
 // Descarta os lancamentos de um item da contagem em andamento (visao Contagem).
-function removePendingCountRow(row) {
+// Toda exclusao pede confirmacao: o lancamento so existe no aparelho, entao
+// nao ha como recuperar depois de descartado.
+async function removePendingCountRow(row) {
+  const tipoLabel = formatTipoLabelValue(row?.produto, row?.tipo, row?.marca);
+  const nome = [row?.produto, row?.marca].filter(Boolean).join(" ");
+  const confirmed = await confirmAction({
+    title: "Descartar lançamento",
+    message:
+      tipoLabel && tipoLabel !== "--"
+        ? `Descartar o que você contou de ${nome} Tipo ${tipoLabel}?`
+        : `Descartar o que você contou de ${nome}?`,
+    confirmLabel: "Descartar",
+    danger: true,
+  });
+  if (!confirmed) return;
   replacePendingDelta(buildInventoryIdentityKey(row));
 }
 

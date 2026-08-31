@@ -37,6 +37,7 @@ import { requireAuthenticatedUser } from "./auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
 import { probeSupabase, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
 import { replacePendingDelta } from "./pending-changes.js";
+import { confirmAction } from "./confirm-modal.js";
 import { registerInventoryChange, clearVoiceActionState } from "./voice-actions.js";
 
 function setEditMessage(type, text) {
@@ -367,9 +368,12 @@ async function saveEditItem() {
     // corrigido vira UM lancamento seu e os antigos sao apagados (a policy de
     // delete e aberta a qualquer autenticado).
     if (sourceIds.length) {
-      const consolidate = window.confirm(
-        `Este item soma ${sourceIds.length + (ownId ? 1 : 0)} lançamentos de operadores diferentes. Salvar vai substituir todos por um único lançamento seu. Continuar?`
-      );
+      const consolidate = await confirmAction({
+        title: "Consolidar item",
+        message: `Este item soma ${sourceIds.length + (ownId ? 1 : 0)} lançamentos de operadores diferentes. Salvar vai substituir todos por um único lançamento seu.`,
+        confirmLabel: "Substituir",
+        danger: true,
+      });
       if (!consolidate) return;
       const { error: deleteError } = await supabaseClient
         .from(TABLE_NAME)
@@ -436,11 +440,15 @@ export async function removeRow(row) {
   const nome = isNoTipoContext(row?.produto, row?.marca)
     ? `${row.produto} ${row.marca}`
     : `${row.produto} ${row.marca} Tipo ${tipoLabel}`;
-  const confirmDelete = window.confirm(
-    sourceIds.length > 1
-      ? `Remover o item ${nome}? Ele soma ${sourceIds.length} lançamentos (de operadores diferentes) e todos serão apagados.`
-      : `Remover o item ${nome}?`
-  );
+  const confirmDelete = await confirmAction({
+    title: "Remover item",
+    message:
+      sourceIds.length > 1
+        ? `Remover ${nome}? Ele soma ${sourceIds.length} lançamentos (de operadores diferentes) e todos serão apagados.`
+        : `Remover ${nome} do estoque?`,
+    confirmLabel: "Remover",
+    danger: true,
+  });
   if (!confirmDelete) return;
 
   if (state.countMode === "new") {

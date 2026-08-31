@@ -30,6 +30,7 @@ import { initManualForm, setupManualFormEvents } from "./manual-form.js";
 import { setupCountModeEvents, updateCountModeUI, saveNewCount } from "./count-mode.js";
 import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
 import { enhanceSelect } from "./select-menu.js";
+import { confirmAction } from "./confirm-modal.js";
 import {
   applyPendingChanges,
   hasPendingChanges,
@@ -57,13 +58,18 @@ function setupEditTabs() {
 // Salvar o que foi lancado no modo "Estoque atual". No modo "Nova contagem"
 // quem grava continua sendo o botao da propria aba Contagem.
 function setupPendingActions() {
-  document.getElementById("count-save-btn")?.addEventListener("click", () => {
+  document.getElementById("count-save-btn")?.addEventListener("click", async () => {
     if (state.countMode === "new") {
       saveNewCount();
       return;
     }
     if (!hasPendingChanges()) return;
-    if (window.confirm("Salvar a contagem no estoque?")) applyPendingChanges();
+    const confirmed = await confirmAction({
+      title: "Salvar contagem",
+      message: "Os lançamentos desta contagem entram no estoque agora.",
+      confirmLabel: "Salvar",
+    });
+    if (confirmed) applyPendingChanges();
   });
 
   // Rede de seguranca: a contagem fica no aparelho, mas o aviso evita que

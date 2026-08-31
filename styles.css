@@ -354,6 +354,21 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   margin-top: 16px;
 }
 
+/* Modal de confirmacao (confirm-modal.js): substitui o window.confirm nativo,
+   entao herda o cartao do .modal e so ajusta largura e texto. */
+.confirm-card {
+  width: min(420px, 92vw);
+}
+
+.confirm-message {
+  margin: 0;
+  line-height: 1.5;
+}
+
+#confirm-modal .modal-header {
+  margin-bottom: 8px;
+}
+
 .card {
   background: #ffffff;
   border-radius: 16px;

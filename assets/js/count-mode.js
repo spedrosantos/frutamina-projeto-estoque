@@ -20,6 +20,7 @@ import { buildPublicRowsAfterUserReplacement, calculateOutflowCaixas } from "./c
 import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
 import { clearVoiceActionState } from "./voice-actions.js";
 import { hasPendingChanges, clearPendingChanges, renderPendingChanges } from "./pending-changes.js";
+import { confirmAction } from "./confirm-modal.js";
 
 export function updateCountModeUI() {
   if (elements.countModeSelect) {
@@ -44,9 +45,13 @@ async function setCountMode(mode) {
   if (mode === state.countMode) return;
   // Trocar de modo com alteracoes na fila as perderia sem aviso.
   if (hasPendingChanges()) {
-    const confirmed = window.confirm(
-      "Ha lancamentos do estoque atual que ainda nao foram salvos. Trocar de modo vai descarta-los."
-    );
+    const confirmed = await confirmAction({
+      title: "Trocar de modo",
+      message:
+        "Ha lancamentos do estoque atual que ainda nao foram salvos. Trocar de modo vai descarta-los.",
+      confirmLabel: "Trocar e descartar",
+      danger: true,
+    });
     if (!confirmed) return;
     clearPendingChanges();
   }
@@ -57,15 +62,21 @@ async function setCountMode(mode) {
       state.countMode = "new";
       pushMessage("info", "Rascunho da nova contagem retomado.");
     } else {
-      const confirmed = window.confirm(
-        "Iniciar nova contagem? A contagem atual so sera substituida quando voce salvar."
-      );
+      const confirmed = await confirmAction({
+        title: "Nova contagem",
+        message:
+          "Iniciar nova contagem? A contagem atual so sera substituida quando voce salvar.",
+        confirmLabel: "Iniciar",
+      });
       if (!confirmed) return;
       // Oferta que antes vivia no botao "Limpar contagem": guardar o total de
       // hoje no historico antes de zerar a contagem.
-      const shouldSave = window.confirm(
-        "Salvar o total atual no histórico antes de iniciar?\nOK = salvar e iniciar\nCancelar = iniciar sem salvar"
-      );
+      const shouldSave = await confirmAction({
+        title: "Histórico",
+        message: "Salvar o total atual no histórico antes de iniciar?",
+        confirmLabel: "Salvar e iniciar",
+        cancelLabel: "Iniciar sem salvar",
+      });
       if (shouldSave) {
         const saved = await saveSnapshotRecord({
           rows: aggregateRows(
@@ -75,9 +86,12 @@ async function setCountMode(mode) {
           showSuccess: false,
         });
         if (!saved) {
-          const proceed = window.confirm(
-            "Falha ao salvar o histórico. Deseja iniciar a nova contagem mesmo assim?"
-          );
+          const proceed = await confirmAction({
+            title: "Falha no histórico",
+            message: "Não foi possível salvar o histórico. Iniciar a nova contagem mesmo assim?",
+            confirmLabel: "Iniciar mesmo assim",
+            danger: true,
+          });
           if (!proceed) return;
         }
       }
@@ -92,9 +106,12 @@ async function setCountMode(mode) {
     }
   } else {
     if (hasCountDraftData()) {
-      const confirmed = window.confirm(
-        "Voltar para o estoque atual? O rascunho da nova contagem ficara salvo neste aparelho para voce retomar depois."
-      );
+      const confirmed = await confirmAction({
+        title: "Voltar para o estoque atual",
+        message:
+          "O rascunho da nova contagem fica salvo neste aparelho para voce retomar depois.",
+        confirmLabel: "Voltar",
+      });
       if (!confirmed) return;
       saveCountDraftLocally();
       pushMessage("info", "Rascunho da nova contagem mantido neste aparelho.");
@@ -148,9 +165,11 @@ export async function saveNewCount() {
   const comparisonPreviousRows = previousPublicRows.length
     ? previousPublicRows
     : previousRows;
-  const confirmed = window.confirm(
-    "Salvar nova contagem? Isso vai apagar a contagem antiga e substituir pela nova."
-  );
+  const confirmed = await confirmAction({
+    title: "Salvar nova contagem",
+    message: "Isso vai apagar a contagem antiga e substituir pela nova.",
+    confirmLabel: "Salvar",
+  });
   if (!confirmed) return;
 
   isSavingCount = true;
@@ -288,14 +307,17 @@ export async function saveNewCount() {
   }
 }
 
-export function discardNewCount() {
+export async function discardNewCount() {
   if (!requireAuthenticatedUser("Faça login para gerenciar a nova contagem.")) {
     return;
   }
 
-  const confirmed = window.confirm(
-    "Descartar a nova contagem? Os dados não salvos serão perdidos."
-  );
+  const confirmed = await confirmAction({
+    title: "Descartar nova contagem",
+    message: "Os dados não salvos serão perdidos.",
+    confirmLabel: "Descartar",
+    danger: true,
+  });
   if (!confirmed) return;
   state.sessionRows = [];
   state.previousCountRows = [];
@@ -343,9 +365,12 @@ export function setupCountModeEvents() {
   if (elements.countClearBtn) {
     elements.countClearBtn.addEventListener("click", async () => {
       if (state.countMode === "new") {
-        const confirmClear = window.confirm(
-          "Deseja limpar a nova contagem inteira? Isso vai zerar todos os setores que você já contou."
-        );
+        const confirmClear = await confirmAction({
+          title: "Limpar a nova contagem",
+          message: "Isso vai zerar todos os setores que você já contou.",
+          confirmLabel: "Limpar",
+          danger: true,
+        });
         if (!confirmClear) return;
         state.sessionRows = [];
         state.selectedRowKey = null;
@@ -362,9 +387,12 @@ export function setupCountModeEvents() {
         pushMessage("info", "Nao ha lancamentos para limpar.");
         return;
       }
-      const confirmDiscard = window.confirm(
-        "Limpar a contagem desta tela? Os lançamentos não gravados serão perdidos."
-      );
+      const confirmDiscard = await confirmAction({
+        title: "Limpar a contagem",
+        message: "Os lançamentos não gravados serão perdidos. O estoque já gravado não muda.",
+        confirmLabel: "Limpar",
+        danger: true,
+      });
       if (!confirmDiscard) return;
       clearPendingChanges();
       clearVoiceActionState();
