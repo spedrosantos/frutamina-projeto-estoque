@@ -1,5 +1,5 @@
 // Formulario manual de lancamento e modal de edicao/remocao de item — so editar.html.
-import { state, elements } from "./state.js";
+import { state, elements, supabaseClient } from "./state.js";
 import {
   CONFIG_GERAL,
   NO_TIPO_VALUE,
@@ -7,6 +7,7 @@ import {
   TIPO_MAX,
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
+  TABLE_NAME,
 } from "./config.js";
 import {
   toNonNegativeInt,
@@ -30,12 +31,13 @@ import {
 } from "./utils.js";
 import {
   normalizeInventoryMetrics,
+  buildInventoryIdentityKey,
 } from "./inventory-core.js";
 import { requireAuthenticatedUser } from "./auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
-import { probeSupabase } from "./supabase-api.js";
+import { probeSupabase, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
+import { replacePendingDelta } from "./pending-changes.js";
 import { registerInventoryChange, clearVoiceActionState } from "./voice-actions.js";
-import { queuePendingSet, queuePendingDelete } from "./pending-changes.js";
 
 function setEditMessage(type, text) {
   if (!elements.editMsg) return;
@@ -86,7 +88,12 @@ function inferSetorFromProdutoMarca(produto, marca) {
 }
 
 function findCurrentRowByKey(key) {
-  const source = state.countMode === "new" ? state.sessionRows : state.userRows;
+  // Na visao Estoque atual a linha exibida e o agregado publico, entao o registro
+  // original com as colunas do banco vem de rawPublicRows.
+  const source =
+    state.countMode === "new"
+      ? state.sessionRows
+      : [...state.userRows, ...(state.rawPublicRows || [])];
   return source.find((row) => getRowKey(row) === key);
 }
 
@@ -101,6 +108,12 @@ export function openEditModal(row = null) {
   if (!elements.editModal) return;
   state.editTarget = {
     rowKey: getRowKey(row),
+    // Linha da visao Contagem: identidade do lancamento local que sera trocado.
+    pendingKey: row ? buildInventoryIdentityKey(row) : "",
+    // Linha agregada da visao Estoque atual: guarda os registros que a compoem
+    // para a edicao consolidar todos num unico lancamento.
+    sourceIds: Array.isArray(row?._sourceIds) ? row._sourceIds : [],
+    ownId: row?.id || null,
   };
   setEditMessage("", "");
 
@@ -287,6 +300,30 @@ async function saveEditItem() {
       return;
     }
 
+    // Visao Contagem: a linha e um lancamento que ainda esta no aparelho, entao
+    // editar so troca a fila - o estoque gravado nao entra nessa conta.
+    if (state.countSource !== "estoque") {
+      replacePendingDelta(state.editTarget.pendingKey, {
+        setor,
+        produto,
+        marca,
+        tipo: tipoFinal,
+        caixas_pallet: normalizedMetrics.caixas_pallet,
+        palletsDelta: normalizedMetrics.pallets,
+        caixasAvulsasDelta: normalizedMetrics.caixas_avulsas,
+      });
+      clearTimeout(slowTimer);
+      if (setor && state.setor !== setor) {
+        state.setor = setor;
+        if (elements.setorSelect) elements.setorSelect.value = setor;
+        renderContext();
+      }
+      state.selectedRowKey = null;
+      clearVoiceActionState();
+      closeEditModal();
+      return;
+    }
+
     if (!state.user) {
       setEditMessage("error", "Faça login para salvar alterações.");
       return;
@@ -315,17 +352,50 @@ async function saveEditItem() {
       Object.prototype.hasOwnProperty.call(originalRow || {}, "caixas_avulsas") ||
       normalizedMetrics.caixas_avulsas > 0;
 
-    // A edicao tambem espera o Salvar: entra na fila e o modal fecha.
-    queuePendingSet(
-      state.editTarget.rowKey,
-      {
-        ...payload,
-        ...(hasLooseBoxesColumn
-          ? { caixas_avulsas: normalizedMetrics.caixas_avulsas }
-          : {}),
-      },
-      { produto, marca, tipo: tipoFinal }
-    );
+    // Visao "Estoque atual": a edicao vai direto para o banco. A contagem em
+    // andamento nao passa por aqui - ela se corrige na propria visao Contagem.
+    const finalPayload = {
+      ...payload,
+      ...(hasLooseBoxesColumn
+        ? { caixas_avulsas: normalizedMetrics.caixas_avulsas }
+        : {}),
+    };
+    const ownId = state.editTarget.ownId;
+    const sourceIds = (state.editTarget.sourceIds || []).filter((id) => id !== ownId);
+    // O item pode somar lancamentos de varios operadores, e a policy de update
+    // do Supabase so deixa alterar as proprias linhas. Nesse caso o valor
+    // corrigido vira UM lancamento seu e os antigos sao apagados (a policy de
+    // delete e aberta a qualquer autenticado).
+    if (sourceIds.length) {
+      const consolidate = window.confirm(
+        `Este item soma ${sourceIds.length + (ownId ? 1 : 0)} lançamentos de operadores diferentes. Salvar vai substituir todos por um único lançamento seu. Continuar?`
+      );
+      if (!consolidate) return;
+      const { error: deleteError } = await supabaseClient
+        .from(TABLE_NAME)
+        .delete()
+        .in("id", sourceIds);
+      if (deleteError) {
+        setEditMessage("error", `Erro ao consolidar o item: ${deleteError.message}`);
+        return;
+      }
+    }
+    const { error: saveError } = ownId
+      ? await supabaseClient
+          .from(TABLE_NAME)
+          .update(finalPayload)
+          .eq("id", ownId)
+          .eq("user_id", state.user.id)
+      : await supabaseClient
+          .from(TABLE_NAME)
+          .upsert(finalPayload, { onConflict: "user_id,setor,produto,marca,tipo" });
+    if (saveError) {
+      setEditMessage("error", `Erro ao salvar alteração: ${saveError.message}`);
+      return;
+    }
+    await loadUserRecords();
+    await loadPublicRecords();
+    pushMessage("success", "Item atualizado no estoque.");
     clearTimeout(slowTimer);
     if (setor && state.setor !== setor) {
       state.setor = setor;
@@ -357,10 +427,19 @@ export async function removeRow(row) {
   const rowKey = getRowKey(row);
   if (!rowKey) return;
   const tipoLabel = formatTipoLabelValue(row?.produto, row?.tipo, row?.marca);
+  // Na visao Estoque atual a linha e o agregado do item: remover apaga TODOS os
+  // registros que a compoem, inclusive de outros operadores (a policy de delete
+  // do Supabase permite). Por isso o aviso extra quando ha mais de um.
+  const sourceIds = Array.isArray(row?._sourceIds) && row._sourceIds.length
+    ? row._sourceIds
+    : [rowKey];
+  const nome = isNoTipoContext(row?.produto, row?.marca)
+    ? `${row.produto} ${row.marca}`
+    : `${row.produto} ${row.marca} Tipo ${tipoLabel}`;
   const confirmDelete = window.confirm(
-    isNoTipoContext(row?.produto, row?.marca)
-      ? `Remover o item ${row.produto} ${row.marca}?`
-      : `Remover o item ${row.produto} ${row.marca} Tipo ${tipoLabel}?`
+    sourceIds.length > 1
+      ? `Remover o item ${nome}? Ele soma ${sourceIds.length} lançamentos (de operadores diferentes) e todos serão apagados.`
+      : `Remover o item ${nome}?`
   );
   if (!confirmDelete) return;
 
@@ -378,13 +457,22 @@ export async function removeRow(row) {
 
   if (!state.user) return;
 
-  // A remocao vira pendencia: o item so sai do banco quando o operador salvar.
-  queuePendingDelete(rowKey, row);
+  // Visao "Estoque atual": remove do banco na hora.
+  const { error } = await supabaseClient
+    .from(TABLE_NAME)
+    .delete()
+    .in("id", sourceIds);
+  if (error) {
+    pushMessage("error", `Erro ao remover item: ${error.message}`);
+    return;
+  }
   clearVoiceActionState();
   if (state.selectedRowKey === rowKey) {
     state.selectedRowKey = null;
   }
-  return;
+  await loadUserRecords();
+  await loadPublicRecords();
+  pushMessage("success", "Item removido do estoque.");
 }
 
 function updateManualBoxesOptions() {

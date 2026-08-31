@@ -21,6 +21,7 @@ import {
   renderCountTable,
   setPublicViewMode,
   setCountViewMode,
+  setCountSource,
   setupCountTableEvents,
 } from "./tables.js";
 import { setupCommandEvents } from "./voice-actions.js";
@@ -31,7 +32,6 @@ import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
 import { enhanceSelect } from "./select-menu.js";
 import {
   applyPendingChanges,
-  clearPendingChanges,
   hasPendingChanges,
   renderPendingChanges,
 } from "./pending-changes.js";
@@ -54,29 +54,20 @@ function setupEditTabs() {
   });
 }
 
-// Salvar/descartar as alteracoes pendentes do modo "Estoque atual". No modo
-// "Nova contagem" quem grava continua sendo o botao da propria aba Contagem.
+// Salvar o que foi lancado no modo "Estoque atual". No modo "Nova contagem"
+// quem grava continua sendo o botao da propria aba Contagem.
 function setupPendingActions() {
-  const save = () => {
+  document.getElementById("count-save-btn")?.addEventListener("click", () => {
     if (state.countMode === "new") {
       saveNewCount();
       return;
     }
     if (!hasPendingChanges()) return;
-    if (window.confirm("Salvar as alterações no estoque?")) applyPendingChanges();
-  };
-  const discard = () => {
-    if (!hasPendingChanges()) return;
-    if (window.confirm("Descartar as alterações pendentes? Elas não foram gravadas.")) {
-      clearPendingChanges();
-    }
-  };
-  document.getElementById("count-save-btn")?.addEventListener("click", save);
-  document.getElementById("pending-save")?.addEventListener("click", save);
-  document.getElementById("pending-discard")?.addEventListener("click", discard);
+    if (window.confirm("Salvar a contagem no estoque?")) applyPendingChanges();
+  });
 
-  // Rede de seguranca: a fila fica no aparelho, mas o aviso evita que alguem
-  // feche a aba achando que ja gravou.
+  // Rede de seguranca: a contagem fica no aparelho, mas o aviso evita que
+  // alguem feche a aba achando que ja gravou.
   window.addEventListener("beforeunload", (event) => {
     if (!hasPendingChanges()) return;
     event.preventDefault();
@@ -93,13 +84,14 @@ renderPublicTable();
 renderCountTable();
 setPublicViewMode(state.publicViewMode);
 setCountViewMode(state.countViewMode);
+setCountSource(state.countSource);
 updateCountModeUI();
 setupEditTabs();
 setupPendingActions();
 renderPendingChanges();
 // Os selects do Comando Manual usam o mesmo dropdown da aba Tendencia; o
 // <select> original segue como fonte da verdade, entao manual-form.js nao muda.
-["count-mode-select", "manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(
+["count-mode-select", "count-source-select", "manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(
   (id) => enhanceSelect(document.getElementById(id))
 );
 setupTheme();

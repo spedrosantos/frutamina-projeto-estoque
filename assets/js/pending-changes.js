@@ -1,13 +1,16 @@
-// Fila de alteracoes do modo "Estoque atual".
+// Contagem em andamento do modo "Estoque atual".
 //
-// Antes cada lancamento ia direto para o Supabase, item por item. Agora ele fica
-// aqui ate o operador salvar, do mesmo jeito que a "Nova contagem" ja fazia com
-// state.sessionRows. A diferenca e que aqui as operacoes sao *deltas* sobre o
-// estoque que ja existe, e nao uma contagem que substitui tudo.
-import { state, elements, supabaseClient } from "./state.js";
-import { pushMessage, formatTipoLabelValue } from "./utils.js";
+// Cada lancamento fica aqui (e no aparelho) ate o operador salvar, do mesmo jeito
+// que a "Nova contagem" ja fazia com state.sessionRows. A diferenca e que aqui as
+// operacoes sao *deltas* somados ao estoque que ja existe, e nao uma contagem que
+// substitui tudo. A visao "Contagem" da Conferencia mostra exatamente esta fila;
+// a visao "Estoque atual" mostra o que ja esta gravado no banco.
+import { state, elements } from "./state.js";
+import { pushMessage } from "./utils.js";
 import { upsertRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
-import { TABLE_NAME, PENDING_CHANGES_KEY_PREFIX } from "./config.js";
+import { PENDING_CHANGES_KEY_PREFIX } from "./config.js";
+import { renderCountTable } from "./tables.js";
+import { buildInventoryIdentityKey } from "./inventory-core.js";
 
 // A fila fica no aparelho: fechar o app (ou ficar sem bateria) no meio de uma
 // contagem nao pode custar os lancamentos que ainda nao foram gravados.
@@ -41,7 +44,7 @@ export function restorePendingChanges() {
   if (state.pendingChanges.length) {
     pushMessage(
       "info",
-      `${state.pendingChanges.length} alteracao(oes) do estoque atual foram recuperadas neste aparelho. Salve para grava-las.`
+      `${state.pendingChanges.length} lancamento(s) do estoque atual foram recuperados neste aparelho. Salve para grava-los.`
     );
   }
   return state.pendingChanges.length > 0;
@@ -56,73 +59,64 @@ export function hasPendingChanges() {
   return getPendingChanges().length > 0;
 }
 
-function describePending(op) {
-  const tipoLabel = formatTipoLabelValue(op.produto, op.tipo, op.marca);
-  const nome = [op.produto, op.marca].filter(Boolean).join(" ");
-  if (op.kind === "delete") return `Remover ${nome}`;
-  if (op.kind === "set") return `Editar ${nome}`;
-  const partes = [];
-  if (op.palletsDelta) partes.push(`${op.palletsDelta > 0 ? "+" : ""}${op.palletsDelta} pallet(s)`);
-  if (op.caixasAvulsasDelta) {
-    partes.push(`${op.caixasAvulsasDelta > 0 ? "+" : ""}${op.caixasAvulsasDelta} caixa(s)`);
-  }
-  const detalhe = partes.join(" e ") || "sem alteracao";
-  return `${nome}${tipoLabel && tipoLabel !== "--" ? ` Tipo ${tipoLabel}` : ""}: ${detalhe}`;
-}
-
+// O que esta na fila aparece direto na tabela "Itens Contados" (tables.js), entao
+// aqui so resta persistir e ligar/desligar o botao Salvar.
 export function renderPendingChanges({ persist = true } = {}) {
   if (persist) persistPendingChanges();
-  const list = elements.pendingList;
-  const card = elements.pendingCard;
-  const counter = elements.pendingCount;
-  const ops = getPendingChanges();
-
-  if (counter) counter.textContent = String(ops.length);
-  if (card) card.classList.toggle("hidden", ops.length === 0);
   if (elements.countSaveBtn) {
-    elements.countSaveBtn.disabled = state.countMode === "new" ? false : ops.length === 0;
+    elements.countSaveBtn.disabled =
+      state.countMode === "new" ? false : !getPendingChanges().length;
   }
-  if (!list) return;
+  renderCountTable();
+}
 
-  list.innerHTML = "";
-  ops.forEach((op, index) => {
-    const item = document.createElement("div");
-    item.className = "pending-item";
-    const text = document.createElement("span");
-    text.textContent = describePending(op);
-    const remove = document.createElement("button");
-    remove.type = "button";
-    remove.className = "ghost icon-btn";
-    remove.title = "Descartar esta alteracao";
-    remove.setAttribute("aria-label", "Descartar esta alteracao");
-    remove.innerHTML = '<i class="bi bi-x-lg"></i>';
-    remove.addEventListener("click", () => {
-      ops.splice(index, 1);
-      renderPendingChanges();
+// Editar/remover um item da contagem em andamento: as ops daquele item saem da
+// fila e, quando ha valor novo, entram como um unico lancamento.
+export function replacePendingDelta(identityKey, entry = null) {
+  state.pendingChanges = getPendingChanges().filter(
+    (op) => buildInventoryIdentityKey(op) !== identityKey
+  );
+  if (entry) getPendingChanges().push({ kind: "delta", ...entry });
+  renderPendingChanges();
+}
+
+// Salvar so um item da contagem: grava os lancamentos daquele item e tira
+// apenas eles da fila; o resto continua esperando o Salvar geral.
+export async function applyPendingRow(identityKey) {
+  if (!state.user) {
+    pushMessage("error", "Faça login para salvar as alterações.");
+    return false;
+  }
+  const ops = getPendingChanges().filter(
+    (op) => buildInventoryIdentityKey(op) === identityKey
+  );
+  if (!ops.length) return true;
+  for (const op of ops) {
+    const saved = await upsertRecord({
+      setor: op.setor,
+      produto: op.produto,
+      marca: op.marca,
+      tipo: op.tipo,
+      caixas_pallet: op.caixas_pallet,
+      palletsDelta: op.palletsDelta,
+      caixasAvulsasDelta: op.caixasAvulsasDelta,
     });
-    item.append(text, remove);
-    list.appendChild(item);
-  });
+    if (!saved) {
+      renderPendingChanges();
+      await loadUserRecords();
+      return false;
+    }
+    state.pendingChanges = getPendingChanges().filter((item) => item !== op);
+    renderPendingChanges();
+  }
+  await loadUserRecords();
+  await loadPublicRecords();
+  pushMessage("success", "Item salvo no estoque.");
+  return true;
 }
 
 export function queuePendingDelta(entry) {
   getPendingChanges().push({ kind: "delta", ...entry });
-  renderPendingChanges();
-}
-
-export function queuePendingSet(rowKey, payload, info) {
-  getPendingChanges().push({ kind: "set", rowKey, payload, ...info });
-  renderPendingChanges();
-}
-
-export function queuePendingDelete(rowKey, row) {
-  getPendingChanges().push({
-    kind: "delete",
-    rowKey,
-    produto: row?.produto,
-    marca: row?.marca,
-    tipo: row?.tipo,
-  });
   renderPendingChanges();
 }
 
@@ -155,45 +149,31 @@ export async function applyPendingChanges() {
     return false;
   }
 
-  // Em ordem: uma edicao depois de um lancamento no mesmo item precisa vencer.
-  for (const op of ops) {
-    if (op.kind === "delta") {
-      const saved = await upsertRecord({
-        setor: op.setor,
-        produto: op.produto,
-        marca: op.marca,
-        tipo: op.tipo,
-        caixas_pallet: op.caixas_pallet,
-        palletsDelta: op.palletsDelta,
-        caixasAvulsasDelta: op.caixasAvulsasDelta,
-      });
-      if (!saved) return false;
-    } else if (op.kind === "set") {
-      const { error } = await supabaseClient
-        .from(TABLE_NAME)
-        .update(op.payload)
-        .eq("id", op.rowKey)
-        .eq("user_id", state.user.id);
-      if (error) {
-        pushMessage("error", `Erro ao salvar alteração: ${error.message}`);
-        return false;
-      }
-    } else if (op.kind === "delete") {
-      const { error } = await supabaseClient
-        .from(TABLE_NAME)
-        .delete()
-        .eq("id", op.rowKey)
-        .eq("user_id", state.user.id);
-      if (error) {
-        pushMessage("error", `Erro ao remover item: ${error.message}`);
-        return false;
-      }
+  // Grava e tira da fila um por um: se a rede cair no meio, o que ja foi
+  // gravado nao volta a ser gravado numa segunda tentativa.
+  while (ops.length) {
+    const op = ops[0];
+    const saved = await upsertRecord({
+      setor: op.setor,
+      produto: op.produto,
+      marca: op.marca,
+      tipo: op.tipo,
+      caixas_pallet: op.caixas_pallet,
+      palletsDelta: op.palletsDelta,
+      caixasAvulsasDelta: op.caixasAvulsasDelta,
+    });
+    if (!saved) {
+      renderPendingChanges();
+      await loadUserRecords();
+      return false;
     }
+    ops.shift();
+    renderPendingChanges();
   }
 
   clearPendingChanges();
   await loadUserRecords();
   await loadPublicRecords();
-  pushMessage("success", "Alterações salvas no estoque.");
+  pushMessage("success", "Contagem salva no estoque.");
   return true;
 }

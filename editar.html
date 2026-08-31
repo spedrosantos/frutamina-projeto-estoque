@@ -276,28 +276,11 @@
         </div>
 
         <div id="panel-conferencia" class="edit-tabpanel hidden">
-          <!-- Alteracoes ainda nao gravadas no estoque (modo "Estoque atual"). -->
-          <section id="pending-card" class="card hidden">
-            <div class="card-header">
-              <h2><i class="bi bi-clock"></i>Alterações pendentes (<span id="pending-count">0</span>)</h2>
-              <p>Elas só entram no estoque quando você salvar.</p>
-            </div>
-            <div id="pending-list" class="pending-list"></div>
-            <div class="pending-actions">
-              <button id="pending-discard" class="danger" type="button">
-                <i class="bi bi-x-lg"></i><span>Descartar</span>
-              </button>
-              <button id="pending-save" class="primary" type="button">
-                <i class="bi bi-floppy-fill"></i><span>Salvar</span>
-              </button>
-            </div>
-          </section>
-
           <!-- Tabela dos itens contados no setor atual, com edicao e remocao. -->
           <section id="count-items-card" class="card full">
             <div class="card-header">
               <h2><i class="bi bi-list-check"></i>Itens Contados</h2>
-              <p>Visualização por setor atual.</p>
+              <p>Todos os setores.</p>
             </div>
             <div class="count-toolbar">
               <div class="count-toolbar-meta">
@@ -305,16 +288,14 @@
                 <strong id="count-last-update">--</strong>
               </div>
               <div class="count-toolbar-actions">
+                <!-- Alterna entre a contagem em andamento e o estoque gravado. -->
+                <select id="count-source-select" aria-label="O que a tabela mostra">
+                  <option value="contagem">Contagem</option>
+                  <option value="estoque">Estoque atual</option>
+                </select>
                 <div id="count-view-toggle" class="view-toggle" role="group" aria-label="Modo de tabela">
-                <button
-                  id="count-view-detailed"
-                  class="view-toggle-btn"
-                  type="button"
-                  aria-pressed="false"
-                  title="Detalhada"
-                >
-                  <i class="bi bi-list-ul"></i>
-                </button>
+                <!-- Resumo primeiro, igual ao toggle do index: o CSS da pilula
+                     do .view-toggle assume essa ordem. -->
                 <button
                   id="count-view-summary"
                   class="view-toggle-btn"
@@ -323,6 +304,15 @@
                   title="Resumo"
                 >
                   <i class="bi bi-table"></i>
+                </button>
+                <button
+                  id="count-view-detailed"
+                  class="view-toggle-btn"
+                  type="button"
+                  aria-pressed="false"
+                  title="Detalhada"
+                >
+                  <i class="bi bi-list-ul"></i>
                 </button>
               </div>
 
@@ -361,6 +351,7 @@
                 <table>
                   <thead>
                     <tr>
+                      <th>Setor</th>
                       <th>Produto</th>
                       <th>Marca</th>
                       <th>Tipo</th>
@@ -376,7 +367,7 @@
               </div>
               <div class="table-footer">
                 <div class="total">
-                  Total geral do setor: <strong id="count-total-geral">0</strong>
+                  Total geral: <strong id="count-total-geral">0</strong>
                 </div>
               </div>
             </div>
@@ -468,7 +459,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260828-09"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260831-13"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

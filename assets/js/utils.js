@@ -9,7 +9,7 @@ import {
 } from "./config.js";
 import { elements } from "./state.js";
 
-function toInt(value, fallback = 0) {
+export function toInt(value, fallback = 0) {
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) ? parsed : fallback;
 }

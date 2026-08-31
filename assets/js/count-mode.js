@@ -45,7 +45,7 @@ async function setCountMode(mode) {
   // Trocar de modo com alteracoes na fila as perderia sem aviso.
   if (hasPendingChanges()) {
     const confirmed = window.confirm(
-      "Ha alteracoes do estoque atual que ainda nao foram salvas. Trocar de modo vai descarta-las."
+      "Ha lancamentos do estoque atual que ainda nao foram salvos. Trocar de modo vai descarta-los."
     );
     if (!confirmed) return;
     clearPendingChanges();
@@ -356,19 +356,19 @@ export function setupCountModeEvents() {
         return;
       }
 
-      // No modo "Estoque atual" nao ha contagem propria para limpar: o que
-      // existe e a fila de alteracoes ainda nao gravadas.
+      // No modo "Estoque atual" a lixeira limpa o que foi lancado agora e
+      // ainda nao gravado; o estoque que ja esta no banco fica intacto.
       if (!hasPendingChanges()) {
-        pushMessage("info", "Nao ha alteracoes pendentes para descartar.");
+        pushMessage("info", "Nao ha lancamentos para limpar.");
         return;
       }
       const confirmDiscard = window.confirm(
-        "Descartar as alterações pendentes? Elas não foram gravadas no estoque."
+        "Limpar a contagem desta tela? Os lançamentos não gravados serão perdidos."
       );
       if (!confirmDiscard) return;
       clearPendingChanges();
       clearVoiceActionState();
-      pushMessage("success", "Alterações pendentes descartadas.");
+      pushMessage("success", "Contagem limpa da tela. O estoque gravado nao mudou.");
     });
   }
 }

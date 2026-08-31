@@ -19,6 +19,7 @@ import {
 import {
   pushMessage,
   fetchWithTimeout,
+  toInt,
   toNonNegativeInt,
   getSpecialTipoVariantByValue,
   withTimeout,
@@ -328,16 +329,15 @@ export async function upsertRecord({
     const current = hydrateInventoryRow(existing);
     const updated = hydrateInventoryRow(current, {
       caixas_pallet: caixas_pallet ?? current.caixas_pallet,
-      pallets: current.pallets + toNonNegativeInt(palletsDelta, 0),
-      caixas_avulsas:
-        current.caixas_avulsas + toNonNegativeInt(caixasAvulsasDelta, 0),
+      pallets: current.pallets + toInt(palletsDelta, 0),
+      caixas_avulsas: current.caixas_avulsas + toInt(caixasAvulsasDelta, 0),
     });
     const payload = buildDbRowPayload(
       updated,
       false,
       Object.prototype.hasOwnProperty.call(existing || {}, "caixas_avulsas") ||
       updated.caixas_avulsas > 0 ||
-      toNonNegativeInt(caixasAvulsasDelta, 0) > 0
+      toInt(caixasAvulsasDelta, 0) !== 0
     );
     const { error } = await runWrite(
       supabaseClient.from(TABLE_NAME).update(payload).eq("id", existing.id),

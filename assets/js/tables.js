@@ -15,8 +15,18 @@ import {
   pushMessage,
   withTimeout,
 } from "./utils.js";
-import { hydrateInventoryRow, applyInventoryDeltas, formatInventoryStack } from "./inventory-core.js";
+import {
+  hydrateInventoryRow,
+  applyInventoryDeltas,
+  formatInventoryStack,
+  buildInventoryIdentityKey,
+  getCurrentPublicAggregateRows,
+  getInventoryRowByIdentity,
+} from "./inventory-core.js";
 import { scheduleCountDraftPersist } from "./draft.js";
+// Ciclo proposital com pending-changes.js: sao funcoes declaradas, chamadas so
+// em runtime, entao os dois modulos se resolvem sem problema.
+import { applyPendingRow, getPendingChanges, replacePendingDelta } from "./pending-changes.js";
 
 export function formatDateTime(value) {
   if (!value) return "--";
@@ -533,9 +543,9 @@ function renderPublicSummary() {
 
 function renderCountSummary() {
   if (!elements.countTableSummary) return;
-  const rows = getCountRowsForSetor();
+  const rows = getCountRows();
   renderSummaryTables(rows, elements.countTableSummary, {
-    showSetor: false,
+    showSetor: true,
     colorizeFirst: true,
   });
 }
@@ -554,6 +564,7 @@ export function renderPublicTable() {
     );
     const tr = document.createElement("tr");
     tr.innerHTML = `
+      <td>${normalizedRow.setor || "--"}</td>
       <td>${normalizedRow.produto}</td>
       <td>${normalizedRow.marca}</td>
       <td>${tipoLabel}</td>
@@ -594,7 +605,7 @@ export function renderCountTable() {
   elements.countTableBody.innerHTML = "";
   let total = 0;
   const showActions = PAGE_MODE === "edit";
-  const rows = getCountRowsForSetor();
+  const rows = getCountRows();
   for (const row of rows) {
     const normalizedRow = hydrateInventoryRow(row);
     const tipoLabel = formatTipoLabelValue(
@@ -617,6 +628,7 @@ export function renderCountTable() {
     }
     const totalCaixas = normalizedRow.total_caixas;
     tr.innerHTML = `
+      <td>${normalizedRow.setor || "--"}</td>
       <td>${normalizedRow.produto}</td>
       <td>${normalizedRow.marca}</td>
       <td>${tipoLabel}</td>
@@ -628,19 +640,48 @@ export function renderCountTable() {
     if (showActions) {
       const actionsTd = document.createElement("td");
       actionsTd.className = "row-actions";
+      const isPendingRow = state.countSource !== "estoque" && state.countMode !== "new";
+      let rowSaveBtn = null;
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "danger icon-btn";
+      deleteBtn.type = "button";
+      deleteBtn.title = isPendingRow ? "Descartar este lancamento" : "Remover do estoque";
+      deleteBtn.setAttribute("aria-label", deleteBtn.title);
+      deleteBtn.innerHTML = '<i class="bi bi-trash3"></i>';
+      if (isPendingRow) {
+        // Na visao Contagem a linha e um lancamento local: editar e remover
+        // mexem so no que ele contou, sem tocar no estoque gravado, e o disquete
+        // grava apenas aquele item.
+        deleteBtn.addEventListener("click", () => removePendingCountRow(row));
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "primary icon-btn";
+        saveBtn.type = "button";
+        saveBtn.title = "Salvar so este item no estoque";
+        saveBtn.setAttribute("aria-label", saveBtn.title);
+        saveBtn.innerHTML = '<i class="bi bi-floppy-fill"></i>';
+        saveBtn.addEventListener("click", () => {
+          saveBtn.disabled = true;
+          applyPendingRow(buildInventoryIdentityKey(row)).finally(() => {
+            saveBtn.disabled = false;
+          });
+        });
+        rowSaveBtn = saveBtn;
+      } else {
+        deleteBtn.addEventListener("click", () => {
+          import("./manual-form.js").then((m) => m.removeRow(row));
+        });
+      }
       const editBtn = document.createElement("button");
-      editBtn.className = "ghost";
-      editBtn.textContent = "Editar";
+      editBtn.className = "ghost icon-btn";
+      editBtn.type = "button";
+      editBtn.title = "Editar item";
+      editBtn.setAttribute("aria-label", "Editar item");
+      editBtn.innerHTML = '<i class="bi bi-pencil"></i>';
       editBtn.addEventListener("click", () => {
         import("./manual-form.js").then((m) => m.openEditModal(row));
       });
-      const deleteBtn = document.createElement("button");
-      deleteBtn.className = "danger";
-      deleteBtn.textContent = "Remover";
-      deleteBtn.addEventListener("click", () => {
-        import("./manual-form.js").then((m) => m.removeRow(row));
-      });
       actionsTd.append(editBtn, deleteBtn);
+      if (rowSaveBtn) actionsTd.append(rowSaveBtn);
       tr.appendChild(actionsTd);
     }
     elements.countTableBody.appendChild(tr);
@@ -654,11 +695,80 @@ export function renderCountTable() {
   }
 }
 
-function getCountRowsForSetor() {
-  const source =
-    state.countMode === "new" ? state.sessionRows : state.userRows;
-  if (!state.setor) return source;
-  return source.filter((row) => row.setor === state.setor);
+// Linhas da visao "Contagem" no modo Estoque atual: o que o operador lancou
+// agora e ainda esta so no aparelho, agregado por item. Nao mistura com o
+// estoque do banco - ele tem a propria visao.
+function buildPendingCountRows() {
+  const rows = [];
+  for (const op of getPendingChanges()) {
+    if (op.kind !== "delta") continue;
+    const found = getInventoryRowByIdentity(rows, op);
+    if (found) {
+      applyInventoryDeltas(found, op);
+      continue;
+    }
+    rows.push(
+      hydrateInventoryRow({
+        _localId: `pending_${buildInventoryIdentityKey(op)}`,
+        setor: op.setor,
+        produto: op.produto,
+        marca: op.marca,
+        tipo: op.tipo,
+        caixas_pallet: op.caixas_pallet,
+        pallets: op.palletsDelta,
+        caixas_avulsas: op.caixasAvulsasDelta,
+      })
+    );
+  }
+  return rows;
+}
+
+// Descarta os lancamentos de um item da contagem em andamento (visao Contagem).
+function removePendingCountRow(row) {
+  replacePendingDelta(buildInventoryIdentityKey(row));
+}
+
+export function setCountSource(source) {
+  state.countSource = source === "estoque" ? "estoque" : "contagem";
+  if (elements.countSourceSelect) {
+    elements.countSourceSelect.value = state.countSource;
+    elements.countSourceSelect.dispatchEvent(new Event("select-menu:sync"));
+  }
+  // Salvar e limpar sao acoes da contagem em andamento: no estoque gravado nao
+  // existe o que salvar nem o que limpar (item errado se apaga linha a linha).
+  const editingStock = state.countSource === "estoque";
+  elements.countSaveBtn?.classList.toggle("hidden", editingStock);
+  elements.countClearBtn?.classList.toggle("hidden", editingStock);
+  renderCountTable();
+}
+
+// Visao "Estoque atual": o mesmo estoque do index/visao geral - de todos os
+// operadores, agregado por item. Editar/remover pede o id de UMA linha do banco,
+// entao so aparece quando o item vem de um unico registro do proprio usuario.
+function buildStockRows() {
+  const origins = state.rawPublicRows?.length ? state.rawPublicRows : state.publicRows;
+  return getCurrentPublicAggregateRows().map((row) => {
+    const key = buildInventoryIdentityKey(row);
+    const sources = (origins || []).filter((item) => buildInventoryIdentityKey(item) === key);
+    // Editar precisa de UMA linha do proprio usuario (a policy de update exige
+    // auth.uid() = user_id). Remover vale para todas as linhas do item, porque a
+    // policy de delete e aberta a qualquer autenticado.
+    const editable =
+      sources.length === 1 && sources[0]?.user_id && sources[0].user_id === state.user?.id;
+    return {
+      ...row,
+      id: editable ? sources[0].id : undefined,
+      _localId: `estoque_${key}`,
+      _sourceIds: sources.map((item) => item.id).filter(Boolean),
+    };
+  });
+}
+
+// A Conferencia mostra sempre todos os setores: o contexto travado serve para
+// lancar, nao para esconder o que ja foi contado em outro setor.
+function getCountRows() {
+  if (state.countSource === "estoque") return buildStockRows();
+  return state.countMode === "new" ? state.sessionRows : buildPendingCountRows();
 }
 
 
@@ -759,7 +869,7 @@ function getExportRows(scope) {
   if (scope === "public") {
     return state.publicRows.filter(matchesPublicFilters);
   }
-  return getCountRowsForSetor();
+  return getCountRows();
 }
 
 function getExportNode(scope) {
@@ -1024,7 +1134,14 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
 }
 
 // Liga os eventos da tabela de contagem (view toggle, exportacao).
+function setupCountSourceEvents() {
+  elements.countSourceSelect?.addEventListener("change", () => {
+    setCountSource(elements.countSourceSelect.value);
+  });
+}
+
 export function setupCountTableEvents() {
+  setupCountSourceEvents();
   if (elements.countViewDetailedBtn) {
     elements.countViewDetailedBtn.addEventListener("click", () => {
       setCountViewMode("detailed");

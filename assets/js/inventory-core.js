@@ -1,5 +1,5 @@
 // Utilitarios de inventario: normalizacao de metricas, agregacao e payload do Supabase.
-import { toNonNegativeInt, normalizeStoredTipoValue } from "./utils.js";
+import { toInt, toNonNegativeInt, normalizeStoredTipoValue } from "./utils.js";
 import { state } from "./state.js";
 
 /**
@@ -81,10 +81,10 @@ export function applyInventoryDeltas(target, { caixas_pallet, palletsDelta = 0, 
   if (!target) return;
   const metrics = normalizeInventoryMetrics({
     caixasPallet: caixas_pallet ?? target.caixas_pallet,
-    pallets: toNonNegativeInt(target.pallets, 0) + toNonNegativeInt(palletsDelta, 0),
+    // toInt, nao toNonNegativeInt: delta negativo e retirada de pallet/caixa.
+    pallets: toNonNegativeInt(target.pallets, 0) + toInt(palletsDelta, 0),
     caixasAvulsas:
-      toNonNegativeInt(target.caixas_avulsas, 0) +
-      toNonNegativeInt(caixasAvulsasDelta, 0),
+      toNonNegativeInt(target.caixas_avulsas, 0) + toInt(caixasAvulsasDelta, 0),
   });
   target.caixas_pallet = metrics.caixas_pallet;
   target.pallets = metrics.pallets;

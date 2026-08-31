@@ -567,15 +567,30 @@ textarea {
   margin-top: 12px;
 }
 
+/* Sem display:flex na <td>: a celula flex perde o alinhamento e a borda de
+   baixo da linha aparece quebrada na coluna Acoes. */
 .row-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  white-space: nowrap;
 }
 
 .row-actions button {
   padding: 6px 12px;
+  vertical-align: middle;
 }
+
+.row-actions button + button {
+  margin-left: 6px;
+}
+
+.row-actions .icon-btn {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
 
 .row-selected {
   background: #e0f2fe;
@@ -895,10 +910,6 @@ table {
 
 .public-table-modes {
   margin-top: 0;
-}
-
-#catalog-table-body .row-actions {
-  justify-content: flex-start;
 }
 
 .catalog-empty {
@@ -3394,81 +3405,8 @@ body[data-page="edit"] #edit-save {
   font-weight: 600;
 }
 
-/* --- Alteracoes pendentes -------------------------------------------------- */
-body[data-page="edit"] #pending-card {
-  padding: var(--ed-pad);
-  border-radius: var(--ed-radius);
-  background: var(--ed-surface);
-  border: 1px solid color-mix(in srgb, #f59e0b 45%, var(--ed-border));
-  box-shadow: var(--ed-shadow);
-}
-
-body[data-page="edit"] #pending-card .card-header h2 {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 18px;
-  color: var(--ed-text);
-}
-
-body[data-page="edit"] #pending-card .card-header h2 i {
-  font-size: 15px;
-  color: #b45309;
-}
-
-body[data-page="edit"] #pending-card .card-header p {
-  color: var(--ed-text-soft);
-  font-size: 13px;
-}
-
-body[data-page="edit"] .pending-list {
-  display: grid;
-  gap: 6px;
-  margin-top: 14px;
-  max-height: 260px;
-  overflow-y: auto;
-}
-
-body[data-page="edit"] .pending-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 12px;
-  border-radius: 10px;
-  background: var(--ed-surface-soft);
-  border: 1px solid var(--ed-border);
-  font-size: 13.5px;
-  color: var(--ed-text);
-}
-
-body[data-page="edit"] .pending-item .icon-btn {
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  display: inline-grid;
-  place-items: center;
-  border-radius: 8px;
-  flex: 0 0 auto;
-}
-
-body[data-page="edit"] .pending-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 14px;
-}
-
-body[data-page="edit"] .pending-actions button {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  box-shadow: none;
+body[data-page="edit"] .count-toolbar-actions .select-menu {
+  min-width: 152px;
 }
 
 body[data-page="edit"] .count-toolbar-actions .icon-btn:disabled {
@@ -3578,14 +3516,75 @@ body[data-page="edit"] #count-items-card .table-footer {
   gap: 8px;
 }
 
-/* A tabela detalhada tem oito colunas: ela rola dentro do proprio quadro em vez
+/* A tabela detalhada tem nove colunas: ela rola dentro do proprio quadro em vez
    de esticar o card e, com ele, a pagina inteira. */
 body[data-page="edit"] #count-items-card .table-wrap {
   -webkit-overflow-scrolling: touch;
 }
 
 body[data-page="edit"] #count-table-detailed .table-wrap table {
-  min-width: 640px;
+  min-width: 780px;
+}
+
+/* Mesmo acabamento da tabela do index: cabecalho em caixa alta, celulas com
+   respiro, numeros a direita e a linha do total em destaque. */
+body[data-page="edit"] #count-table-detailed .table-wrap {
+  border: 1px solid var(--ed-border);
+  border-radius: var(--ed-radius-sm);
+  background: var(--ed-surface);
+}
+
+body[data-page="edit"] #count-items-card table {
+  font-size: 14px;
+}
+
+body[data-page="edit"] #count-items-card th {
+  background: var(--ed-surface-soft);
+  color: var(--ed-text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px;
+  border-bottom: 1px solid var(--ed-border);
+  white-space: nowrap;
+}
+
+body[data-page="edit"] #count-items-card td {
+  padding: 12px;
+  border-bottom: 1px solid var(--ed-border);
+  color: var(--ed-text);
+}
+
+/* Coluna Acoes: largura fixa para os icones nao empurrarem as outras colunas. */
+body[data-page="edit"] #count-table-detailed th:last-child,
+body[data-page="edit"] #count-table-body td:last-child {
+  width: 1%;
+  padding-left: 8px;
+  padding-right: 12px;
+  text-align: right;
+}
+
+body[data-page="edit"] #count-table-body tr:last-child td {
+  border-bottom: none;
+}
+
+body[data-page="edit"] #count-table-body tr:hover td {
+  background: var(--ed-accent-soft);
+}
+
+body[data-page="edit"] #count-table-detailed th:nth-child(n + 5):not(:last-child),
+body[data-page="edit"] #count-table-body td:nth-child(n + 5):not(:last-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-page="edit"] #count-table-body td:nth-child(2) {
+  font-weight: 600;
+}
+
+body[data-page="edit"] #count-table-body td:nth-child(8) {
+  font-weight: 700;
 }
 
 @media (max-width: 640px) {
