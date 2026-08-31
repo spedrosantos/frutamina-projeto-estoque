@@ -20,7 +20,6 @@ import {
   pushMessage,
   fetchWithTimeout,
   toInt,
-  toNonNegativeInt,
   getSpecialTipoVariantByValue,
   withTimeout,
 } from "./utils.js";
