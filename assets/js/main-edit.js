@@ -1,22 +1,13 @@
 // Entry point de editar.html (voz, formulario manual, edicao, nova contagem offline).
-// Primeiro import de proposito: monta a tela de login antes de state.js resolver
-// os elementos do formulario.
+// Primeiros imports de proposito: montam o shell (sidebar/topbar) e a tela de
+// login antes de state.js resolver os elementos.
+import "./app-shell.js";
 import "./auth-panel.js";
-import { state, isRestrictedPageMode } from "./state.js";
-import {
-  applyCatalogOverridesFromCache,
-  refreshCatalogOverrides,
-} from "./catalog-overrides.js";
-import {
-  initSetorSelects,
-  setupTheme,
-  setupShellEvents,
-  setupAuth,
-  enforceSessionLimit,
-  lockRestrictedAccess,
-  setSidebarOpen,
-  showNotificationInvite,
-} from "./auth-ui.js";
+import "./register-sw.js";
+import { state } from "./state.js";
+import { applyCatalogOverridesFromCache } from "./catalog-overrides.js";
+import { finishBoot } from "./boot-common.js";
+import { initSetorSelects } from "./auth-ui.js";
 import {
   buildFilterOptions,
   renderContext,
@@ -31,7 +22,6 @@ import { setupCommandEvents } from "./voice-actions.js";
 import { setupVoice } from "./voice-speech.js";
 import { initManualForm, setupManualFormEvents } from "./manual-form.js";
 import { setupCountModeEvents, updateCountModeUI, saveNewCount } from "./count-mode.js";
-import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
 import { enhanceSelect } from "./select-menu.js";
 import { confirmAction } from "./confirm-modal.js";
 import {
@@ -103,30 +93,9 @@ renderPendingChanges();
 ["count-mode-select", "count-source-select", "manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(
   (id) => enhanceSelect(document.getElementById(id))
 );
-setupTheme();
 setupVoice();
-setupShellEvents();
 setupCountTableEvents();
 setupCommandEvents();
 setupManualFormEvents();
 setupCountModeEvents();
-if (isRestrictedPageMode()) {
-  lockRestrictedAccess();
-}
-setSidebarOpen(false);
-setupAuth();
-loadPublicRecords();
-loadUserLabels();
-setInterval(enforceSessionLimit, 60 * 1000);
-
-window.addEventListener("load", () => {
-  setTimeout(showNotificationInvite, 2000);
-});
-
-// Catalogo global vem do Supabase, mas nao pode bloquear o boot: a UI ja subiu
-// com o cache local acima e so re-renderiza se a rede trouxer algo diferente.
-refreshCatalogOverrides().then((changed) => {
-  if (changed) {
-    import("./catalog-crud.js").then((m) => m.refreshCatalogDependentUI());
-  }
-});
+finishBoot();

@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0d14" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Estoque CD" />
@@ -25,84 +26,19 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260831-25" />
+    <link rel="stylesheet" href="styles.css" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="dashboard">
     <!-- Dashboard histórico do CD com gráficos e comparação da última contagem. -->
-    <aside id="app-sidebar" class="sidebar" aria-label="Navegação principal">
-      <div class="sidebar-top">
-        <img src="assets/img/logo.webp" alt="Frutamina" class="sidebar-logo" />
-      </div>
-      <nav class="sidebar-nav">
-        <button id="menu-view" class="ghost" data-href="index.html" type="button">
-          <i class="bi bi-box-seam"></i>
-          <span class="sidebar-label">Estoque</span>
-        </button>
-        <button id="menu-dashboard" class="primary" type="button">
-          <i class="bi bi-bar-chart-line"></i>
-          <span class="sidebar-label">Visão geral</span>
-        </button>
-        <button id="menu-count" class="ghost" data-href="editar.html" type="button">
-          <i class="bi bi-pencil-square"></i>
-          <span class="sidebar-label">Editar estoque</span>
-        </button>
-        <button id="menu-products" class="ghost" data-href="produtos.html" type="button">
-          <i class="bi bi-boxes"></i>
-          <span class="sidebar-label">Produtos</span>
-        </button>
-      </nav>
-      <div class="sidebar-footer">
-        <button
-          id="theme-toggle"
-          class="ghost theme-toggle"
-          type="button"
-          aria-label="Ativar tema escuro"
-          title="Tema escuro"
-        >
-          <i class="bi bi-moon-stars"></i>
-          <span id="theme-toggle-label" class="sidebar-label">Tema escuro</span>
-        </button>
-        <div id="menu-user" class="user-chip hidden">
-          <span>Usuario</span>
-          <strong id="menu-user-email">--</strong>
-        </div>
-        <button id="menu-logout" class="ghost hidden" type="button">
-          <i class="bi bi-box-arrow-right"></i>
-          <span class="sidebar-label">Sair</span>
-        </button>
-      </div>
-    </aside>
-    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
     <div class="app">
-      <header class="mobile-topbar">
-        <img src="assets/img/logo.webp" alt="Frutamina" class="mobile-topbar-logo" />
-        <div class="mobile-topbar-actions">
-          <button
-            id="mobile-theme-toggle"
-            class="sidebar-toggle"
-            type="button"
-            aria-label="Ativar tema escuro"
-            title="Tema escuro"
-          >
-            <i class="bi bi-moon-stars"></i>
-          </button>
-          <button
-            id="sidebar-toggle"
-            class="sidebar-toggle"
-            type="button"
-            aria-label="Abrir menu"
-            aria-expanded="false"
-          >
-            <i class="bi bi-list"></i>
-          </button>
-        </div>
-      </header>
       <section id="dashboard-panel" class="overview-shell">
-        <header class="overview-head">
-          <p class="eyebrow">CD | Analítico do estoque</p>
-          <h1>Visão Geral</h1>
-          <p>Resumo analítico do estoque atual do CD.</p>
+        <header class="page-head">
+          <div class="page-head-main">
+            <p class="eyebrow">CD | Analítico do estoque</p>
+            <h1>Visão Geral</h1>
+            <p class="page-head-sub">Resumo analítico do estoque atual do CD.</p>
+          </div>
         </header>
 
         <nav id="overview-tabs" class="overview-tabs" role="tablist" aria-label="Secoes da visao geral">
@@ -243,16 +179,7 @@
       </section>
     </div>
 
-    <script type="module" src="assets/js/main-dashboard.js?v=20260831-07"></script>
-    <script>
-      if ("serviceWorker" in navigator) {
-        window.addEventListener("load", () => {
-          navigator.serviceWorker
-            .register("./service-worker.js")
-            .catch((error) => console.warn("Falha ao registrar service worker.", error));
-        });
-      }
-    </script>
+    <script type="module" src="assets/js/main-dashboard.js"></script>
   </body>
 </html>
 

@@ -7,8 +7,13 @@
   - atualizar o cache automaticamente quando a versao muda.
 */
 
-const STATIC_CACHE = "frutamina-static-v108";
-const RUNTIME_CACHE = "frutamina-runtime-v108";
+/*
+  A versao do app vive AQUI, num lugar so: os HTML nao carregam mais ?v= nos
+  assets. Subir estes numeros invalida o cache antigo, e o fetch abaixo ja e
+  network-first para HTML/CSS/JS proprio, entao a versao nova chega na hora.
+*/
+const STATIC_CACHE = "frutamina-static-v120";
+const RUNTIME_CACHE = "frutamina-runtime-v120";
 
 const APP_SHELL = [
   "./",
@@ -17,11 +22,12 @@ const APP_SHELL = [
   "./produtos.html",
   "./visao-geral.html",
   "./manifest.webmanifest",
-  "./styles.css?v=20260831-25",
-  "./assets/js/main-view.js?v=20260831-08",
-  "./assets/js/main-edit.js?v=20260831-28",
-  "./assets/js/main-dashboard.js?v=20260831-07",
-  "./assets/js/main-products.js?v=20260831-14",
+  "./styles.css",
+  "./assets/js/boot-common.js",
+  "./assets/js/main-view.js",
+  "./assets/js/main-edit.js",
+  "./assets/js/main-dashboard.js",
+  "./assets/js/main-products.js",
   "./assets/img/logo.webp",
   "./assets/img/capa.png",
   "./assets/img/icon-192.png",

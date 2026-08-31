@@ -1,20 +1,13 @@
 // Entry point de visao-geral.html (dashboard: total do CD, saida de caixas, overview).
-import { PAGE_MODE, isRestrictedPageMode } from "./state.js";
-import {
-  applyCatalogOverridesFromCache,
-  refreshCatalogOverrides,
-} from "./catalog-overrides.js";
-import {
-  setupTheme,
-  setupShellEvents,
-  setupAuth,
-  enforceSessionLimit,
-  lockRestrictedAccess,
-  setSidebarOpen,
-  showNotificationInvite,
-} from "./auth-ui.js";
+// Primeiro import de proposito: monta o shell (sidebar/topbar) antes de state.js
+// resolver os elementos.
+import "./app-shell.js";
+import "./register-sw.js";
+import { PAGE_MODE } from "./state.js";
+import { applyCatalogOverridesFromCache } from "./catalog-overrides.js";
+import { finishBoot } from "./boot-common.js";
 import { renderDashboard } from "./dashboard.js";
-import { loadPublicRecords, loadSnapshotRecords, loadUserLabels } from "./supabase-api.js";
+import { loadSnapshotRecords } from "./supabase-api.js";
 
 // Abas da Visao Geral: "Agora" (foto do estoque), "Movimento" (contagens) e
 // "Tendencia" (sazonalidade). O grafico so e montado quando a aba abre, porque
@@ -44,34 +37,13 @@ function setupOverviewTabs() {
 }
 
 applyCatalogOverridesFromCache();
-setupTheme();
-setupShellEvents();
-if (isRestrictedPageMode()) {
-  lockRestrictedAccess();
-}
-setSidebarOpen(false);
 renderDashboard();
 setupOverviewTabs();
-setupAuth();
-loadPublicRecords();
-loadUserLabels();
 if (PAGE_MODE === "dashboard") {
   loadSnapshotRecords();
 }
-setInterval(enforceSessionLimit, 60 * 1000);
+finishBoot();
 
 window.addEventListener("resize", () => {
   renderDashboard();
-});
-
-window.addEventListener("load", () => {
-  setTimeout(showNotificationInvite, 2000);
-});
-
-// Catalogo global vem do Supabase, mas nao pode bloquear o boot: a UI ja subiu
-// com o cache local acima e so re-renderiza se a rede trouxer algo diferente.
-refreshCatalogOverrides().then((changed) => {
-  if (changed) {
-    import("./catalog-crud.js").then((m) => m.refreshCatalogDependentUI());
-  }
 });

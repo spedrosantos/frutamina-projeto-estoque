@@ -262,24 +262,6 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   z-index: 110;
 }
 
-.hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 24px;
-  padding: 24px;
-  background: linear-gradient(135deg, #0f172a, #1e3a8a);
-  color: #f8fafc;
-  border-radius: 18px;
-  margin-bottom: 32px;
-}
-
-.hero h1 {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 32px;
-  margin: 4px 0 8px;
-}
-
 .subtitle {
   margin: 0;
   opacity: 0.8;
@@ -299,15 +281,6 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   font-size: 12px;
   margin: 0;
   opacity: 0.7;
-}
-
-.hero-badge {
-  background: #f97316;
-  color: #0f172a;
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 14px;
 }
 
 /* --- Modais ---------------------------------------------------------------
@@ -576,14 +549,6 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   display: grid;
   gap: 6px;
   margin-top: 16px;
-}
-
-.catalog-form label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ed-text-dim, #98a2b3);
 }
 
 .catalog-form label:not(:first-child) {
@@ -1061,6 +1026,33 @@ button:hover {
 .table-wrap {
   overflow-x: auto;
   margin-top: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border-strong) transparent;
+}
+
+.table-wrap::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: var(--app-border-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--app-text-dim);
+  background-clip: content-box;
+}
+
+.table-wrap::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 table {
@@ -1470,91 +1462,43 @@ th {
 }
 
 
-.historico-summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px 16px;
-}
-
-.historico-extremos {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.chart-chip {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid transparent;
-  white-space: nowrap;
-}
-
-.chart-chip:empty {
-  display: none;
-}
-
-.chart-chip-max {
-  background: rgba(46, 233, 129, 0.12);
-  border-color: rgba(46, 233, 129, 0.35);
-  color: #6ff0aa;
-}
-
-.chart-chip-min {
-  background: rgba(148, 163, 184, 0.12);
-  border-color: rgba(148, 163, 184, 0.3);
-  color: #cbd5f5;
-}
-
 /* ==========================================================================
    Visão Geral (dashboard) — visual tokenizado.
    Todas as cores saem das vars abaixo; o tema claro apenas troca os tokens.
    ========================================================================== */
 /* Base clara como as outras paginas; o escuro e o override. */
 body[data-page="dashboard"] {
-  --ov-bg: #f5f6f8;
-  --ov-surface: #ffffff;
-  --ov-surface-soft: #f7f8fa;
+  --ov-bg: var(--app-bg);
+  --ov-surface: var(--app-surface);
+  --ov-surface-soft: var(--app-surface-soft);
   --ov-surface-solid: #ffffff;
-  --ov-border: #e4e7ec;
-  --ov-border-strong: #d2d7e0;
-  --ov-text: #101828;
-  --ov-text-soft: #667085;
-  --ov-text-dim: #98a2b3;
+  --ov-border: var(--app-border);
+  --ov-border-strong: var(--app-border-strong);
+  --ov-text: var(--app-text);
+  --ov-text-soft: var(--app-text-soft);
+  --ov-text-dim: var(--app-text-dim);
   --ov-track: #eef0f4;
-  --ov-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 28px -22px rgba(16, 24, 40, 0.35);
+  --ov-shadow: var(--app-shadow);
   --ov-shadow-hover: 0 1px 2px rgba(16, 24, 40, 0.06), 0 14px 32px -20px rgba(16, 24, 40, 0.4);
-  --ov-accent: #2563eb;
-  --ov-accent-soft: #eef4ff;
+  --ov-accent: var(--app-accent);
+  --ov-accent-soft: var(--app-accent-soft);
   --ov-green: #16a34a;
   --ov-amber: #b45309;
   --ov-blue: #2563eb;
   --ov-red: #dc2626;
-  --ov-radius: 14px;
-  --ov-radius-sm: 10px;
+  --ov-radius: var(--app-radius);
+  --ov-radius-sm: var(--app-radius-sm);
   --ov-pad: 20px;
   background: var(--ov-bg);
   color: var(--ov-text-soft);
 }
 
+/* So o que o escuro realmente muda: os tokens que apontam para --app-* ja
+   trocam sozinhos, repeti-los aqui nao fazia nada. */
 body[data-theme="dark"][data-page="dashboard"] {
-  --ov-bg: #0a0d14;
-  --ov-surface: #10141d;
-  --ov-surface-soft: #151a25;
   --ov-surface-solid: #10141d;
-  --ov-border: #212836;
-  --ov-border-strong: #2d3648;
-  --ov-text: #e6eaf2;
-  --ov-text-soft: #93a0b7;
-  --ov-text-dim: #6f7d94;
   --ov-track: #1b2130;
-  --ov-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   --ov-shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 32px -20px rgba(0, 0, 0, 0.6);
-  --ov-accent: #4d8dff;
-  --ov-accent-soft: rgba(77, 141, 255, 0.14);
   --ov-green: #34d399;
   --ov-amber: #fbbf24;
   --ov-blue: #4d8dff;
@@ -1563,6 +1507,7 @@ body[data-theme="dark"][data-page="dashboard"] {
 
 body[data-page="dashboard"] .app {
   max-width: 1320px;
+  padding: 40px 28px 72px;
 }
 
 .overview-shell {
@@ -1575,73 +1520,64 @@ body[data-page="dashboard"] .app {
 }
 
 /* --- Cabeçalho ----------------------------------------------------------- */
-.overview-head {
-  display: grid;
-  gap: 4px;
-  padding-bottom: 4px;
-}
-
-.overview-head .eyebrow {
-  color: var(--ov-text-dim);
-  opacity: 1;
-  letter-spacing: 0.12em;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.overview-head h1 {
-  margin: 0;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(28px, 4vw, 40px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  color: var(--ov-text);
-}
-
-.overview-head p {
-  margin: 0;
-  color: var(--ov-text-soft);
-  font-size: 16px;
-}
 
 /* --- Abas da Visao Geral -------------------------------------------------- */
-.overview-tabs {
+/* --- Abas (compartilhado) -------------------------------------------------
+   Visao Geral (Agora/Movimento/Tendencia) e Editar (Contagem/Conferencia)
+   tinham a mesma barra escrita duas vezes, mas com estados diferentes: a aba
+   ativa da Visao Geral era uma pilula com a cor do FUNDO da pagina mais sombra,
+   e a do Editar usava accent-soft com texto na cor de destaque - que e o mesmo
+   idioma do .select-menu-item.active. Ficou a do Editar. A barra da Visao Geral
+   tambem lia --ov-card, token que nao existe em lugar nenhum, entao caia sempre
+   no cinza translucido do fallback. */
+.overview-tabs,
+.edit-tabs {
   display: flex;
   gap: 6px;
   padding: 5px;
   border-radius: 14px;
-  background: var(--ov-card, rgba(127, 127, 127, 0.08));
-  border: 1px solid var(--ov-border, rgba(127, 127, 127, 0.18));
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   overflow-x: auto;
 }
 
-.overview-tab {
+/* A barra da Visao Geral ja recebe o respiro do gap do .overview-shell. */
+.edit-tabs {
+  margin-bottom: 16px;
+}
+
+.overview-tab,
+.edit-tab {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   flex: 1 1 0;
-  justify-content: center;
   padding: 10px 14px;
   border: 0;
   border-radius: 10px;
   background: transparent;
-  color: var(--ov-text-soft);
+  color: var(--app-text-soft);
   font: inherit;
   font-weight: 600;
   font-size: 14px;
   white-space: nowrap;
+  box-shadow: none;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.overview-tab:hover {
-  color: var(--ov-text);
+.overview-tab:hover,
+.edit-tab:hover {
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  box-shadow: none;
 }
 
-.overview-tab.active {
-  background: var(--ov-bg, #fff);
-  color: var(--ov-text);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+.overview-tab.active,
+.edit-tab.active {
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
 }
 
 .overview-tabpanel {
@@ -1768,12 +1704,12 @@ body[data-page="dashboard"] .app {
   font-family: "Space Grotesk", sans-serif;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 
 .overview-card-head h2 i {
-  color: var(--ov-accent);
-  font-size: 17px;
+  color: var(--app-text-dim);
+  font-size: 15px;
 }
 
 .overview-pill {
@@ -1915,44 +1851,26 @@ body[data-page="dashboard"] .app {
 
 /* --- Histórico de contagens -------------------------------------------- */
 .overview-history-wrap {
-  margin-top: 0;
-  padding: 4px var(--ov-pad) var(--ov-pad);
+  margin: var(--ov-pad);
   max-height: 370px;
   overflow: auto;
 }
 
-.overview-history-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-}
-
-.overview-history-table th {
+/* Visual vem da tabela compartilhada (.table-wrap th/td). Aqui fica so o que e
+   proprio desta tabela: o cabecalho grudado, porque a lista rola dentro do card.
+   O fundo do sticky vem do --app-surface-soft do bloco compartilhado, que e
+   opaco - sem isso as linhas passariam por tras do cabecalho ao rolar. */
+body[data-page="dashboard"] .overview-history-table th {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--ov-surface-solid);
-  color: var(--ov-text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 10px;
-  text-align: left;
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--ov-border);
 }
 
-.overview-history-table td {
-  color: var(--ov-text);
-  padding: 10px 8px;
-  border-bottom: 1px solid var(--ov-border);
-}
-
-.overview-history-table tbody tr:hover td {
-  background: var(--ov-surface-soft);
-}
-
-.overview-history-table tbody tr:last-child td {
-  border-bottom: 0;
+/* Mesmo idioma das outras tabelas: cabecalho de coluna numerica alinhado a
+   direita, junto com os numeros. "VARIACAO" ficava a esquerda em cima de
+   valores alinhados a direita. */
+body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
+  text-align: right;
 }
 
 .overview-delta {
@@ -2110,12 +2028,29 @@ body[data-page="dashboard"] .historico-filtro {
   min-width: 0;
 }
 
-body[data-page="dashboard"] .historico-filtro-label {
+/* --- Rotulo de campo (compartilhado) -------------------------------------
+   Caixa alta pequena em cima do controle. Estava escrito cinco vezes, uma por
+   formulario, e no escuro duas delas usavam um cinza mais claro que as outras
+   tres - os rotulos do login e do catalogo nao batiam com os da contagem. */
+.auth-form label,
+.catalog-form label,
+.manual-field-label,
+.count-mode-caption,
+.historico-filtro-label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
+}
+
+/* No escuro o dim fica apagado demais para caixa alta de 11px. */
+body[data-theme="dark"] .auth-form label,
+body[data-theme="dark"] .catalog-form label,
+body[data-theme="dark"] .manual-field-label,
+body[data-theme="dark"] .count-mode-caption,
+body[data-theme="dark"] .historico-filtro-label {
+  color: var(--app-text-soft);
 }
 
 body[data-page="dashboard"] .historico-filtros select {
@@ -2154,13 +2089,18 @@ body[data-page="dashboard"] .historico-filtros select:disabled {
   cursor: not-allowed;
 }
 
-/* Dropdown customizado (select-menu.js): o <select> real fica escondido, mas
-   segue recebendo valor e evento change. */
-body[data-page="dashboard"] .select-menu {
+/* --- Dropdown customizado (select-menu.js) -------------------------------
+   Estava duplicado para dashboard e edit, e as duas copias ja tinham divergido:
+   anel de foco 22% x 20%, fundo da lista --bg x --surface, e o .is-disabled
+   (opcao travada, ex: "Contagem" sem nada contado) existia so no edit - no
+   dashboard a opcao travada parecia clicavel. Agora e um bloco so, sobre os
+   tokens --app-*. O <select> real fica escondido, mas segue recebendo valor e
+   evento change. */
+.select-menu {
   position: relative;
 }
 
-body[data-page="dashboard"] .select-menu select {
+.select-menu select {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -2168,7 +2108,7 @@ body[data-page="dashboard"] .select-menu select {
   pointer-events: none;
 }
 
-body[data-page="dashboard"] .select-menu-trigger {
+.select-menu-trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2176,9 +2116,9 @@ body[data-page="dashboard"] .select-menu-trigger {
   width: 100%;
   padding: 11px 14px;
   border-radius: 12px;
-  background: var(--ov-surface-soft);
-  border: 1px solid var(--ov-border-strong);
-  color: var(--ov-text);
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text);
   font: inherit;
   font-size: 14px;
   font-weight: 600;
@@ -2188,48 +2128,48 @@ body[data-page="dashboard"] .select-menu-trigger {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-body[data-page="dashboard"] .select-menu-trigger:hover:not(:disabled) {
-  border-color: var(--ov-text-dim);
-  background: var(--ov-surface-soft);
+.select-menu-trigger:hover:not(:disabled) {
+  border-color: var(--app-text-dim);
+  background: var(--app-surface-soft);
 }
 
-body[data-page="dashboard"] .select-menu-trigger:disabled {
+.select-menu-trigger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
 
-body[data-page="dashboard"] .select-menu-trigger:focus-visible {
+.select-menu-trigger:focus-visible {
   outline: none;
-  border-color: var(--ov-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ov-accent) 22%, transparent);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 22%, transparent);
 }
 
-body[data-page="dashboard"] .select-menu-value {
+.select-menu-value {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-body[data-page="dashboard"] .select-menu-value.is-placeholder {
-  color: var(--ov-text-dim);
+.select-menu-value.is-placeholder {
+  color: var(--app-text-dim);
   font-weight: 500;
 }
 
-body[data-page="dashboard"] .select-menu-trigger i {
+.select-menu-trigger i {
   font-size: 13px;
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
   transition: transform 0.18s ease;
 }
 
-body[data-page="dashboard"] .select-menu.open .select-menu-trigger {
-  border-color: var(--ov-accent);
+.select-menu.open .select-menu-trigger {
+  border-color: var(--app-accent);
 }
 
-body[data-page="dashboard"] .select-menu.open .select-menu-trigger i {
+.select-menu.open .select-menu-trigger i {
   transform: rotate(180deg);
 }
 
-body[data-page="dashboard"] .select-menu-list {
+.select-menu-list {
   display: none;
   position: absolute;
   z-index: 40;
@@ -2240,23 +2180,23 @@ body[data-page="dashboard"] .select-menu-list {
   overflow-y: auto;
   padding: 6px;
   border-radius: 12px;
-  background: var(--ov-bg);
-  border: 1px solid var(--ov-border-strong);
+  background: var(--app-bg);
+  border: 1px solid var(--app-border-strong);
   box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
 }
 
-body[data-page="dashboard"] .select-menu.open .select-menu-list {
+.select-menu.open .select-menu-list {
   display: block;
 }
 
-body[data-page="dashboard"] .select-menu-item {
+.select-menu-item {
   display: block;
   width: 100%;
   padding: 9px 12px;
   border: 0;
   border-radius: 9px;
   background: transparent;
-  color: var(--ov-text);
+  color: var(--app-text);
   font: inherit;
   font-size: 14px;
   text-align: left;
@@ -2264,15 +2204,21 @@ body[data-page="dashboard"] .select-menu-item {
   cursor: pointer;
 }
 
-body[data-page="dashboard"] .select-menu-item:hover {
-  background: var(--ov-surface-soft);
+.select-menu-item:hover {
+  background: var(--app-surface-soft);
   box-shadow: none;
 }
 
-body[data-page="dashboard"] .select-menu-item.active {
-  background: var(--ov-accent-soft);
-  color: var(--ov-accent);
+.select-menu-item.active {
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
   font-weight: 600;
+}
+
+/* Opcao travada: o select-menu.js copia o disabled do <option>. */
+.select-menu-item.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 body[data-page="dashboard"] .chart-range {
@@ -2411,12 +2357,6 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
   .overview-donut {
     width: 160px;
   }
-
-  .overview-history-table th,
-  .overview-history-table td {
-    font-size: 12px;
-    padding: 8px 6px;
-  }
 }
 
 @media (max-width: 560px) {
@@ -2438,7 +2378,7 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
     justify-self: end;
   }
 
-  .overview-history-table {
+  body[data-page="dashboard"] .overview-history-table {
     min-width: 560px;
   }
 }
@@ -2567,37 +2507,20 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
 */
 body[data-page="edit"],
 body[data-page="products"] {
-  --ed-bg: #f5f6f8;
-  --ed-surface: #ffffff;
-  --ed-surface-soft: #f7f8fa;
-  --ed-border: #e4e7ec;
-  --ed-border-strong: #d2d7e0;
-  --ed-text: #101828;
-  --ed-text-soft: #667085;
-  --ed-text-dim: #8a94a6;
-  --ed-accent: #2563eb;
-  --ed-accent-soft: #eef4ff;
-  --ed-radius: 14px;
-  --ed-radius-sm: 10px;
+  --ed-bg: var(--app-bg);
+  --ed-surface: var(--app-surface);
+  --ed-surface-soft: var(--app-surface-soft);
+  --ed-border: var(--app-border);
+  --ed-border-strong: var(--app-border-strong);
+  --ed-text: var(--app-text);
+  --ed-text-soft: var(--app-text-soft);
+  --ed-text-dim: var(--app-text-dim);
+  --ed-accent: var(--app-accent);
+  --ed-accent-soft: var(--app-accent-soft);
+  --ed-radius: var(--app-radius);
+  --ed-radius-sm: var(--app-radius-sm);
   --ed-pad: 18px;
-  --ed-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 28px -22px rgba(16, 24, 40, 0.35);
-  background: var(--ed-bg);
-  color: var(--ed-text);
-}
-
-body[data-theme="dark"][data-page="edit"],
-body[data-theme="dark"][data-page="products"] {
-  --ed-bg: #0a0d14;
-  --ed-surface: #10141d;
-  --ed-surface-soft: #151a25;
-  --ed-border: #212836;
-  --ed-border-strong: #2d3648;
-  --ed-text: #e6eaf2;
-  --ed-text-soft: #93a0b7;
-  --ed-text-dim: #6f7d94;
-  --ed-accent: #4d8dff;
-  --ed-accent-soft: rgba(77, 141, 255, 0.14);
-  --ed-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ed-shadow: var(--app-shadow);
   background: var(--ed-bg);
   color: var(--ed-text);
 }
@@ -2609,8 +2532,12 @@ body[data-page="products"] .app {
 }
 
 /* --- Cabecalho ----------------------------------------------------------- */
-body[data-page="edit"] .edit-head,
-body[data-page="products"] .edit-head {
+/* --- Cabecalho da pagina (compartilhado) ---------------------------------
+   As quatro paginas tinham o mesmo cabecalho com tres nomes diferentes
+   (.view-head, .edit-head, .overview-head) e as mesmas medidas copiadas em
+   tres blocos - por isso elas iam divergindo a cada ajuste. Agora e um bloco
+   so, sobre os tokens --app-*. O -meta (direita) so existe no index. */
+.page-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -2619,41 +2546,55 @@ body[data-page="products"] .edit-head {
   margin-bottom: 22px;
 }
 
-body[data-page="edit"] .edit-head .eyebrow,
-body[data-page="products"] .edit-head .eyebrow {
-  color: var(--ed-text-soft);
+.page-head .eyebrow {
+  color: var(--app-text-soft);
   opacity: 1;
   letter-spacing: 0.12em;
   font-size: 11px;
   font-weight: 600;
 }
 
-body[data-page="edit"] .edit-head h1,
-body[data-page="products"] .edit-head h1 {
+.page-head h1 {
   font-family: "Space Grotesk", sans-serif;
   font-size: 34px;
   line-height: 1.1;
   letter-spacing: -0.02em;
   margin: 6px 0 8px;
+  color: var(--app-text);
 }
 
-body[data-page="edit"] .edit-head-sub,
-body[data-page="products"] .edit-head-sub {
+.page-head-sub {
   margin: 0;
-  color: var(--ed-text-soft);
+  color: var(--app-text-soft);
   font-size: 14px;
 }
 
-body[data-page="edit"] .edit-head-sub a,
-body[data-page="products"] .edit-head-sub a {
-  color: var(--ed-accent);
+.page-head-sub a {
+  color: var(--app-accent);
   font-weight: 600;
   text-decoration: none;
 }
 
-body[data-page="edit"] .edit-head-sub a:hover,
-body[data-page="products"] .edit-head-sub a:hover {
+.page-head-sub a:hover {
   text-decoration: underline;
+}
+
+.page-head-meta {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface);
+  font-size: 13px;
+  box-shadow: var(--app-shadow);
+}
+
+.page-head-meta span {
+  color: var(--app-text-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 /* --- Login (compartilhado por todas as paginas) --------------------------- */
@@ -2711,14 +2652,6 @@ body[data-page="products"] .edit-head-sub a:hover {
   text-align: left;
 }
 
-.auth-form label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ed-text-dim, #98a2b3);
-}
-
 .auth-form label + .auth-field {
   margin-bottom: 10px;
 }
@@ -2773,17 +2706,6 @@ body[data-page="products"] .edit-head-sub a:hover {
 /* --- Produtos: busca, chip de origem e estado vazio ----------------------- */
 body[data-page="products"] #catalog-card .table-wrap table {
   min-width: 720px;
-}
-
-/* Os tres controles ficam na mesma linha: a busca encolhe, os botoes nao. Antes
-   o "+" caia para a linha de baixo porque a busca reservava 220px fixos. */
-body[data-page="products"] .count-toolbar-actions {
-  flex-wrap: nowrap;
-  gap: 8px;
-}
-
-body[data-page="products"] .count-toolbar-actions .icon-btn {
-  flex: 0 0 auto;
 }
 
 body[data-page="products"] .catalog-search {
@@ -2903,14 +2825,6 @@ body[data-page="edit"] .count-mode-row {
   gap: 10px;
   flex: 1 1 auto;
   flex-wrap: wrap;
-}
-
-body[data-page="edit"] .count-mode-caption {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ed-text-dim);
 }
 
 body[data-page="edit"] .count-mode-field {
@@ -3089,8 +3003,7 @@ body.auth-locked[data-page="products"] #auth-panel {
 
 /* Antes de entrar, a pagina mostra apenas o login: nem o cabecalho da secao
    (eyebrow, titulo e subtitulo) aparece, so a barra do app com o menu. */
-body.auth-locked .edit-head,
-body.auth-locked .hero {
+body.auth-locked .page-head {
   display: none !important;
 }
 
@@ -3413,48 +3326,6 @@ body[data-page="edit"] #voice-card.listening #voice-status::before {
 }
 
 /* --- Abas Contagem / Conferencia ------------------------------------------ */
-body[data-page="edit"] .edit-tabs {
-  display: flex;
-  gap: 6px;
-  padding: 5px;
-  margin-bottom: 16px;
-  border-radius: 14px;
-  background: var(--ed-surface);
-  border: 1px solid var(--ed-border);
-  overflow-x: auto;
-}
-
-body[data-page="edit"] .edit-tab {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex: 1 1 0;
-  padding: 10px 14px;
-  border: 0;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--ed-text-soft);
-  font: inherit;
-  font-weight: 600;
-  font-size: 14px;
-  white-space: nowrap;
-  box-shadow: none;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-body[data-page="edit"] .edit-tab:hover {
-  background: var(--ed-surface-soft);
-  color: var(--ed-text);
-  box-shadow: none;
-}
-
-body[data-page="edit"] .edit-tab.active {
-  background: var(--ed-accent-soft);
-  color: var(--ed-accent);
-}
-
 body[data-page="edit"] .edit-tabpanel {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -3517,14 +3388,6 @@ body[data-page="edit"] .manual-field {
   min-width: 0;
 }
 
-body[data-page="edit"] .manual-field-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ed-text-dim);
-}
-
 body[data-page="edit"] .manual-field input {
   width: 100%;
   padding: 11px 14px;
@@ -3548,7 +3411,8 @@ body[data-page="edit"] .manual-actions {
   margin-top: 16px;
 }
 
-body[data-page="edit"] .manual-actions button {
+body[data-page="edit"] .manual-actions button,
+body[data-page="edit"] #edit-save {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -3559,138 +3423,6 @@ body[data-page="edit"] .manual-actions button {
 }
 
 /* Dropdown customizado tambem no Comando Manual. */
-body[data-page="edit"] .select-menu {
-  position: relative;
-}
-
-body[data-page="edit"] .select-menu select {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
-}
-
-body[data-page="edit"] .select-menu-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  width: 100%;
-  padding: 11px 14px;
-  border-radius: 12px;
-  background: var(--ed-surface-soft);
-  border: 1px solid var(--ed-border-strong);
-  color: var(--ed-text);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: left;
-  box-shadow: none;
-  cursor: pointer;
-}
-
-body[data-page="edit"] .select-menu-trigger:hover:not(:disabled) {
-  border-color: var(--ed-text-dim);
-}
-
-body[data-page="edit"] .select-menu-trigger:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-body[data-page="edit"] .select-menu-trigger:focus-visible {
-  outline: none;
-  border-color: var(--ed-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ed-accent) 20%, transparent);
-}
-
-body[data-page="edit"] .select-menu-value {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-body[data-page="edit"] .select-menu-value.is-placeholder {
-  color: var(--ed-text-dim);
-  font-weight: 500;
-}
-
-body[data-page="edit"] .select-menu-trigger i {
-  font-size: 13px;
-  color: var(--ed-text-dim);
-  transition: transform 0.18s ease;
-}
-
-body[data-page="edit"] .select-menu.open .select-menu-trigger {
-  border-color: var(--ed-accent);
-}
-
-body[data-page="edit"] .select-menu.open .select-menu-trigger i {
-  transform: rotate(180deg);
-}
-
-body[data-page="edit"] .select-menu-list {
-  display: none;
-  position: absolute;
-  z-index: 40;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  max-height: 260px;
-  overflow-y: auto;
-  padding: 6px;
-  border-radius: 12px;
-  background: var(--ed-surface);
-  border: 1px solid var(--ed-border-strong);
-  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
-}
-
-body[data-page="edit"] .select-menu.open .select-menu-list {
-  display: block;
-}
-
-/* Opcao travada (ex: "Contagem" sem nada contado). */
-.select-menu-item.is-disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-body[data-page="edit"] .select-menu-item {
-  display: block;
-  width: 100%;
-  padding: 9px 12px;
-  border: 0;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--ed-text);
-  font: inherit;
-  font-size: 14px;
-  text-align: left;
-  box-shadow: none;
-  cursor: pointer;
-}
-
-body[data-page="edit"] .select-menu-item:hover {
-  background: var(--ed-surface-soft);
-  box-shadow: none;
-}
-
-body[data-page="edit"] .select-menu-item.active {
-  background: var(--ed-accent-soft);
-  color: var(--ed-accent);
-  font-weight: 600;
-}
-
-body[data-page="edit"] #edit-save {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-}
 
 body[data-page="edit"] .count-toolbar-actions .select-menu {
   min-width: 152px;
@@ -3747,6 +3479,18 @@ body[data-page="products"] .count-toolbar-actions {
   align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+/* Produtos: os tres controles na mesma linha - a busca encolhe, os botoes nao.
+   Este bloco tem de vir DEPOIS da regra acima: a especificidade e a mesma, e
+   antes ele ficava em cima no arquivo, entao o nowrap nunca valia. */
+body[data-page="products"] .count-toolbar-actions {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+body[data-page="products"] .count-toolbar-actions .icon-btn {
+  flex: 0 0 auto;
 }
 
 /* Separa a navegacao de visualizacao das acoes destrutivas/de saida. */
@@ -3827,36 +3571,56 @@ body[data-page="edit"] #count-table-detailed .table-wrap table {
 
 /* Mesmo acabamento da tabela do index: cabecalho em caixa alta, celulas com
    respiro, numeros a direita e a linha do total em destaque. */
-body[data-page="edit"] #count-table-detailed .table-wrap,
-body[data-page="products"] #catalog-card .table-wrap {
-  border: 1px solid var(--ed-border);
-  border-radius: var(--ed-radius-sm);
-  background: var(--ed-surface);
+/* Quadro da tabela: a tabela rola dentro dele em vez de esticar o card. Estava
+   escrito duas vezes (index e editar+produtos) e o Historico da Visao Geral nao
+   tinha - por isso ele destoava das outras. */
+#public-table-detailed .table-wrap,
+#count-table-detailed .table-wrap,
+#catalog-card .table-wrap,
+.overview-history-wrap {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface);
 }
 
 body[data-page="edit"] #count-items-card table,
-body[data-page="products"] #catalog-card table {
+/* --- Tabela de dados (compartilhada) -------------------------------------
+   O visual das celulas era o mesmo em index (#public-table), editar
+   (#count-items-card) e produtos (#catalog-card), escrito tres vezes com
+   ancoras e prefixos de token diferentes. Como as tres vivem dentro de
+   .table-wrap, a ancora agora e ela - e o conjunto de elementos atingido e o
+   mesmo de antes. Alinhamento de coluna e largura seguem por pagina, logo
+   abaixo, porque cada tabela tem um numero de colunas diferente. */
+.table-wrap table {
   font-size: 14px;
 }
 
-body[data-page="edit"] #count-items-card th,
-body[data-page="products"] #catalog-card th {
-  background: var(--ed-surface-soft);
-  color: var(--ed-text-soft);
+.table-wrap th {
+  background: var(--app-surface-soft);
+  color: var(--app-text-soft);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 12px;
-  border-bottom: 1px solid var(--ed-border);
+  border-bottom: 1px solid var(--app-border);
   white-space: nowrap;
 }
 
-body[data-page="edit"] #count-items-card td,
-body[data-page="products"] #catalog-card td {
+.table-wrap td {
   padding: 12px;
-  border-bottom: 1px solid var(--ed-border);
-  color: var(--ed-text);
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-text);
+}
+
+/* :not(.summary-table) mantem o comportamento anterior: o realce de linha era
+   so das tabelas detalhadas, nunca do resumo. */
+.table-wrap table:not(.summary-table) tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-wrap table:not(.summary-table) tbody tr:hover td {
+  background: var(--app-accent-soft);
 }
 
 /* Coluna Acoes: largura fixa para os icones nao empurrarem as outras colunas. */
@@ -3868,16 +3632,6 @@ body[data-page="products"] #catalog-table-body td:last-child {
   padding-left: 8px;
   padding-right: 12px;
   text-align: right;
-}
-
-body[data-page="edit"] #count-table-body tr:last-child td,
-body[data-page="products"] #catalog-table-body tr:last-child td {
-  border-bottom: none;
-}
-
-body[data-page="edit"] #count-table-body tr:hover td,
-body[data-page="products"] #catalog-table-body tr:hover td {
-  background: var(--ed-accent-soft);
 }
 
 body[data-page="edit"] #count-table-detailed th:nth-child(n + 5):not(:last-child),
@@ -4111,7 +3865,6 @@ body[data-theme="dark"] .catalog-checkbox strong {
 
 body[data-theme="dark"] .catalog-checkbox small,
 body[data-theme="dark"] .catalog-hint,
-body[data-theme="dark"] .catalog-form label,
 body[data-theme="dark"] .catalog-range legend {
   color: #93a0b7;
 }
@@ -4183,20 +3936,6 @@ body[data-theme="dark"] .row-selected {
   background: #14314e;
 }
 
-body[data-theme="dark"] th,
-body[data-theme="dark"] td {
-  border-bottom-color: #23344f;
-}
-
-body[data-theme="dark"] th {
-  background: #111d31;
-  color: #cfe0f8;
-}
-
-body[data-theme="dark"] td {
-  color: #dbe7ff;
-}
-
 body[data-theme="dark"] .view-toggle {
   background: #17253b;
 }
@@ -4232,7 +3971,6 @@ body[data-theme="dark"] .auth-card .card-header h2 {
 }
 
 body[data-theme="dark"] .auth-card .card-header p,
-body[data-theme="dark"] .auth-form label,
 body[data-theme="dark"] .auth-field i {
   color: #93a0b7;
 }
@@ -4379,10 +4117,6 @@ body[data-theme="dark"] .print-overlay-card span {
     max-height: 86px;
     opacity: 1;
     padding: 10px 12px;
-  }
-
-  .hero {
-    display: none;
   }
 
   .public-section-header h2 {
@@ -4615,11 +4349,6 @@ body[data-theme="dark"] .print-overlay-card span {
 }
 
 @media (max-width: 720px) {
-  .hero {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .command {
     flex-direction: column;
     align-items: stretch;
@@ -4630,107 +4359,73 @@ body[data-theme="dark"] .print-overlay-card span {
   }
 }
 
+/*
+  ===== Paleta do app =====
+  As tres paginas nasceram com prefixos proprios (--vw-* no index, --ov-* na
+  Visao Geral, --ed-* em Editar/Produtos) e valores repetidos, por isso elas
+  divergiam a cada ajuste. Os valores agora vivem so aqui e os prefixos apontam
+  para estes tokens - o CSS de cada pagina continua igual.
+*/
+:root {
+  --app-bg: #f5f6f8;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f7f8fa;
+  --app-border: #e4e7ec;
+  --app-border-strong: #d2d7e0;
+  --app-text: #101828;
+  --app-text-soft: #667085;
+  --app-text-dim: #8a94a6;
+  --app-accent: #2563eb;
+  --app-accent-soft: #eef4ff;
+  --app-radius: 14px;
+  --app-radius-sm: 10px;
+  --app-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 28px -22px rgba(16, 24, 40, 0.35);
+}
+
+body[data-theme="dark"] {
+  --app-bg: #0a0d14;
+  --app-surface: #10141d;
+  --app-surface-soft: #151a25;
+  --app-border: #212836;
+  --app-border-strong: #2d3648;
+  --app-text: #e6eaf2;
+  --app-text-soft: #93a0b7;
+  --app-text-dim: #6f7d94;
+  --app-accent: #4d8dff;
+  --app-accent-soft: rgba(77, 141, 255, 0.14);
+  --app-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
 /* ==========================================================================
    Redesign da pagina de estoque (index.html) - visual neutro moderno.
    Tudo escopado em body[data-page="view"] para nao afetar as demais paginas.
    ========================================================================== */
 
 body[data-page="view"] {
-  --vw-bg: #f5f6f8;
-  --vw-surface: #ffffff;
-  --vw-surface-soft: #f7f8fa;
-  --vw-border: #e4e7ec;
-  --vw-border-strong: #d2d7e0;
-  --vw-text: #101828;
-  --vw-text-soft: #667085;
-  --vw-accent: #2563eb;
-  --vw-accent-soft: #eef4ff;
-  --vw-radius: 14px;
-  --vw-radius-sm: 10px;
-  --vw-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 28px -22px rgba(16, 24, 40, 0.35);
+  --vw-bg: var(--app-bg);
+  --vw-surface: var(--app-surface);
+  --vw-surface-soft: var(--app-surface-soft);
+  --vw-border: var(--app-border);
+  --vw-border-strong: var(--app-border-strong);
+  --vw-text: var(--app-text);
+  --vw-text-soft: var(--app-text-soft);
+  --vw-accent: var(--app-accent);
+  --vw-accent-soft: var(--app-accent-soft);
+  --vw-radius: var(--app-radius);
+  --vw-radius-sm: var(--app-radius-sm);
+  --vw-shadow: var(--app-shadow);
   background: var(--vw-bg);
   color: var(--vw-text);
 }
 
-body[data-theme="dark"][data-page="view"] {
-  --vw-bg: #0a0d14;
-  --vw-surface: #10141d;
-  --vw-surface-soft: #151a25;
-  --vw-border: #212836;
-  --vw-border-strong: #2d3648;
-  --vw-text: #e6eaf2;
-  --vw-text-soft: #93a0b7;
-  --vw-accent: #4d8dff;
-  --vw-accent-soft: rgba(77, 141, 255, 0.12);
-  --vw-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-  background: var(--vw-bg);
-  color: var(--vw-text);
-}
-
+/* Mesma largura das outras paginas: o index era o unico com 1160px, e a
+   diferenca aparecia ao trocar de pagina pelo menu. */
 body[data-page="view"] .app {
-  max-width: 1160px;
+  max-width: 1320px;
   padding: 40px 28px 72px;
 }
 
 /* Cabecalho da pagina */
-body[data-page="view"] .view-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-
-body[data-page="view"] .view-head .eyebrow {
-  color: var(--vw-text-soft);
-  opacity: 1;
-  letter-spacing: 0.12em;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-body[data-page="view"] .view-head h1 {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 34px;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin: 6px 0 8px;
-}
-
-body[data-page="view"] .view-head-sub {
-  margin: 0;
-  color: var(--vw-text-soft);
-  font-size: 14px;
-}
-
-body[data-page="view"] .view-head-sub a {
-  color: var(--vw-accent);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-body[data-page="view"] .view-head-sub a:hover {
-  text-decoration: underline;
-}
-
-body[data-page="view"] .view-head-meta {
-  display: grid;
-  gap: 2px;
-  padding: 10px 14px;
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius-sm);
-  background: var(--vw-surface);
-  font-size: 13px;
-  box-shadow: var(--vw-shadow);
-}
-
-body[data-page="view"] .view-head-meta span {
-  color: var(--vw-text-soft);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
 
 /* Card principal */
 body[data-page="view"] .card {
@@ -4847,42 +4542,6 @@ body[data-page="view"] .view-toggle:not(.mode-summary) .view-toggle-btn:last-chi
 }
 
 /* Tabela detalhada */
-body[data-page="view"] #public-table-detailed .table-wrap {
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius-sm);
-  background: var(--vw-surface);
-}
-
-body[data-page="view"] table {
-  font-size: 14px;
-}
-
-body[data-page="view"] th {
-  background: var(--vw-surface-soft);
-  color: var(--vw-text-soft);
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 12px;
-  border-bottom: 1px solid var(--vw-border);
-  white-space: nowrap;
-}
-
-body[data-page="view"] td {
-  padding: 12px;
-  border-bottom: 1px solid var(--vw-border);
-  color: var(--vw-text);
-}
-
-body[data-page="view"] #public-table-body tr:last-child td {
-  border-bottom: none;
-}
-
-body[data-page="view"] #public-table-body tr:hover td {
-  background: var(--vw-accent-soft);
-}
-
 body[data-page="view"] #public-table-detailed th:nth-child(n + 4),
 body[data-page="view"] #public-table-body td:nth-child(n + 4) {
   text-align: right;
@@ -4995,16 +4654,16 @@ body[data-page="view"] .ghost:hover {
     border-radius: var(--vw-radius-sm);
   }
 
-  body[data-page="view"] .view-head {
+  .page-head {
     align-items: flex-start;
     margin-bottom: 16px;
   }
 
-  body[data-page="view"] .view-head h1 {
+  .page-head h1 {
     font-size: 26px;
   }
 
-  body[data-page="view"] .view-head-meta {
+  .page-head-meta {
     width: 100%;
   }
 
