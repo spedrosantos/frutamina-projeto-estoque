@@ -1,4 +1,7 @@
 // Entry point de editar.html (voz, formulario manual, edicao, nova contagem offline).
+// Primeiro import de proposito: monta a tela de login antes de state.js resolver
+// os elementos do formulario.
+import "./auth-panel.js";
 import { state, isRestrictedPageMode } from "./state.js";
 import {
   applyCatalogOverridesFromCache,

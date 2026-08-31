@@ -1,4 +1,7 @@
 // Entry point de produtos.html (cadastro/CRUD do catalogo de produtos).
+// Primeiro import de proposito: monta a tela de login antes de state.js resolver
+// os elementos do formulario.
+import "./auth-panel.js";
 import { isRestrictedPageMode } from "./state.js";
 import {
   applyCatalogOverridesFromCache,

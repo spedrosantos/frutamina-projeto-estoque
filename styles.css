@@ -2530,22 +2530,22 @@ body[data-page="edit"] .edit-head-sub a:hover {
   text-decoration: underline;
 }
 
-/* --- Login --------------------------------------------------------------- */
-/* No desktop o card ficava encostado no topo de uma area de 1320px; agora ele
-   ocupa a altura util e fica centralizado, com os campos empilhados (o
-   .form-grid padrao usa coluna de rotulo de 120px, que sobra demais aqui). */
-body[data-page="edit"] .edit-auth-card {
+/* --- Login (compartilhado por todas as paginas) --------------------------- */
+/* O markup vem de assets/js/auth-panel.js. As cores usam os tokens da pagina de
+   edicao com fallback claro, porque --ed-* so existe em body[data-page="edit"] -
+   assim a mesma tela serve index, produtos e visao geral sem duplicar regra. */
+.auth-card {
   width: min(100%, 420px);
   margin: 0 auto;
   padding: 30px 28px 26px;
   border-radius: 18px;
-  background: var(--ed-surface);
-  border: 1px solid var(--ed-border);
+  background: var(--ed-surface, #ffffff);
+  border: 1px solid var(--ed-border, #e4e7ec);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 24px 60px -34px rgba(16, 24, 40, 0.45);
   text-align: center;
 }
 
-body[data-page="edit"] .edit-auth-card:not(.hidden) {
+.auth-card:not(.hidden) {
   display: grid;
   gap: 4px;
   align-content: center;
@@ -2553,31 +2553,31 @@ body[data-page="edit"] .edit-auth-card:not(.hidden) {
   min-height: min(56vh, 460px);
 }
 
-body[data-page="edit"] .edit-auth-badge {
+.auth-badge {
   display: grid;
   place-items: center;
   width: 52px;
   height: 52px;
   margin: 0 auto 14px;
   border-radius: 16px;
-  background: var(--ed-accent-soft);
-  color: var(--ed-accent);
+  background: var(--ed-accent-soft, #eef4ff);
+  color: var(--ed-accent, #2563eb);
   font-size: 22px;
 }
 
-body[data-page="edit"] .edit-auth-card .card-header h2 {
+.auth-card .card-header h2 {
   font-family: "Space Grotesk", sans-serif;
   font-size: 22px;
   letter-spacing: -0.01em;
-  color: var(--ed-text);
+  color: var(--ed-text, #101828);
 }
 
-body[data-page="edit"] .edit-auth-card .card-header p {
-  color: var(--ed-text-soft);
+.auth-card .card-header p {
+  color: var(--ed-text-soft, #667085);
   font-size: 13.5px;
 }
 
-body[data-page="edit"] .edit-auth-form {
+.auth-form {
   display: grid;
   grid-template-columns: 1fr;
   gap: 6px;
@@ -2585,54 +2585,54 @@ body[data-page="edit"] .edit-auth-form {
   text-align: left;
 }
 
-body[data-page="edit"] .edit-auth-form label {
+.auth-form label {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ed-text-dim);
+  color: var(--ed-text-dim, #98a2b3);
 }
 
-body[data-page="edit"] .edit-auth-form label + .edit-auth-field {
+.auth-form label + .auth-field {
   margin-bottom: 10px;
 }
 
-body[data-page="edit"] .edit-auth-field {
+.auth-field {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-body[data-page="edit"] .edit-auth-field i {
+.auth-field i {
   position: absolute;
   left: 13px;
   font-size: 15px;
-  color: var(--ed-text-dim);
+  color: var(--ed-text-dim, #98a2b3);
   pointer-events: none;
 }
 
-body[data-page="edit"] .edit-auth-field input {
+.auth-field input {
   width: 100%;
   padding: 12px 14px 12px 38px;
   border-radius: 12px;
-  border: 1px solid var(--ed-border-strong);
-  background: var(--ed-surface-soft);
-  color: var(--ed-text);
+  border: 1px solid var(--ed-border-strong, #d0d5dd);
+  background: var(--ed-surface-soft, #f7f8fa);
+  color: var(--ed-text, #101828);
   font-size: 14.5px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-body[data-page="edit"] .edit-auth-field input:focus {
+.auth-field input:focus {
   outline: none;
-  border-color: var(--ed-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ed-accent) 20%, transparent);
+  border-color: var(--ed-accent, #2563eb);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ed-accent, #2563eb) 20%, transparent);
 }
 
-body[data-page="edit"] .edit-auth-card .actions {
+.auth-card .actions {
   margin-top: 18px;
 }
 
-body[data-page="edit"] .edit-auth-card .actions button {
+.auth-card .actions button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2868,6 +2868,28 @@ body.auth-locked[data-page="products"] #products-panel {
 body.auth-locked[data-page="edit"] #auth-panel,
 body.auth-locked[data-page="products"] #auth-panel {
   display: block !important;
+}
+
+/* Antes de entrar, a pagina mostra apenas o login: nem o cabecalho da secao
+   (eyebrow, titulo e subtitulo) aparece, so a barra do app com o menu. */
+body.auth-locked .edit-head,
+body.auth-locked .hero {
+  display: none !important;
+}
+
+/* Sem cabecalho na tela, o card de login vai para o meio do viewport. */
+body.auth-locked .app {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+body.auth-locked .auth-card:not(.hidden) {
+  min-height: 0;
+  width: min(100%, 420px);
 }
 
 body[data-page="edit"] #count-panel {
@@ -3888,20 +3910,50 @@ body[data-theme="dark"] .summary-table td {
   border-color: #31455f;
 }
 
-body[data-theme="dark"] .summary-table thead th {
-  background: #101c30;
+/* O resumo tinha quatro fundos escuros diferentes (card, th generico, cabecalho
+   e rodape da summary-table, mais o primeiro card colorizado): agora sao dois -
+   o corpo herda o card e cabecalho/rodape usam o mesmo tom de cabecalho de
+   tabela do app. */
+/* Fora da pagina de edicao nao existe --ed-*, entao o tema escuro do login vem
+   daqui. */
+body[data-theme="dark"] .auth-card {
+  background: #0f172a;
+  border-color: #22324a;
 }
 
+body[data-theme="dark"] .auth-badge {
+  background: rgba(77, 141, 255, 0.14);
+  color: #4d8dff;
+}
+
+body[data-theme="dark"] .auth-card .card-header h2 {
+  color: #dbe7ff;
+}
+
+body[data-theme="dark"] .auth-card .card-header p,
+body[data-theme="dark"] .auth-form label,
+body[data-theme="dark"] .auth-field i {
+  color: #93a0b7;
+}
+
+body[data-theme="dark"] .auth-field input {
+  background: #121d31;
+  border-color: #2b3d5c;
+  color: #dbe7ff;
+}
+
+body[data-theme="dark"] .summary-table thead th,
 body[data-theme="dark"] .summary-table tfoot td {
-  background: #101a2c;
+  background: #111d31;
 }
 
+body[data-theme="dark"] .summary-table td,
 body[data-theme="dark"] .summary-colorized .cell-tipo,
 body[data-theme="dark"] .summary-colorized .cell-caixas,
 body[data-theme="dark"] .summary-colorized .cell-pallets,
 body[data-theme="dark"] .summary-colorized .cell-total,
 body[data-theme="dark"] .summary-colorized .cell-sum {
-  background: #0f172a;
+  background: transparent;
 }
 
 body[data-theme="dark"] .sync-banner {

@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260831-11" />
+    <link rel="stylesheet" href="styles.css?v=20260831-15" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="products">
@@ -106,22 +106,14 @@
         </div>
       </header>
 
-      <section id="auth-panel" class="card">
-        <div class="card-header">
-          <h2>Acesso</h2>
-          <p>Entre com seu usuário do CD para gerenciar os produtos.</p>
-        </div>
-        <div class="form-grid">
-          <label for="email">Usuário</label>
-          <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
-          <label for="password">Senha</label>
-          <input id="password" type="password" placeholder="Senha" />
-        </div>
-        <div class="actions">
-          <button id="login-btn" class="primary">Entrar</button>
-        </div>
-        <div id="auth-msg" class="msg-area"></div>
-      </section>
+      <!-- Login: conteudo vem de assets/js/auth-panel.js. -->
+      <section
+        id="auth-panel"
+        class="card auth-card"
+        data-auth-panel
+        data-auth-title="Acesso"
+        data-auth-subtitle="Entre com seu usuario do CD para gerenciar os produtos."
+      ></section>
 
       <section id="products-panel" class="hidden">
         <section class="card full">
@@ -235,7 +227,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-products.js?v=20260831-08"></script>
+    <script type="module" src="assets/js/main-products.js?v=20260831-09"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

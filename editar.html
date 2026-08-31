@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260831-11" />
+    <link rel="stylesheet" href="styles.css?v=20260831-15" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -109,32 +109,14 @@
         </div>
       </header>
 
-      <!-- Login do operador antes de liberar a area de contagem. -->
-      <section id="auth-panel" class="card edit-auth-card">
-        <div class="edit-auth-badge"><i class="bi bi-shield-lock"></i></div>
-        <div class="card-header">
-          <h2>Acesso restrito</h2>
-          <p>Entre com seu usuario do CD para comecar a contagem.</p>
-        </div>
-        <div class="form-grid edit-auth-form">
-          <label for="email">Usuario</label>
-          <div class="edit-auth-field">
-            <i class="bi bi-person" aria-hidden="true"></i>
-            <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" />
-          </div>
-          <label for="password">Senha</label>
-          <div class="edit-auth-field">
-            <i class="bi bi-key" aria-hidden="true"></i>
-            <input id="password" type="password" placeholder="Senha" />
-          </div>
-        </div>
-        <div class="actions">
-          <button id="login-btn" class="primary">
-            <i class="bi bi-box-arrow-in-right"></i><span>Entrar</span>
-          </button>
-        </div>
-        <div id="auth-msg" class="msg-area"></div>
-      </section>
+      <!-- Login do operador antes de liberar a area de contagem.
+           O conteudo vem de assets/js/auth-panel.js (mesma tela em toda pagina). -->
+      <section
+        id="auth-panel"
+        class="card auth-card"
+        data-auth-panel
+        data-auth-subtitle="Entre com seu usuario do CD para comecar a contagem."
+      ></section>
 
       <!-- Painel principal da contagem depois do login. -->
       <section id="count-panel" class="hidden">
@@ -445,7 +427,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260831-27"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260831-28"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
