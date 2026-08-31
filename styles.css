@@ -5046,7 +5046,50 @@ body.print-preview-open {
   }
 }
 
-/* Tema escuro: apenas a moldura do modal muda; a folha continua branca. */
+/* A folha da pre-visualizacao e papel: fica clara mesmo com o app no escuro.
+   Os seletores usam o id #print-preview de proposito - o tema escuro mora em
+   body[data-theme="dark"] X, sem id, entao o id garante a vitoria na cascata sem
+   precisar de !important. A moldura em volta continua seguindo o tema do app. */
+#print-preview .print-sheet {
+  color-scheme: light;
+}
+
+#print-preview .print-sheet,
+#print-preview .print-sheet .summary-card,
+#print-preview .print-sheet .summary-table,
+#print-preview .print-sheet th,
+#print-preview .print-sheet td {
+  background: #ffffff;
+  color: #111827;
+  border-color: #111827;
+}
+
+#print-preview .print-sheet th,
+#print-preview .print-sheet .summary-table thead th {
+  background: #f2f4f7;
+  color: #111827;
+}
+
+#print-preview .print-sheet .summary-table tfoot td {
+  background: #f8fafc;
+}
+
+#print-preview .print-sheet .summary-header h3,
+#print-preview .print-sheet .summary-header p,
+#print-preview .print-sheet .summary-legend {
+  color: #111827;
+}
+
+#print-preview .print-sheet h1 {
+  color: #101828;
+}
+
+#print-preview .print-sheet .print-meta {
+  color: #667085;
+  border-bottom-color: #d0d5dd;
+}
+
+/* Moldura (fundo, barra e titulos) acompanha o tema do app. */
 body[data-theme="dark"] .print-preview-panel {
   background: #0d111a;
 }
