@@ -557,29 +557,6 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   margin-top: 16px;
 }
 
-.catalog-form-grid {
-  grid-template-columns: 160px 1fr;
-}
-
-.catalog-form-grid input,
-.catalog-form-grid select {
-  max-width: 320px;
-}
-
-.catalog-list-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.catalog-list-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .icon-btn {
   width: 40px;
   height: 40px;
@@ -591,27 +568,166 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   font-size: 18px;
 }
 
-.catalog-checkbox-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+/* --- Modal de cadastro de produto ---------------------------------------- */
+/* Campos empilhados (rotulo em cima), opcoes como cartoes clicaveis e a faixa de
+   tipos num bloco proprio: com o form-grid de duas colunas o modal ficava com
+   rotulos comprimidos e campos de larguras diferentes. */
+.catalog-form {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.catalog-form label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ed-text-dim, #98a2b3);
+}
+
+.catalog-form label:not(:first-child) {
+  margin-top: 10px;
+}
+
+.catalog-form input,
+.catalog-form select {
+  width: 100%;
+  max-width: none;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ed-border-strong, #d0d5dd);
+  background: var(--ed-surface-soft, #f7f8fa);
+  color: var(--ed-text, #101828);
+  font-size: 14.5px;
+}
+
+.catalog-form input:focus,
+.catalog-form select:focus,
+.catalog-range input:focus {
+  outline: none;
+  border-color: var(--ed-accent, #2563eb);
+}
+
+.catalog-hint {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--ed-text-soft, #667085);
+}
+
+.catalog-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
 }
 
 .catalog-checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: #1f2937;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--ed-border, #e4e7ec);
+  background: var(--ed-surface-soft, #f7f8fa);
+  cursor: pointer;
+  text-align: left;
+}
+
+.catalog-checkbox:has(input:checked) {
+  border-color: var(--ed-accent, #2563eb);
+  background: var(--ed-accent-soft, #eef4ff);
 }
 
 .catalog-checkbox input {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
+  margin: 1px 0 0;
   padding: 0;
   border: 0;
-  margin: 0;
+  accent-color: var(--ed-accent, #2563eb);
+  flex: 0 0 auto;
 }
+
+.catalog-checkbox span {
+  display: grid;
+  gap: 2px;
+}
+
+.catalog-checkbox strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ed-text, #101828);
+}
+
+.catalog-checkbox small {
+  font-size: 12px;
+  color: var(--ed-text-soft, #667085);
+}
+
+.catalog-range {
+  margin: 16px 0 0;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--ed-border, #e4e7ec);
+  background: var(--ed-surface, #ffffff);
+}
+
+.catalog-range legend {
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ed-text-dim, #98a2b3);
+}
+
+/* A excecao por tipo e lida como frase: "do tipo 4 ao 6 tem 66 caixas por
+   pallet". Tres campos soltos com rotulo nao diziam como as regras se combinam. */
+.catalog-rule-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--ed-text, #101828);
+}
+
+.catalog-rule-line select,
+.catalog-rule-line input {
+  width: auto;
+  min-width: 68px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--ed-border-strong, #d0d5dd);
+  background: var(--ed-surface-soft, #f7f8fa);
+  color: var(--ed-text, #101828);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.catalog-rule-line input {
+  min-width: 78px;
+}
+
+.catalog-rule-line select:focus,
+.catalog-rule-line input:focus {
+  outline: none;
+  border-color: var(--ed-accent, #2563eb);
+}
+
+.catalog-rule-preview {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: var(--ed-accent-soft, #eef4ff);
+  color: var(--ed-accent, #2563eb);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
 
 .autofill-trap {
   position: absolute;
@@ -2444,11 +2560,13 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
 
 
 /*
-  ===== Editar Estoque: tokens e shell =====
-  Mesmo sistema do index (--vw-*) e da Visao Geral (--ov-*), que a pagina de
-  edicao ainda nao tinha: ela usava .hero e .card genericos, por isso destoava.
+  ===== Editar Estoque e Produtos: tokens e shell =====
+  Mesmo sistema do index (--vw-*) e da Visao Geral (--ov-*). As duas paginas de
+  operacao dividem a paleta: elas tem os mesmos cartoes, tabelas e toolbars, e
+  duplicar tokens so faria as duas divergirem com o tempo.
 */
-body[data-page="edit"] {
+body[data-page="edit"],
+body[data-page="products"] {
   --ed-bg: #f5f6f8;
   --ed-surface: #ffffff;
   --ed-surface-soft: #f7f8fa;
@@ -2467,7 +2585,8 @@ body[data-page="edit"] {
   color: var(--ed-text);
 }
 
-body[data-theme="dark"][data-page="edit"] {
+body[data-theme="dark"][data-page="edit"],
+body[data-theme="dark"][data-page="products"] {
   --ed-bg: #0a0d14;
   --ed-surface: #10141d;
   --ed-surface-soft: #151a25;
@@ -2483,13 +2602,15 @@ body[data-theme="dark"][data-page="edit"] {
   color: var(--ed-text);
 }
 
-body[data-page="edit"] .app {
+body[data-page="edit"] .app,
+body[data-page="products"] .app {
   max-width: 1320px;
   padding: 40px 28px 72px;
 }
 
 /* --- Cabecalho ----------------------------------------------------------- */
-body[data-page="edit"] .edit-head {
+body[data-page="edit"] .edit-head,
+body[data-page="products"] .edit-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -2498,7 +2619,8 @@ body[data-page="edit"] .edit-head {
   margin-bottom: 22px;
 }
 
-body[data-page="edit"] .edit-head .eyebrow {
+body[data-page="edit"] .edit-head .eyebrow,
+body[data-page="products"] .edit-head .eyebrow {
   color: var(--ed-text-soft);
   opacity: 1;
   letter-spacing: 0.12em;
@@ -2506,7 +2628,8 @@ body[data-page="edit"] .edit-head .eyebrow {
   font-weight: 600;
 }
 
-body[data-page="edit"] .edit-head h1 {
+body[data-page="edit"] .edit-head h1,
+body[data-page="products"] .edit-head h1 {
   font-family: "Space Grotesk", sans-serif;
   font-size: 34px;
   line-height: 1.1;
@@ -2514,25 +2637,28 @@ body[data-page="edit"] .edit-head h1 {
   margin: 6px 0 8px;
 }
 
-body[data-page="edit"] .edit-head-sub {
+body[data-page="edit"] .edit-head-sub,
+body[data-page="products"] .edit-head-sub {
   margin: 0;
   color: var(--ed-text-soft);
   font-size: 14px;
 }
 
-body[data-page="edit"] .edit-head-sub a {
+body[data-page="edit"] .edit-head-sub a,
+body[data-page="products"] .edit-head-sub a {
   color: var(--ed-accent);
   font-weight: 600;
   text-decoration: none;
 }
 
-body[data-page="edit"] .edit-head-sub a:hover {
+body[data-page="edit"] .edit-head-sub a:hover,
+body[data-page="products"] .edit-head-sub a:hover {
   text-decoration: underline;
 }
 
 /* --- Login (compartilhado por todas as paginas) --------------------------- */
 /* O markup vem de assets/js/auth-panel.js. As cores usam os tokens da pagina de
-   edicao com fallback claro, porque --ed-* so existe em body[data-page="edit"] -
+   edicao com fallback claro, porque --ed-* so existe nas paginas de operacao -
    assim a mesma tela serve index, produtos e visao geral sem duplicar regra. */
 .auth-card {
   width: min(100%, 420px);
@@ -2642,6 +2768,97 @@ body[data-page="edit"] .edit-head-sub a:hover {
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
+}
+
+/* --- Produtos: busca, chip de origem e estado vazio ----------------------- */
+body[data-page="products"] #catalog-card .table-wrap table {
+  min-width: 720px;
+}
+
+/* Os tres controles ficam na mesma linha: a busca encolhe, os botoes nao. Antes
+   o "+" caia para a linha de baixo porque a busca reservava 220px fixos. */
+body[data-page="products"] .count-toolbar-actions {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+body[data-page="products"] .count-toolbar-actions .icon-btn {
+  flex: 0 0 auto;
+}
+
+body[data-page="products"] .catalog-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 140px;
+  max-width: 340px;
+}
+
+body[data-page="products"] .catalog-search i {
+  position: absolute;
+  left: 11px;
+  font-size: 14px;
+  color: var(--ed-text-dim);
+  pointer-events: none;
+}
+
+body[data-page="products"] .catalog-search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  border-radius: 10px;
+  border: 1px solid var(--ed-border-strong);
+  background: var(--ed-surface);
+  color: var(--ed-text);
+  font-size: 13.5px;
+}
+
+body[data-page="products"] .catalog-search input:focus {
+  outline: none;
+  border-color: var(--ed-accent);
+}
+
+/* Origem do item: padrao do sistema x cadastrado pela equipe. */
+.catalog-origin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--ed-surface-soft, #f2f4f7);
+  color: var(--ed-text-soft, #667085);
+  border: 1px solid var(--ed-border, #e4e7ec);
+}
+
+.catalog-origin.is-custom {
+  background: var(--ed-accent-soft, #eef4ff);
+  color: var(--ed-accent, #2563eb);
+  border-color: transparent;
+}
+
+@media (max-width: 640px) {
+  /* Busca e botoes ficam na mesma linha tambem no celular: a busca encolhe e os
+     icones mantem o tamanho. */
+  body[data-page="products"] .count-toolbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  body[data-page="products"] .catalog-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+body[data-page="products"] .catalog-empty {
+  padding: 26px 12px;
+  text-align: center;
+  color: var(--ed-text-soft);
 }
 
 /* --- Faixa de status online/offline -------------------------------------- */
@@ -3251,7 +3468,8 @@ body[data-page="edit"] .edit-tabpanel > * {
 
 /* --- Cards internos (padrao .overview-card da Visao Geral) ---------------- */
 body[data-page="edit"] #manual-card,
-body[data-page="edit"] #count-items-card {
+body[data-page="edit"] #count-items-card,
+body[data-page="products"] #catalog-card {
   padding: var(--ed-pad);
   border-radius: var(--ed-radius);
   background: var(--ed-surface);
@@ -3260,7 +3478,8 @@ body[data-page="edit"] #count-items-card {
 }
 
 body[data-page="edit"] #manual-card .card-header h2,
-body[data-page="edit"] #count-items-card .card-header h2 {
+body[data-page="edit"] #count-items-card .card-header h2,
+body[data-page="products"] #catalog-card .card-header h2 {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -3271,13 +3490,15 @@ body[data-page="edit"] #count-items-card .card-header h2 {
 }
 
 body[data-page="edit"] #manual-card .card-header h2 i,
-body[data-page="edit"] #count-items-card .card-header h2 i {
+body[data-page="edit"] #count-items-card .card-header h2 i,
+body[data-page="products"] #catalog-card .card-header h2 i {
   font-size: 15px;
   color: var(--ed-text-dim);
 }
 
 body[data-page="edit"] #manual-card .card-header p,
-body[data-page="edit"] #count-items-card .card-header p {
+body[data-page="edit"] #count-items-card .card-header p,
+body[data-page="products"] #catalog-card .card-header p {
   color: var(--ed-text-soft);
   font-size: 13px;
 }
@@ -3486,7 +3707,8 @@ body[data-page="edit"] .count-toolbar-actions .icon-btn:disabled {
 }
 
 /* --- Itens Contados: toolbar unica ---------------------------------------- */
-body[data-page="edit"] .count-toolbar {
+body[data-page="edit"] .count-toolbar,
+body[data-page="products"] .count-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3499,24 +3721,28 @@ body[data-page="edit"] .count-toolbar {
   border: 1px solid var(--ed-border);
 }
 
-body[data-page="edit"] .count-toolbar-meta {
+body[data-page="edit"] .count-toolbar-meta,
+body[data-page="products"] .count-toolbar-meta {
   display: grid;
   gap: 2px;
   font-size: 13px;
 }
 
-body[data-page="edit"] .count-toolbar-meta span {
+body[data-page="edit"] .count-toolbar-meta span,
+body[data-page="products"] .count-toolbar-meta span {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--ed-text-dim);
 }
 
-body[data-page="edit"] .count-toolbar-meta strong {
+body[data-page="edit"] .count-toolbar-meta strong,
+body[data-page="products"] .count-toolbar-meta strong {
   color: var(--ed-text);
 }
 
-body[data-page="edit"] .count-toolbar-actions {
+body[data-page="edit"] .count-toolbar-actions,
+body[data-page="products"] .count-toolbar-actions {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -3567,7 +3793,8 @@ body[data-page="edit"] .count-toolbar-actions .view-toggle i {
 
 /* Exportar e Limpar viraram so icone: com rotulo, os tres controles brigavam
    por espaco na mesma linha. O texto continua no title/aria-label. */
-body[data-page="edit"] .count-toolbar-actions .icon-btn {
+body[data-page="edit"] .count-toolbar-actions .icon-btn,
+body[data-page="products"] .count-toolbar-actions .icon-btn {
   width: 36px;
   height: 36px;
   min-height: 36px;
@@ -3578,7 +3805,8 @@ body[data-page="edit"] .count-toolbar-actions .icon-btn {
   font-size: 15px;
 }
 
-body[data-page="edit"] .count-toolbar-actions .icon-btn i {
+body[data-page="edit"] .count-toolbar-actions .icon-btn i,
+body[data-page="products"] .count-toolbar-actions .icon-btn i {
   font-size: 15px;
 }
 
@@ -3599,17 +3827,20 @@ body[data-page="edit"] #count-table-detailed .table-wrap table {
 
 /* Mesmo acabamento da tabela do index: cabecalho em caixa alta, celulas com
    respiro, numeros a direita e a linha do total em destaque. */
-body[data-page="edit"] #count-table-detailed .table-wrap {
+body[data-page="edit"] #count-table-detailed .table-wrap,
+body[data-page="products"] #catalog-card .table-wrap {
   border: 1px solid var(--ed-border);
   border-radius: var(--ed-radius-sm);
   background: var(--ed-surface);
 }
 
-body[data-page="edit"] #count-items-card table {
+body[data-page="edit"] #count-items-card table,
+body[data-page="products"] #catalog-card table {
   font-size: 14px;
 }
 
-body[data-page="edit"] #count-items-card th {
+body[data-page="edit"] #count-items-card th,
+body[data-page="products"] #catalog-card th {
   background: var(--ed-surface-soft);
   color: var(--ed-text-soft);
   font-size: 11px;
@@ -3621,7 +3852,8 @@ body[data-page="edit"] #count-items-card th {
   white-space: nowrap;
 }
 
-body[data-page="edit"] #count-items-card td {
+body[data-page="edit"] #count-items-card td,
+body[data-page="products"] #catalog-card td {
   padding: 12px;
   border-bottom: 1px solid var(--ed-border);
   color: var(--ed-text);
@@ -3629,18 +3861,22 @@ body[data-page="edit"] #count-items-card td {
 
 /* Coluna Acoes: largura fixa para os icones nao empurrarem as outras colunas. */
 body[data-page="edit"] #count-table-detailed th:last-child,
-body[data-page="edit"] #count-table-body td:last-child {
+body[data-page="edit"] #count-table-body td:last-child,
+body[data-page="products"] #catalog-card th:last-child,
+body[data-page="products"] #catalog-table-body td:last-child {
   width: 1%;
   padding-left: 8px;
   padding-right: 12px;
   text-align: right;
 }
 
-body[data-page="edit"] #count-table-body tr:last-child td {
+body[data-page="edit"] #count-table-body tr:last-child td,
+body[data-page="products"] #catalog-table-body tr:last-child td {
   border-bottom: none;
 }
 
-body[data-page="edit"] #count-table-body tr:hover td {
+body[data-page="edit"] #count-table-body tr:hover td,
+body[data-page="products"] #catalog-table-body tr:hover td {
   background: var(--ed-accent-soft);
 }
 
@@ -3702,7 +3938,8 @@ body[data-page="edit"] #count-table-body td:nth-child(8) {
   }
 }
 
-body[data-page="edit"] .count-toolbar-actions button {
+body[data-page="edit"] .count-toolbar-actions button,
+body[data-page="products"] .count-toolbar-actions button {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -3823,6 +4060,17 @@ body[data-theme="dark"] {
   color: #dbe7ff;
 }
 
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .modal-card,
+body[data-theme="dark"] .summary-card,
+body[data-theme="dark"] .debug-card,
+body[data-theme="dark"] .print-overlay-card {
+  background: #0f172a;
+  color: #dbe7ff;
+  border: 1px solid #22324a;
+  box-shadow: 0 20px 46px rgba(2, 6, 23, 0.38);
+}
+
 body[data-theme="dark"] .modal-body > p,
 body[data-theme="dark"] .confirm-message,
 body[data-theme="dark"] .card-header p,
@@ -3843,6 +4091,59 @@ body[data-theme="dark"] label,
 body[data-theme="dark"] .catalog-checkbox,
 body[data-theme="dark"] .summary-header h3 {
   color: #dbe7ff;
+}
+
+/* Cadastro de produto no tema escuro (fora da pagina de edicao nao ha --ed-*). */
+body[data-theme="dark"] .catalog-checkbox,
+body[data-theme="dark"] .catalog-range {
+  background: #121d31;
+  border-color: #2b3d5c;
+}
+
+body[data-theme="dark"] .catalog-checkbox:has(input:checked) {
+  background: rgba(77, 141, 255, 0.14);
+  border-color: #4d8dff;
+}
+
+body[data-theme="dark"] .catalog-checkbox strong {
+  color: #dbe7ff;
+}
+
+body[data-theme="dark"] .catalog-checkbox small,
+body[data-theme="dark"] .catalog-hint,
+body[data-theme="dark"] .catalog-form label,
+body[data-theme="dark"] .catalog-range legend {
+  color: #93a0b7;
+}
+
+body[data-theme="dark"] .catalog-form input,
+body[data-theme="dark"] .catalog-form select,
+body[data-theme="dark"] .catalog-rule-line select,
+body[data-theme="dark"] .catalog-rule-line input {
+  background: #151a25;
+  border-color: #2d3648;
+  color: #e6eaf2;
+}
+
+/* O <select> nativo herda a cor do sistema: sem color-scheme a lista de opcoes
+   abre branca mesmo com o campo escuro. */
+body[data-theme="dark"] .catalog-form select,
+body[data-theme="dark"] .catalog-rule-line select {
+  color-scheme: dark;
+}
+
+body[data-theme="dark"] .catalog-rule-line {
+  color: #e6eaf2;
+}
+
+body[data-theme="dark"] .catalog-rule-preview {
+  background: rgba(77, 141, 255, 0.14);
+  color: #93c5fd;
+}
+
+body[data-theme="dark"] .catalog-form input::placeholder,
+body[data-theme="dark"] .catalog-rule-line input::placeholder {
+  color: #6f7d94;
 }
 
 body[data-theme="dark"] input,
@@ -4624,6 +4925,19 @@ body[data-page="view"] .summary-card {
   border: 1px solid var(--vw-border);
   border-radius: var(--vw-radius-sm);
   padding: 14px;
+}
+
+/* Modal de filtros */
+body[data-page="view"] .modal-card {
+  background: var(--vw-surface);
+  border: 1px solid var(--vw-border);
+  border-radius: var(--vw-radius);
+  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
+}
+
+body[data-page="view"] .modal-backdrop {
+  background: rgba(16, 24, 40, 0.5);
+  backdrop-filter: blur(2px);
 }
 
 body[data-page="view"] .summary-table,

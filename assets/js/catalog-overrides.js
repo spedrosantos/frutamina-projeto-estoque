@@ -199,10 +199,9 @@ function rowToRemoval(row) {
   return normalizeCatalogRemovalEntry(row);
 }
 
-// Os 3 helpers abaixo (upsertCatalogRow/deleteCatalogRow/resetAllCatalogOverrides)
-// sempre devolvem { error } em vez de deixar o timeout/falha de rede do
-// withTimeout rejeitar — senao o await sem try/catch em catalog-crud.js trava
-// o modal na mensagem "Salvando/Removendo/Restaurando..." pra sempre.
+// upsertCatalogRow e deleteCatalogRow sempre devolvem { error } em vez de deixar
+// o timeout/falha de rede do withTimeout rejeitar — senao o await sem try/catch
+// em catalog-crud.js trava o modal na mensagem "Salvando/Removendo..." pra sempre.
 async function upsertCatalogRow(kind, entry, extra = {}) {
   try {
     return await withTimeout(
@@ -267,20 +266,6 @@ export async function removeCatalogEntry(entry, { markRemoved }) {
   if (!markRemoved) return { error: null };
   const upsertResult = await upsertCatalogRow("removal", entry);
   return { error: upsertResult?.error || null };
-}
-
-// Apaga TODAS as personalizacoes do catalogo global — usada por
-// resetCatalogOverridesToDefault.
-export async function resetAllCatalogOverrides() {
-  try {
-    return await withTimeout(
-      supabaseClient.from(CATALOG_TABLE).delete().neq("id", 0),
-      SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao restaurar o catalogo."
-    );
-  } catch (error) {
-    return { error };
-  }
 }
 
 function commitCatalogOverrides(additions, removals) {

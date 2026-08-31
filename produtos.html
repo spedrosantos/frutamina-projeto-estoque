@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260831-15" />
+    <link rel="stylesheet" href="styles.css?v=20260831-25" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="products">
@@ -98,11 +98,15 @@
         </div>
       </header>
 
-      <header class="hero">
-        <div>
-          <img src="assets/img/logo.webp" alt="logo" class="logo" />
-          <p class="eyebrow">CD | Contagem do estoque</p>
+      <!-- Cabecalho no mesmo padrao da area de edicao. -->
+      <header class="edit-head">
+        <div class="edit-head-main">
+          <p class="eyebrow">CD | Cadastro</p>
           <h1>Produtos</h1>
+          <p class="edit-head-sub">
+            Combinacoes de setor, produto e marca usadas na contagem. Para lancar
+            estoque, va em <a href="editar.html">Editar estoque</a>.
+          </p>
         </div>
       </header>
 
@@ -116,12 +120,26 @@
       ></section>
 
       <section id="products-panel" class="hidden">
-        <section class="card full">
-          <div class="card-header catalog-list-header">
-            <div>
-              <h2>Produtos cadastrados</h2>
+        <section class="card full" id="catalog-card">
+          <div class="card-header">
+            <h2><i class="bi bi-box-seam"></i>Produtos cadastrados</h2>
+            <p>O que aparece aqui e o que pode ser contado.</p>
+          </div>
+          <div class="count-toolbar">
+            <div class="count-toolbar-meta">
+              <span>Itens no catalogo</span>
+              <strong id="catalog-count">--</strong>
             </div>
-            <div class="catalog-list-actions">
+            <div class="count-toolbar-actions">
+              <div class="catalog-search">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input
+                  id="catalog-search"
+                  type="search"
+                  placeholder="Buscar setor, produto ou marca"
+                  aria-label="Buscar no catalogo"
+                />
+              </div>
               <button
                 id="catalog-open-modal-btn"
                 class="primary icon-btn"
@@ -130,9 +148,6 @@
                 aria-label="Cadastrar produto"
               >
                 <i class="bi bi-plus-lg"></i>
-              </button>
-              <button id="catalog-reset-btn" class="ghost" type="button">
-                Restaurar catalogo original
               </button>
             </div>
           </div>
@@ -160,14 +175,14 @@
         <div class="modal-backdrop" id="catalog-modal-close"></div>
         <div class="modal-card">
           <div class="modal-header">
-            <h3><i class="bi bi-box-seam"></i>Cadastro de Produtos</h3>
+            <h3><i class="bi bi-box-seam"></i><span id="catalog-modal-title">Novo produto</span></h3>
             <button id="catalog-modal-close-btn" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
               <i class="bi bi-x-lg"></i>
             </button>
           </div>
           <div class="modal-body">
-            <p>Adicione ou remova combinacoes de setor, produto e marca.</p>
-            <div class="form-grid catalog-form-grid">
+            <p>A combinacao de setor, produto e marca e o que aparece na contagem.</p>
+            <div class="catalog-form">
               <label for="catalog-setor">Setor</label>
               <select id="catalog-setor"></select>
 
@@ -177,34 +192,56 @@
               <label for="catalog-marca">Marca</label>
               <input id="catalog-marca" type="text" placeholder="Ex: ANGEL" />
 
-              <label for="catalog-caixas">Caixas por pallet (fora da faixa, se houver)</label>
+              <label for="catalog-caixas">Caixas por pallet</label>
               <input id="catalog-caixas" type="number" min="1" step="1" placeholder="Ex: 72" />
+              <small class="catalog-hint" id="catalog-caixas-hint">
+                Quantas caixas fecham um pallet. Vale para todos os tipos (3 a 15).
+              </small>
+            </div>
 
-              <label>Opcoes</label>
-              <div class="catalog-checkbox-group">
-                <label class="catalog-checkbox">
-                  <input id="catalog-no-tipo" type="checkbox" />
-                  Sem tipo (S/T)
-                </label>
-                <label class="catalog-checkbox">
-                  <input id="catalog-range-toggle" type="checkbox" />
-                  Caixas variam por tipo
-                </label>
+            <div class="catalog-options">
+              <label class="catalog-checkbox">
+                <input id="catalog-no-tipo" type="checkbox" />
+                <span>
+                  <strong>Produto sem tipo (S/T)</strong>
+                  <small>Nao e contado por tipo, so por pallet e caixa.</small>
+                </span>
+              </label>
+              <label class="catalog-checkbox" id="catalog-range-option">
+                <input id="catalog-range-toggle" type="checkbox" />
+                <span>
+                  <strong>Uma faixa de tipos usa outra quantidade</strong>
+                  <small>Ex: do tipo 4 ao 6 tem 66 caixas, no resto 72.</small>
+                </span>
+              </label>
+            </div>
+
+            <fieldset id="catalog-range-fields" class="catalog-range hidden">
+              <legend>Excecao por tipo</legend>
+              <!-- A regra e lida como frase para nao virar tres campos soltos. -->
+              <div class="catalog-rule-line">
+                <span>Do tipo</span>
+                <select id="catalog-tipo-min" aria-label="Tipo minimo da faixa"></select>
+                <span>ao</span>
+                <select id="catalog-tipo-max" aria-label="Tipo maximo da faixa"></select>
+                <span>tem</span>
+                <input
+                  id="catalog-caixas-in-range"
+                  type="number"
+                  min="1"
+                  step="1"
+                  placeholder="66"
+                  aria-label="Caixas por pallet na faixa"
+                />
+                <span>caixas por pallet.</span>
               </div>
-            </div>
-            <div id="catalog-range-fields" class="form-grid catalog-form-grid hidden">
-              <label for="catalog-tipo-min">Tipo minimo da faixa</label>
-              <input id="catalog-tipo-min" type="number" min="3" max="15" step="1" placeholder="Ex: 4" />
-
-              <label for="catalog-tipo-max">Tipo maximo da faixa</label>
-              <input id="catalog-tipo-max" type="number" min="3" max="15" step="1" placeholder="Ex: 6" />
-
-              <label for="catalog-caixas-in-range">Caixas dentro da faixa</label>
-              <input id="catalog-caixas-in-range" type="number" min="1" step="1" placeholder="Ex: 66" />
-            </div>
+              <p class="catalog-rule-preview" id="catalog-rule-preview"></p>
+            </fieldset>
           </div>
           <div class="modal-actions">
-            <button id="catalog-add-btn" class="primary" type="button">Adicionar produto</button>
+            <button id="catalog-add-btn" class="primary" type="button">
+              <i class="bi bi-plus-lg"></i><span id="catalog-add-btn-label">Cadastrar produto</span>
+            </button>
           </div>
           <div id="catalog-msg" class="msg-area"></div>
         </div>
@@ -227,7 +264,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-products.js?v=20260831-09"></script>
+    <script type="module" src="assets/js/main-products.js?v=20260831-14"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

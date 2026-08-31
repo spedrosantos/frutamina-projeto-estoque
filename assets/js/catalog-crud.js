@@ -1,8 +1,9 @@
 // Cadastro de produtos (CRUD do catalogo) — so produtos.html.
 import { state, elements } from "./state.js";
-import { CONFIG_GERAL, BASE_CONFIG_GERAL } from "./config.js";
-import { toNonNegativeInt, isNoTipoProduct, getTipoRuleValue, buildTipoOptionList, setSelectOptions, setSelectOptionsWithPlaceholder } from "./utils.js";
+import { CONFIG_GERAL, BASE_CONFIG_GERAL, TIPO_MIN, TIPO_MAX } from "./config.js";
+import { toNonNegativeInt, isNoTipoProduct, getTipoRuleValue, buildTipoOptionList, normalizeKey, setSelectOptions, setSelectOptionsWithPlaceholder } from "./utils.js";
 import { requireAuthenticatedUser, initSetorSelects } from "./auth-ui.js";
+import { confirmAction } from "./confirm-modal.js";
 import { renderContext, renderPublicTable, renderCountTable, buildFilterOptions } from "./tables.js";
 import {
   buildCatalogEntryKey,
@@ -11,12 +12,10 @@ import {
   applyCatalogOverridesFromState,
   saveCatalogAddition,
   removeCatalogEntry,
-  resetAllCatalogOverrides,
   normalizeCatalogAdditionEntry,
   sanitizeContextAfterCatalogChange,
   writeCatalogCache,
 } from "./catalog-overrides.js";
-import { confirmAction } from "./confirm-modal.js";
 
 function setMessageIn(target, type, text) {
   if (!target) return;
@@ -38,16 +37,85 @@ function setCatalogListMessage(type, text) {
   setMessageIn(elements.catalogListMsg, type, text);
 }
 
-function openCatalogModal() {
+// Le a regra de caixas de um item ja cadastrado. Para os itens do catalogo
+// padrao nao existe registro com os numeros, so a funcao regra: avaliando ela em
+// todos os tipos da para descobrir o valor comum e a faixa que foge dele.
+function readCatalogRule(setor, produto, marca) {
+  const rule = CONFIG_GERAL?.[setor]?.[produto]?.[marca];
+  if (typeof rule !== "function") return null;
+  if (isNoTipoProduct(produto)) {
+    return { caixasPallet: toNonNegativeInt(rule(0), 0) };
+  }
+
+  const byTipo = [];
+  for (let tipo = TIPO_MIN; tipo <= TIPO_MAX; tipo += 1) {
+    byTipo.push({ tipo, caixas: toNonNegativeInt(rule(tipo), 0) });
+  }
+  const counts = new Map();
+  byTipo.forEach(({ caixas }) => counts.set(caixas, (counts.get(caixas) || 0) + 1));
+  const fora = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  const excecao = byTipo.filter(({ caixas }) => caixas !== fora);
+  if (!excecao.length) return { caixasPallet: fora };
+  return {
+    caixasPallet: fora,
+    tipoMin: excecao[0].tipo,
+    tipoMax: excecao[excecao.length - 1].tipo,
+    caixasPalletInRange: excecao[0].caixas,
+  };
+}
+
+function fillCatalogForm(entry) {
+  if (elements.catalogSetor) elements.catalogSetor.value = entry?.setor || state.setor || "";
+  if (elements.catalogProduto) elements.catalogProduto.value = entry?.produto || "";
+  if (elements.catalogMarca) elements.catalogMarca.value = entry?.marca || "";
+  if (elements.catalogCaixas) {
+    elements.catalogCaixas.value = entry?.caixasPallet ? String(entry.caixasPallet) : "";
+  }
+  if (elements.catalogNoTipo) {
+    elements.catalogNoTipo.checked = Boolean(entry?.produto && isNoTipoProduct(entry.produto));
+  }
+  const hasRange = Boolean(entry?.tipoMin && entry?.tipoMax && entry?.caixasPalletInRange);
+  if (elements.catalogRangeToggle) elements.catalogRangeToggle.checked = hasRange;
+  if (elements.catalogTipoMin) {
+    elements.catalogTipoMin.value = String(hasRange ? entry.tipoMin : TIPO_MIN + 1);
+  }
+  if (elements.catalogTipoMax) {
+    elements.catalogTipoMax.value = String(hasRange ? entry.tipoMax : TIPO_MIN + 3);
+  }
+  if (elements.catalogCaixasInRange) {
+    elements.catalogCaixasInRange.value = hasRange ? String(entry.caixasPalletInRange) : "";
+  }
+  syncCatalogFormMode();
+}
+
+function openCatalogModal(entryKey = "") {
   if (!requireAuthenticatedUser("Faça login para alterar o cadastro de produtos.")) {
     return;
   }
   if (!elements.catalogModal) return;
   setCatalogMessage("", "");
+
+  // Editar reusa o mesmo formulario: a chave original fica guardada porque o
+  // operador pode mudar setor/produto/marca, e nesse caso o item antigo sai.
+  const parsed = entryKey ? parseCatalogEntryKey(entryKey) : null;
+  state.catalogEditKey = parsed ? buildCatalogEntryKey(parsed) : "";
+  fillCatalogForm(
+    parsed
+      ? { ...parsed, ...(readCatalogRule(parsed.setor, parsed.produto, parsed.marca) || {}) }
+      : null
+  );
+  if (elements.catalogModalTitle) {
+    elements.catalogModalTitle.textContent = parsed ? "Editar produto" : "Novo produto";
+  }
+  if (elements.catalogAddBtnLabel) {
+    elements.catalogAddBtnLabel.textContent = parsed ? "Salvar alteracoes" : "Cadastrar produto";
+  }
   elements.catalogModal.classList.remove("hidden");
 }
 
 function closeCatalogModal() {
+  // Fechar sem salvar tambem encerra a edicao: o proximo "+" abre em branco.
+  state.catalogEditKey = "";
   if (!elements.catalogModal) return;
   elements.catalogModal.classList.add("hidden");
 }
@@ -122,12 +190,27 @@ function listCatalogRows() {
   });
 }
 
+function matchesCatalogSearch(row, query) {
+  if (!query) return true;
+  return normalizeKey(`${row.setor} ${row.produto} ${row.marca}`).includes(query);
+}
+
 function renderCatalogTable() {
   if (!elements.catalogTableBody) return;
-  const rows = listCatalogRows();
+  const all = listCatalogRows();
+  const query = normalizeKey(elements.catalogSearch?.value || "");
+  const rows = all.filter((row) => matchesCatalogSearch(row, query));
+
+  if (elements.catalogCount) {
+    elements.catalogCount.textContent = query
+      ? `${rows.length} de ${all.length}`
+      : String(all.length);
+  }
+
   if (!rows.length) {
-    elements.catalogTableBody.innerHTML =
-      '<tr><td colspan="7" class="catalog-empty">Nenhum produto cadastrado.</td></tr>';
+    elements.catalogTableBody.innerHTML = `<tr><td colspan="7" class="catalog-empty">${
+      all.length ? "Nenhum produto para esta busca." : "Nenhum produto cadastrado."
+    }</td></tr>`;
     return;
   }
 
@@ -140,17 +223,30 @@ function renderCatalogTable() {
         <td>${row.marca}</td>
         <td>${row.caixasPalletLabel}</td>
         <td>${row.tipoLabel}</td>
-        <td>${row.origemLabel}</td>
         <td>
-          <div class="row-actions">
-            <button
-              class="danger catalog-remove-btn"
-              type="button"
-              data-catalog-key="${row.key}"
-            >
-              Remover
-            </button>
-          </div>
+          <span class="catalog-origin${row.origemLabel === "Padrao" ? "" : " is-custom"}">
+            ${row.origemLabel}
+          </span>
+        </td>
+        <td class="row-actions">
+          <button
+            class="ghost icon-btn catalog-edit-btn"
+            type="button"
+            title="Editar produto"
+            aria-label="Editar produto"
+            data-catalog-edit="${row.key}"
+          >
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button
+            class="danger icon-btn catalog-remove-btn"
+            type="button"
+            title="Remover do catalogo"
+            aria-label="Remover do catalogo"
+            data-catalog-key="${row.key}"
+          >
+            <i class="bi bi-trash3"></i>
+          </button>
         </td>
       </tr>
     `
@@ -205,6 +301,16 @@ async function removeCatalogEntryByKey(entryKey) {
 
   const key = buildCatalogEntryKey(parsed);
   const existedInBase = configHasCatalogEntry(BASE_CONFIG_GERAL, parsed);
+
+  // Toda exclusao passa por confirmacao: isso sai do catalogo de todos os
+  // operadores, e o produto deixa de aparecer na contagem.
+  const confirmed = await confirmAction({
+    title: "Remover do catalogo",
+    message: `Remover ${parsed.produto} ${parsed.marca} (${parsed.setor}) do catalogo? Ele deixa de aparecer na contagem para todos.`,
+    confirmLabel: "Remover",
+    danger: true,
+  });
+  if (!confirmed) return;
 
   setCatalogListMessage("info", "Removendo...");
   const { error } = await removeCatalogEntry(parsed, { markRemoved: existedInBase });
@@ -275,6 +381,20 @@ async function addCatalogEntryFromForm() {
   }
 
   const key = buildCatalogEntryKey(addition);
+  // Edicao que troca setor/produto/marca cria outro item: o antigo tem que sair,
+  // senao o catalogo fica com os dois.
+  const editKey = state.catalogEditKey;
+  if (editKey && editKey !== key) {
+    const previous = parseCatalogEntryKey(editKey);
+    if (previous) {
+      const previousInBase = configHasCatalogEntry(BASE_CONFIG_GERAL, previous);
+      await removeCatalogEntry(previous, { markRemoved: previousInBase });
+      state.catalogAdditions = state.catalogAdditions.filter(
+        (entry) => buildCatalogEntryKey(entry) !== editKey
+      );
+      if (previousInBase) state.catalogRemovals.push(previous);
+    }
+  }
   state.catalogRemovals = state.catalogRemovals.filter(
     (entry) => buildCatalogEntryKey(entry) !== key
   );
@@ -292,55 +412,86 @@ async function addCatalogEntryFromForm() {
   elements.catalogCaixas.value = "";
   elements.catalogNoTipo.checked = false;
   if (elements.catalogRangeToggle) elements.catalogRangeToggle.checked = false;
-  if (elements.catalogRangeFields) elements.catalogRangeFields.classList.add("hidden");
-  if (elements.catalogTipoMin) elements.catalogTipoMin.value = "";
-  if (elements.catalogTipoMax) elements.catalogTipoMax.value = "";
+  if (elements.catalogTipoMin) elements.catalogTipoMin.value = String(TIPO_MIN + 1);
+  if (elements.catalogTipoMax) elements.catalogTipoMax.value = String(TIPO_MIN + 3);
   if (elements.catalogCaixasInRange) elements.catalogCaixasInRange.value = "";
+  syncCatalogFormMode();
   setCatalogMessage("", "");
 
+  const wasEditing = Boolean(state.catalogEditKey);
+  state.catalogEditKey = "";
   closeCatalogModal();
+  if (wasEditing) {
+    setCatalogListMessage(
+      "success",
+      `${addition.produto} ${addition.marca} atualizado no catalogo (${addition.setor}).`
+    );
+    return;
+  }
   openCatalogAddedModal(
     `${addition.produto} ${addition.marca} salvo no catalogo (${addition.setor}) para todos os usuarios.`
   );
 }
 
-async function resetCatalogOverridesToDefault() {
-  if (!requireAuthenticatedUser("Faça login para alterar o cadastro de produtos.")) {
+// A excecao por tipo e escrita como frase ("do tipo 4 ao 6 tem 66 caixas"), e
+// os limites viram <select> de TIPO_MIN a TIPO_MAX: digitando numero solto dava
+// para pedir tipo 99 e a unica resposta era o formulario recusar no fim.
+function fillTipoSelect(select, selected) {
+  if (!select) return;
+  const tipos = [];
+  for (let tipo = TIPO_MIN; tipo <= TIPO_MAX; tipo += 1) tipos.push(String(tipo));
+  setSelectOptions(select, tipos, String(selected));
+}
+
+// Traduz o que esta preenchido para as duas faixas resultantes, para o operador
+// ver a regra inteira antes de salvar.
+function renderCatalogRulePreview() {
+  const preview = elements.catalogRulePreview;
+  if (!preview) return;
+  const fora = toNonNegativeInt(elements.catalogCaixas?.value, 0);
+  const min = toNonNegativeInt(elements.catalogTipoMin?.value, 0);
+  const max = toNonNegativeInt(elements.catalogTipoMax?.value, 0);
+  const dentro = toNonNegativeInt(elements.catalogCaixasInRange?.value, 0);
+  if (!fora || !dentro || !min || !max) {
+    preview.textContent = "Preencha as caixas por pallet e a faixa para ver a regra.";
     return;
   }
+  const restantes = [];
+  if (min > TIPO_MIN) restantes.push(min - 1 === TIPO_MIN ? `${TIPO_MIN}` : `${TIPO_MIN} a ${min - 1}`);
+  if (max < TIPO_MAX) restantes.push(max + 1 === TIPO_MAX ? `${TIPO_MAX}` : `${max + 1} a ${TIPO_MAX}`);
+  const faixa = min === max ? `Tipo ${min}` : `Tipos ${min} a ${max}`;
+  const resto = restantes.length ? `Tipos ${restantes.join(" e ")}: ${fora} caixas` : "";
+  preview.textContent = [`${faixa}: ${dentro} caixas`, resto].filter(Boolean).join("  |  ");
+}
 
-  if (!state.catalogAdditions.length && !state.catalogRemovals.length) {
-    setCatalogListMessage("info", "Catalogo ja esta no padrao original.");
-    return;
+// Produto sem tipo nao tem faixa: a excecao sai da tela para nao oferecer uma
+// combinacao que o cadastro nao usa.
+function syncCatalogFormMode() {
+  const noTipo = Boolean(elements.catalogNoTipo?.checked);
+  if (elements.catalogRangeOption) {
+    elements.catalogRangeOption.classList.toggle("hidden", noTipo);
   }
-
-  const confirmed = await confirmAction({
-    title: "Restaurar catalogo",
-    message:
-      "Restaurar o catalogo original para TODOS os usuarios? Isso remove todas as personalizacoes cadastradas.",
-    confirmLabel: "Restaurar",
-    danger: true,
-  });
-  if (!confirmed) return;
-
-  setCatalogListMessage("info", "Restaurando...");
-  const { error } = await resetAllCatalogOverrides();
-  if (error) {
-    setCatalogListMessage("error", `Erro ao restaurar catalogo: ${error.message}`);
-    return;
+  if (noTipo && elements.catalogRangeToggle?.checked) {
+    elements.catalogRangeToggle.checked = false;
   }
-
-  state.catalogAdditions = [];
-  state.catalogRemovals = [];
-  applyCatalogOverridesFromState();
-  writeCatalogCache(state.catalogAdditions, state.catalogRemovals);
-  refreshCatalogDependentUI();
-  setCatalogListMessage("success", "Catalogo original restaurado para todos os usuarios.");
+  const showRange = !noTipo && Boolean(elements.catalogRangeToggle?.checked);
+  elements.catalogRangeFields?.classList.toggle("hidden", !showRange);
+  if (elements.catalogCaixasHint) {
+    elements.catalogCaixasHint.textContent = noTipo
+      ? "Quantas caixas fecham um pallet deste produto."
+      : showRange
+        ? `Valor usado nos tipos fora da faixa abaixo.`
+        : `Quantas caixas fecham um pallet. Vale para todos os tipos (${TIPO_MIN} a ${TIPO_MAX}).`;
+  }
+  if (showRange) renderCatalogRulePreview();
 }
 
 export function initCatalogForm() {
   if (!elements.catalogSetor) return;
   setSelectOptions(elements.catalogSetor, Object.keys(CONFIG_GERAL).sort(), state.setor);
+  fillTipoSelect(elements.catalogTipoMin, TIPO_MIN + 1);
+  fillTipoSelect(elements.catalogTipoMax, TIPO_MIN + 3);
+  syncCatalogFormMode();
   renderCatalogTable();
 }
 
@@ -352,32 +503,53 @@ export function setupCatalogEvents() {
     });
   }
 
-  if (elements.catalogResetBtn) {
-    elements.catalogResetBtn.addEventListener("click", () => {
-      resetCatalogOverridesToDefault();
-    });
+  if (elements.catalogSearch) {
+    elements.catalogSearch.addEventListener("input", renderCatalogTable);
   }
 
   if (elements.catalogTableBody) {
     elements.catalogTableBody.addEventListener("click", (event) => {
+      const editBtn = event.target.closest("button[data-catalog-edit]");
+      if (editBtn) {
+        openCatalogModal(editBtn.dataset.catalogEdit);
+        return;
+      }
       const button = event.target.closest("button[data-catalog-key]");
       if (!button) return;
       removeCatalogEntryByKey(button.dataset.catalogKey);
     });
   }
 
-  if (elements.catalogRangeToggle && elements.catalogRangeFields) {
-    elements.catalogRangeToggle.addEventListener("change", () => {
-      elements.catalogRangeFields.classList.toggle(
-        "hidden",
-        !elements.catalogRangeToggle.checked
-      );
-    });
-  }
+  elements.catalogRangeToggle?.addEventListener("change", syncCatalogFormMode);
+  elements.catalogNoTipo?.addEventListener("change", syncCatalogFormMode);
+
+  // Tipo maximo nunca pode ficar antes do minimo.
+  elements.catalogTipoMin?.addEventListener("change", () => {
+    if (
+      toNonNegativeInt(elements.catalogTipoMax?.value, 0) <
+      toNonNegativeInt(elements.catalogTipoMin.value, 0)
+    ) {
+      elements.catalogTipoMax.value = elements.catalogTipoMin.value;
+    }
+    renderCatalogRulePreview();
+  });
+
+  elements.catalogTipoMax?.addEventListener("change", () => {
+    if (
+      toNonNegativeInt(elements.catalogTipoMax.value, 0) <
+      toNonNegativeInt(elements.catalogTipoMin?.value, 0)
+    ) {
+      elements.catalogTipoMin.value = elements.catalogTipoMax.value;
+    }
+    renderCatalogRulePreview();
+  });
+
+  elements.catalogCaixas?.addEventListener("input", renderCatalogRulePreview);
+  elements.catalogCaixasInRange?.addEventListener("input", renderCatalogRulePreview);
 
   if (elements.catalogOpenModalBtn) {
     elements.catalogOpenModalBtn.addEventListener("click", () => {
-      openCatalogModal();
+      openCatalogModal("");
     });
   }
 
@@ -397,7 +569,7 @@ export function setupCatalogEvents() {
   if (elements.catalogAddAnotherBtn) {
     elements.catalogAddAnotherBtn.addEventListener("click", () => {
       closeCatalogAddedModal();
-      openCatalogModal();
+      openCatalogModal("");
     });
   }
 }
