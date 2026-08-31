@@ -25,7 +25,7 @@ function ensureModal() {
     <div class="modal-backdrop" data-confirm-cancel></div>
     <div class="modal-card confirm-card" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
       <div class="modal-header">
-        <h3 id="confirm-title"></h3>
+        <h3 id="confirm-title"><i></i><span></span></h3>
       </div>
       <div class="modal-body">
         <p class="confirm-message"></p>
@@ -68,7 +68,12 @@ export function confirmAction({
   const element = ensureModal();
   // Uma pergunta por vez: se outra estiver aberta, ela vira "cancelar".
   if (resolveCurrent) close(false);
-  element.querySelector("#confirm-title").textContent = title;
+  const titleEl = element.querySelector("#confirm-title");
+  titleEl.querySelector("span").textContent = title;
+  // Triangulo nas acoes destrutivas, interrogacao nas demais.
+  titleEl.querySelector("i").className = danger
+    ? "bi bi-exclamation-triangle"
+    : "bi bi-question-circle";
   element.querySelector(".confirm-message").textContent = message || "";
   const okBtn = element.querySelector("[data-confirm-ok]");
   okBtn.textContent = confirmLabel;

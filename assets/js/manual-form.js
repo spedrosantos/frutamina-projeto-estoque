@@ -119,7 +119,8 @@ export function openEditModal(row = null) {
   setEditMessage("", "");
 
   if (elements.editTitle) {
-    elements.editTitle.textContent = "Editar item";
+    // innerHTML para o icone do cabecalho nao ser apagado junto com o texto.
+    elements.editTitle.innerHTML = '<i class="bi bi-pencil"></i>Editar item';
   }
 
   if (elements.editSetor) {

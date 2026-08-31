@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260831-01" />
+    <link rel="stylesheet" href="styles.css?v=20260831-02" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="products">
@@ -168,8 +168,10 @@
         <div class="modal-backdrop" id="catalog-modal-close"></div>
         <div class="modal-card">
           <div class="modal-header">
-            <h3>Cadastro de Produtos</h3>
-            <button id="catalog-modal-close-btn" class="ghost">Fechar</button>
+            <h3><i class="bi bi-box-seam"></i>Cadastro de Produtos</h3>
+            <button id="catalog-modal-close-btn" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
+              <i class="bi bi-x-lg"></i>
+            </button>
           </div>
           <div class="modal-body">
             <p>Adicione ou remova combinacoes de setor, produto e marca.</p>
@@ -220,7 +222,7 @@
         <div class="modal-backdrop" id="catalog-added-modal-close"></div>
         <div class="modal-card">
           <div class="modal-header">
-            <h3>Produto cadastrado!</h3>
+            <h3><i class="bi bi-check-circle"></i>Produto cadastrado</h3>
           </div>
           <div class="modal-body">
             <p id="catalog-added-message"></p>
@@ -233,7 +235,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-products.js?v=20260831-01"></script>
+    <script type="module" src="assets/js/main-products.js?v=20260831-02"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

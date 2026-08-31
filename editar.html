@@ -25,7 +25,7 @@
       media="print"
       onload="this.media='all'"
     />
-    <link rel="stylesheet" href="styles.css?v=20260831-01" />
+    <link rel="stylesheet" href="styles.css?v=20260831-02" />
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -383,8 +383,10 @@
       <div class="share-panel">
         <div class="share-handle"></div>
         <div class="share-header">
-          <h3>Exportar</h3>
-          <button id="count-export-close" class="ghost">Fechar</button>
+          <h3><i class="bi bi-download"></i>Exportar</h3>
+          <button id="count-export-close" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
         <div class="share-options">
           <button id="count-export-csv" class="share-option" type="button">
@@ -408,8 +410,10 @@
       <div class="modal-backdrop" id="edit-close"></div>
       <div class="modal-card">
         <div class="modal-header">
-          <h3 id="edit-title">Editar item</h3>
-          <button id="edit-close-btn" class="ghost">Fechar</button>
+          <h3 id="edit-title"><i class="bi bi-pencil"></i>Editar item</h3>
+          <button id="edit-close-btn" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
+            <i class="bi bi-x-lg"></i>
+          </button>
         </div>
         <div class="modal-body">
           <label for="edit-setor">Setor</label>
@@ -459,7 +463,7 @@
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js?v=20260831-19"></script>
+    <script type="module" src="assets/js/main-edit.js?v=20260831-20"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

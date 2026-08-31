@@ -310,36 +310,77 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   font-size: 14px;
 }
 
+/* --- Modais ---------------------------------------------------------------
+   Um unico padrao para todos: filtros, edicao de item, cadastro de produto e
+   confirmacao. O cartao rola por dentro (nunca passa da altura da tela), o
+   cabecalho tem icone + titulo + fechar em X, e as acoes ficam a direita - no
+   celular elas viram botoes de largura cheia. */
 .modal {
   position: fixed;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 18px;
   z-index: 50;
 }
 
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(2px);
+  animation: modal-fade 0.16s ease;
 }
 
 .modal-card {
   position: relative;
   z-index: 1;
-  width: min(520px, 92vw);
+  width: min(520px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: #ffffff;
-  border-radius: 16px;
-  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 20px 22px 22px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+  animation: modal-rise 0.18s ease;
 }
 
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.modal-header h3 i {
+  color: #2563eb;
+  font-size: 18px;
+}
+
+/* Fechar virou X: com o rotulo "Fechar" o cabecalho competia com o titulo. */
+.modal-close {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 15px;
+  flex: 0 0 auto;
 }
 
 .modal-body {
@@ -347,17 +388,23 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   gap: 10px;
 }
 
+.modal-body > p {
+  margin: 0;
+  line-height: 1.5;
+  color: #475569;
+}
+
 .modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 16px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
 }
 
-/* Modal de confirmacao (confirm-modal.js): substitui o window.confirm nativo,
-   entao herda o cartao do .modal e so ajusta largura e texto. */
+/* Confirmacao (confirm-modal.js): mesmo cartao, so mais estreito. */
 .confirm-card {
-  width: min(420px, 92vw);
+  width: min(420px, 100%);
 }
 
 .confirm-message {
@@ -365,8 +412,53 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   line-height: 1.5;
 }
 
-#confirm-modal .modal-header {
-  margin-bottom: 8px;
+.confirm-card .bi-exclamation-triangle {
+  color: #dc2626;
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@media (max-width: 560px) {
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: 24px;
+    animation: modal-slide 0.2s ease;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+}
+
+@keyframes modal-slide {
+  from {
+    transform: translateY(18px);
+  }
 }
 
 .card {
@@ -995,9 +1087,17 @@ th {
 }
 
 .share-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   margin: 0;
   font-size: 16px;
   font-family: "Space Grotesk", sans-serif;
+}
+
+.share-header h3 i {
+  color: #2563eb;
+  font-size: 16px;
 }
 
 .share-options {
@@ -3779,6 +3879,8 @@ body[data-theme="dark"] .print-overlay-card {
   box-shadow: 0 20px 46px rgba(2, 6, 23, 0.38);
 }
 
+body[data-theme="dark"] .modal-body > p,
+body[data-theme="dark"] .confirm-message,
 body[data-theme="dark"] .card-header p,
 body[data-theme="dark"] .public-section-header p,
 body[data-theme="dark"] .summary-header p,
