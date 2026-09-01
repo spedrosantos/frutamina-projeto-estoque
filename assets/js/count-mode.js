@@ -1,7 +1,7 @@
 // Modo de contagem: alterna "estoque atual" e "nova contagem" com rascunho offline.
 import { state, elements, supabaseClient } from "./state.js";
 import { TABLE_NAME, SUPABASE_TIMEOUT_MS } from "./config.js";
-import { pushMessage, withTimeout, displayUserFromEmail } from "./utils.js";
+import { pushMessage, withTimeout } from "./utils.js";
 import {
   cloneInventoryRows,
   getCurrentPublicAggregateRows,
@@ -18,7 +18,7 @@ import {
 } from "./draft.js";
 import { buildPublicRowsAfterUserReplacement, calculateOutflowCaixas } from "./comparison.js";
 import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
-import { clearVoiceActionState } from "./voice-actions.js";
+import { clearVoiceActionState } from "./launch-core.js";
 import { hasPendingChanges, clearPendingChanges, renderPendingChanges } from "./pending-changes.js";
 import { confirmAction } from "./confirm-modal.js";
 
@@ -287,14 +287,6 @@ export async function saveNewCount() {
       duplicatesWarning ? "warn" : snapshotSaved ? "success" : "warn",
       `${successMsg}${duplicatesWarning}`
     );
-
-    if (Notification.permission === "granted") {
-      const userLabel = displayUserFromEmail(state.user.email);
-      new Notification("Estoque Atualizado", {
-        body: `O estoque do CD foi atualizado por ${userLabel}`,
-        icon: "./assets/img/icon-192.png",
-      });
-    }
   } catch (error) {
     pushMessage(
       "error",

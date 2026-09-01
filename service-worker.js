@@ -3,17 +3,22 @@
 
   Objetivo:
   - manter o shell do app disponivel offline;
-  - servir paginas/estilos/scripts do cache quando a rede cair;
+  - pintar a tela a partir do cache, sem esperar a rede;
   - atualizar o cache automaticamente quando a versao muda.
 */
 
 /*
   A versao do app vive AQUI, num lugar so: os HTML nao carregam mais ?v= nos
-  assets. Subir estes numeros invalida o cache antigo, e o fetch abaixo ja e
-  network-first para HTML/CSS/JS proprio, entao a versao nova chega na hora.
+  assets.
+
+  SUBIR ESTES NUMEROS A CADA DEPLOY E OBRIGATORIO. O fetch e stale-while-
+  revalidate para tudo, inclusive HTML/CSS/JS proprio: sem a troca de versao, o
+  aparelho continua pintando o codigo que ja tem em cache e so pega o novo no
+  carregamento seguinte. Trocar a versao apaga os caches antigos (o install
+  regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v120";
-const RUNTIME_CACHE = "frutamina-runtime-v120";
+const STATIC_CACHE = "frutamina-static-v124";
+const RUNTIME_CACHE = "frutamina-runtime-v124";
 
 const APP_SHELL = [
   "./",
@@ -23,18 +28,18 @@ const APP_SHELL = [
   "./visao-geral.html",
   "./manifest.webmanifest",
   "./styles.css",
+  "./assets/js/head.js",
   "./assets/js/boot-common.js",
   "./assets/js/main-view.js",
   "./assets/js/main-edit.js",
   "./assets/js/main-dashboard.js",
   "./assets/js/main-products.js",
   "./assets/img/logo.webp",
-  "./assets/img/capa.png",
   "./assets/img/icon-192.png",
   "./assets/img/icon-512.png",
   "./assets/img/apple-touch-icon.png",
+  "./assets/fonts/bootstrap-icons-subset.woff2",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-  "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css",
   "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
 ];
 
@@ -56,9 +61,20 @@ async function cacheAppShell() {
   );
 }
 
+// O STATIC vem antes do RUNTIME de proposito: o STATIC e reescrito no install de
+// cada versao nova, entao ele e a copia confiavel do codigo do app; o RUNTIME
+// guarda o que foi baixado durante o uso e pode ser de uma versao anterior.
+async function readCached(request) {
+  const staticCache = await caches.open(STATIC_CACHE);
+  const fromStatic = await staticCache.match(request);
+  if (fromStatic) return fromStatic;
+  const runtimeCache = await caches.open(RUNTIME_CACHE);
+  return runtimeCache.match(request);
+}
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(RUNTIME_CACHE);
-  const cached = await caches.match(request);
+  const cached = await readCached(request);
 
   const fetchPromise = fetch(request)
     .then((response) => {
@@ -72,7 +88,7 @@ async function staleWhileRevalidate(request) {
     .catch(async () => {
       if (cached) return cached;
       if (request.mode === "navigate") {
-        const shell = await caches.match("./index.html");
+        const shell = await readCached("./index.html");
         if (shell) return shell;
       }
       return Response.error();
@@ -97,27 +113,6 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Codigo do app (HTML/JS/CSS proprio) prioriza rede: evita servir versao antiga
-// congelada no STATIC_CACHE. Cache continua como fallback offline.
-async function networkFirst(request) {
-  try {
-    const response = await fetch(request);
-    if (response.ok && !response.redirected) {
-      const cache = await caches.open(RUNTIME_CACHE);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-    if (request.mode === "navigate") {
-      const shell = await caches.match("./index.html");
-      if (shell) return shell;
-    }
-    return Response.error();
-  }
-}
-
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
@@ -125,61 +120,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (isSupabaseApiRequest(url)) return;
 
-  const isAppCode =
-    url.origin === self.location.origin &&
-    (request.mode === "navigate" || /\.(html|js|css)$/.test(url.pathname));
-
-  event.respondWith(
-    isAppCode ? networkFirst(request) : staleWhileRevalidate(request)
-  );
-});
-
-
-
-
-
-
-// Suporte a Notificações Push
-self.addEventListener("push", (event) => {
-  let data = { title: "Frutamina", body: "Estoque atualizado." };
-  
-  try {
-    if (event.data) {
-      data = event.data.json();
-    }
-  } catch (e) {
-    data = { title: "Frutamina", body: event.data.text() };
-  }
-
-  const options = {
-    body: data.body,
-    icon: "./assets/img/icon-192.png",
-    badge: "./assets/img/icon-192.png",
-    vibrate: [100, 50, 100],
-    data: {
-      dateOfArrival: Date.now(),
-      primaryKey: "1"
-    },
-    actions: [
-      { action: "explore", title: "Ver Estoque", icon: "./assets/img/icon-192.png" },
-      { action: "close", title: "Fechar", icon: "./assets/img/icon-192.png" }
-    ]
-  };
-
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
-});
-
-self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-  if (event.action === "explore") {
-    event.waitUntil(
-      clients.openWindow("./visao-geral.html")
-    );
-  } else {
-    event.waitUntil(
-      clients.openWindow("./")
-    );
-  }
+  // Tudo pinta do cache e revalida em segundo plano, inclusive o codigo do app.
+  // Era network-first para nunca servir versao velha, mas isso fazia toda
+  // abertura esperar a rede antes de desenhar - no 4G do galpao, com o app ja
+  // inteiro em cache. O preco: uma alteracao publicada sem subir a versao das
+  // constantes STATIC_CACHE/RUNTIME_CACHE la em cima so chega no proximo
+  // carregamento. Subir a versao a cada deploy deixou de ser opcional.
+  event.respondWith(staleWhileRevalidate(request));
 });

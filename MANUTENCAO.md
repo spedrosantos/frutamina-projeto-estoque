@@ -26,7 +26,18 @@ Este projeto foi documentado em duas camadas:
   página realmente usa. Ver "Mapa de módulos" abaixo.
 
 - `styles.css`
-  Estilos compartilhados entre as quatro páginas.
+  Estilos compartilhados entre as quatro páginas. Toda cor, raio, sombra e padding
+  sai dos tokens `--app-*` do bloco `:root` (tema escuro em
+  `body[data-theme="dark"]`) — não existe mais paleta por página.
+
+  Os componentes (`.card`, `.modal-card`, `.ghost`, `.primary`, `.view-toggle`,
+  `.summary-table`, `input`/`select`/`label`, `th`/`td`) são definidos **uma vez**,
+  já tokenizados. Havia duas versões de cada um — a antiga com cor cravada e a
+  tokenizada escopada em `body[data-page="view"]` — e as páginas divergiam.
+  Ao mexer num componente, mexa na regra base: vale para as quatro páginas.
+  `body[data-page=...]` sobrou só para o que é de fato exclusivo de uma tela.
+  No tema escuro ficam apenas as exceções que não são cor de token (`.msg.*`,
+  gradientes, `color-scheme` dos `<select>`).
 
 - `manifest.webmanifest`
   Configuração do PWA instalado no celular.
@@ -79,8 +90,9 @@ Este projeto foi documentado em duas camadas:
 
 ### 3. Desfazer e corrigir último lançamento
 
+- `launch-core.js`
+  - `registerInventoryChange`, `buildLaunchItem`, `buildLaunchRecord`, `setLastLaunch`
 - `voice-actions.js`
-  - `registerInventoryChange`, `buildLaunchItem`, `buildLaunchRecord`
   - `revertLaunchRecord`, `removeLastLaunchCommand`
   - `beginVoiceCorrection`, `handlePendingCorrection`
 
@@ -95,7 +107,9 @@ Este projeto foi documentado em duas camadas:
   `extractCommandNumbers`/`extractCommandTipoValues` extraem números e tipos do
   comando ignorando setor/produto/marca já reconhecidos.
 - `voice-speech.js`: `setupVoice`, integração real com a Web Speech API (só usado
-  em `editar.html`).
+  em `editar.html`). Carrega `voice-actions.js` por `import()` dinâmico, na
+  primeira frase reconhecida: o parser tem ~1200 linhas e só interessa a quem
+  fala com o app, então fica fora do boot de quem usa o Comando Manual.
 
 ### 5. Rascunho offline
 
@@ -150,8 +164,19 @@ Essas funções permitem continuar a nova contagem sem internet.
 
 ### 11. Bootstrap
 
+- `head.js`: metatags, manifest e fontes do `<head>`. Cada HTML traz só charset,
+  `<title>`, `styles.css` e este script — o resto era idêntico nas quatro páginas.
+  Script clássico e síncrono de propósito (o `theme-color` precisa valer antes da
+  primeira pintura).
+- `app-shell.js`: sidebar, topbar mobile e o conteúdo do `<header class="page-head">`
+  (`PAGE_HEADS`, escolhido pelo `data-page` do `<body>`). Tem que ser um dos
+  primeiros imports do entry point, antes de `state.js`.
+- `modal-shell.js`: moldura dos modais (backdrop, `.modal-card`, `.modal-header`).
+  O HTML declara só o conteúdo dentro de um `<div data-modal ...>`; ver os
+  atributos aceitos no topo do arquivo. Também antes de `state.js`.
+- `boot-common.js`: `finishBoot`, o fim de boot igual nas quatro páginas.
 - `auth-ui.js`: `setupAuth`, `handleAuthState`, `setupShellEvents`, `setupTheme`,
-  `initSetorSelects`, notificações push. Roda em todas as páginas.
+  `initSetorSelects`. Roda em todas as páginas.
 - `main-view.js` / `main-edit.js` / `main-dashboard.js` / `main-products.js`:
   um entry point por página — cada um só importa e inicializa os módulos que
   aquela página usa.
@@ -175,8 +200,8 @@ Essas funções permitem continuar a nova contagem sem internet.
 
 1. `setupVoice` (`voice-speech.js`) liga a Web Speech API.
 2. `processCommand` (`voice-actions.js`) interpreta o texto final.
-3. `registerInventoryChange` aplica o lançamento.
-4. `upsertRecord` (`supabase-api.js`) salva no banco quando necessário.
+3. `registerInventoryChange` (`launch-core.js`) aplica o lançamento.
+4. `applyLaunchBatch` (`supabase-api.js`) salva no banco quando necessário.
 
 ### Fluxo 4: saída entre contagens
 
@@ -217,7 +242,30 @@ Quando precisar alterar alguma regra de negócio, siga esta ordem:
 5. se houver persistência nova, revise as funções do Supabase (`supabase-api.js`,
    `catalog-overrides.js`).
 
-Depois de qualquer mudança em `assets/js/*.js` ou `styles.css`, incremente os
-query params `?v=...` nos `<link>`/`<script>` das 4 páginas HTML (cache-busting
-do GitHub Pages) e, se algum arquivo do `APP_SHELL` mudou, também as versões de
-cache em `service-worker.js`.
+Depois de qualquer mudança em `assets/js/*.js`, `styles.css` ou nos HTML,
+incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js`. Não existe
+mais `?v=...` nos `<link>`/`<script>`: a versão do app vive só nessas duas
+constantes. Como o fetch é stale-while-revalidate, esquecer de subir a versão
+significa que o aparelho continua pintando o código antigo até o carregamento
+seguinte.
+
+### Ícones
+
+`assets/fonts/bootstrap-icons-subset.woff2` (4KB) é um subset do bootstrap-icons
+1.11.3 com **apenas os ícones que o projeto usa**; o `@font-face` e as classes
+`.bi-*` ficam no fim do `styles.css`. Uma classe `.bi-` que não esteja lá não
+desenha nada.
+
+Para usar um ícone novo:
+
+1. acrescente a classe no HTML/JS normalmente;
+2. levante a lista completa em uso:
+   `grep -rho "bi-[a-z0-9-]*" *.html assets/js/*.js | sort -u`;
+3. pegue o codepoint de cada nome no CSS oficial
+   (`https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css`,
+   linhas `.bi-nome::before { content: "5aa" }`);
+4. gere o subset a partir do woff2 oficial
+   (`.../font/fonts/bootstrap-icons.woff2`) com
+   `fonttools subset ... --unicodes=U+f5aa,... --flavor=woff2`;
+5. acrescente a regra `.bi-nome::before { content: "5aa"; }` no fim do
+   `styles.css` e suba a versão do cache.

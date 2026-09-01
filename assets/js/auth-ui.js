@@ -1,4 +1,4 @@
-// Autenticacao, shell da interface (menu/sidebar/tema) e notificacoes push.
+// Autenticacao e shell da interface (menu, sidebar, tema).
 // Import dinamico para modulos especificos de pagina (dashboard, count-mode, catalog-crud):
 // este modulo roda em TODAS as paginas, mas essas features nao existem em todas.
 import { state, elements, supabaseClient, PAGE_MODE, isRestrictedPageMode } from "./state.js";
@@ -7,10 +7,8 @@ import {
   SESSION_MAX_MS,
   THEME_PREFERENCE_KEY,
   SUPABASE_TIMEOUT_MS,
-  NOTIFICATION_INVITE_DISMISSED_AT_KEY,
-  NOTIFICATION_INVITE_SNOOZE_MS,
 } from "./config.js";
-import { pushMessage, toAuthEmail, displayUserFromEmail, withTimeout } from "./utils.js";
+import { pushMessage, toAuthEmail, displayUserFromEmail } from "./utils.js";
 import { renderContext, renderCountTable, renderCountSyncStatus, storeUserLabel } from "./tables.js";
 import { restoreCountDraftForCurrentUser } from "./draft.js";
 import { restorePendingChanges, forgetPendingChangesInMemory } from "./pending-changes.js";
@@ -82,7 +80,10 @@ function showCountPanel() {
   setEditSection();
 }
 
-function showProductsPanel() {
+// scroll: false no boot. Rolar ate o painel faz sentido quando o usuario clica
+// em "Produtos" no menu, mas ao abrir a pagina jogava o cabecalho fora da tela.
+function showProductsPanel(options = {}) {
+  const { scroll = true } = options;
   if (!requireAuthenticatedUser("Faça login para acessar o cadastro de produtos.")) {
     return;
   }
@@ -90,7 +91,7 @@ function showProductsPanel() {
   if (elements.countPanel) elements.countPanel.classList.add("hidden");
   if (elements.productsPanel) {
     elements.productsPanel.classList.remove("hidden");
-    elements.productsPanel.scrollIntoView({ behavior: "smooth" });
+    if (scroll) elements.productsPanel.scrollIntoView({ behavior: "smooth" });
   }
 }
 
@@ -273,7 +274,7 @@ async function handleAuthState(event, session) {
       setEditSection();
     } else if (PAGE_MODE === "products") {
       hideAuthPanel();
-      showProductsPanel();
+      showProductsPanel({ scroll: false });
       const { renderCatalogTable } = await import("./catalog-crud.js");
       renderCatalogTable();
     } else {
@@ -494,182 +495,4 @@ export function setupShellEvents() {
   window.addEventListener("offline", () => {
     renderCountSyncStatus();
   });
-}
-
-// ===== Notificacoes push =====
-
-async function savePushSubscription(subscription) {
-  if (!state.user) return;
-
-  try {
-    const { error } = await withTimeout(
-      supabaseClient
-        .from("push_subscriptions")
-        .upsert({
-          user_id: state.user.id,
-          subscription: subscription,
-        }, { onConflict: "user_id,subscription" }),
-      SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao salvar assinatura de push."
-    );
-
-    if (error) throw error;
-    console.log("Assinatura de push salva no Supabase.");
-  } catch (error) {
-    console.error("Erro ao salvar assinatura de push:", error);
-  }
-}
-
-async function requestNotificationPermission() {
-  if (!("Notification" in window) || !("serviceWorker" in navigator)) {
-    console.warn("Este navegador não suporta notificações push.");
-    return;
-  }
-
-  try {
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      const registration = await navigator.serviceWorker.ready;
-
-      const VAPID_PUBLIC_KEY = "BAjzR0T971QRQTTcQxMMt4QmJcpBPZpRLWMRDiqAPgD2Jvs2dvfEkrz217PgqfLK2dOVmea-718DAv95d-7_MS0";
-
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: VAPID_PUBLIC_KEY,
-      });
-
-      await savePushSubscription(subscription);
-
-      pushMessage("success", "Notificações ativadas com sucesso!");
-    }
-  } catch (error) {
-    console.error("Erro ao solicitar permissão de notificação:", error);
-  }
-}
-
-/**
- * Cria e exibe um convite amigável para ativar notificações,
- * garantindo a interação do usuário exigida pelos navegadores.
- */
-function isNotificationInviteSnoozed() {
-  try {
-    const raw = localStorage.getItem(NOTIFICATION_INVITE_DISMISSED_AT_KEY);
-    if (!raw) return false;
-    const dismissedAt = Number(raw);
-    if (!Number.isFinite(dismissedAt)) return false;
-    return Date.now() - dismissedAt < NOTIFICATION_INVITE_SNOOZE_MS;
-  } catch (error) {
-    console.warn("Nao foi possivel ler a dispensa do convite de notificacoes.", error);
-    return false;
-  }
-}
-
-function snoozeNotificationInvite() {
-  try {
-    localStorage.setItem(NOTIFICATION_INVITE_DISMISSED_AT_KEY, String(Date.now()));
-  } catch (error) {
-    console.warn("Nao foi possivel salvar a dispensa do convite de notificacoes.", error);
-  }
-}
-
-export function showNotificationInvite() {
-  if (!("Notification" in window) || Notification.permission !== "default") {
-    return;
-  }
-  if (isNotificationInviteSnoozed()) return;
-  if (document.getElementById("notification-overlay")) return;
-
-  const overlay = document.createElement("div");
-  overlay.id = "notification-overlay";
-  overlay.style = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    z-index: 99998;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `;
-
-  const invite = document.createElement("div");
-  invite.id = "notification-invite";
-  invite.style = `
-    background: var(--card-bg, #fff);
-    color: var(--text-main, #333);
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-    width: 90%;
-    max-width: 350px;
-    border: 1px solid var(--border-color, #eee);
-    animation: modalPop 0.3s ease-out;
-  `;
-
-  const styleSheet = document.createElement("style");
-  styleSheet.innerText = `
-    @keyframes modalPop {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-  `;
-  document.head.appendChild(styleSheet);
-
-  invite.innerHTML = `
-    <div style="background: var(--primary-color, #007bff); color: #fff; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; margin-bottom: 8px;">
-      <i class="bi bi-bell-fill"></i>
-    </div>
-    <div>
-      <strong style="display: block; font-size: 20px; margin-bottom: 8px;">Ativar Notificações?</strong>
-      <p style="font-size: 15px; opacity: 0.9; line-height: 1.4; margin: 0;">
-        Fique por dentro! Receba avisos em tempo real toda vez que o estoque do CD for atualizado.
-      </p>
-    </div>
-    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px;">
-      <button id="notif-allow" style="background: var(--primary-color, #007bff); color: #fff; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 600; width: 100%;">Sim, quero ativar</button>
-      <button id="notif-test" style="background: #28a745; color: #fff; border: none; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%;">Enviar Teste Agora</button>
-      <button id="notif-ignore" style="background: none; border: none; padding: 8px; cursor: pointer; font-size: 14px; color: var(--text-muted, #666); width: 100%;">Agora não</button>
-    </div>
-  `;
-
-  overlay.appendChild(invite);
-  document.body.appendChild(overlay);
-
-  const closeAll = () => {
-    overlay.remove();
-    styleSheet.remove();
-    snoozeNotificationInvite();
-  };
-
-  document.getElementById("notif-ignore").onclick = closeAll;
-  document.getElementById("notif-allow").onclick = async () => {
-    closeAll();
-    await requestNotificationPermission();
-  };
-
-  document.getElementById("notif-test").onclick = async () => {
-    if (Notification.permission !== "granted") {
-      await requestNotificationPermission();
-    }
-    if (Notification.permission === "granted") {
-      const registration = await navigator.serviceWorker.ready;
-      registration.showNotification("Teste de Conexão", {
-        body: "Se você está vendo isso, as notificações locais estão funcionando!",
-        icon: "./assets/img/icon-192.png",
-        vibrate: [200, 100, 200],
-      });
-      pushMessage("success", "Notificação de teste enviada!");
-    } else {
-      pushMessage("error", "Permissão de notificação negada pelo navegador.");
-    }
-  };
 }

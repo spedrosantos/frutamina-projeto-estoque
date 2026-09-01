@@ -2,6 +2,7 @@
 // Primeiro import de proposito: monta o shell (sidebar/topbar) antes de state.js
 // resolver os elementos.
 import "./app-shell.js";
+import "./modal-shell.js";
 import "./register-sw.js";
 import { state } from "./state.js";
 import { applyCatalogOverridesFromCache } from "./catalog-overrides.js";

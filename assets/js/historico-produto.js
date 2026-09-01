@@ -85,13 +85,13 @@ function renderHistoricoChartAndSummary() {
   const values = serieFiltrada.map((ponto) => ponto.total_caixas);
 
   // Total do CD usa o acento; produto especifico usa o verde.
-  const accent = readThemeColor(totalMode ? "--ov-accent" : "--ov-green", "#2563eb");
+  const accent = readThemeColor(totalMode ? "--app-accent" : "--app-green", "#2563eb");
   chartMeta = renderLineChart(elements.historicoCanvas, { dates, values }, {
     lineColor: accent,
     fillStart: withAlpha(accent, "4d"),
     fillEnd: withAlpha(accent, "0d"),
-    labelColor: readThemeColor("--ov-text-soft", "rgba(148, 163, 184, 0.9)"),
-    gridColor: readThemeColor("--ov-border", "rgba(148, 163, 184, 0.25)"),
+    labelColor: readThemeColor("--app-text-soft", "rgba(148, 163, 184, 0.9)"),
+    gridColor: readThemeColor("--app-border", "rgba(148, 163, 184, 0.25)"),
     showLabels: true,
     height: 240,
     hoverIndex,

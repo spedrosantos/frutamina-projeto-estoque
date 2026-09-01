@@ -20,27 +20,30 @@ import {
   SUPABASE_TIMEOUT_MS,
   cloneConfigTree,
 } from "./config.js";
-import { toNonNegativeInt, normalizeSetorValue, isNoTipoContext, isTipoValidForContext, withTimeout } from "./utils.js";
+import {
+  toNonNegativeInt,
+  normalizeSetorValue,
+  isNoTipoContext,
+  isTipoValidForContext,
+  withTimeout,
+  readJsonArray,
+  writeLocalEntries,
+} from "./utils.js";
+
+const CACHE_READ_WARNING = "Nao foi possivel ler o cache local do catalogo.";
 
 function readCatalogCacheArray(key) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    console.warn("Nao foi possivel ler o cache local do catalogo.", error);
-    return [];
-  }
+  return readJsonArray(key, CACHE_READ_WARNING);
 }
 
 export function writeCatalogCache(additions, removals) {
-  try {
-    localStorage.setItem(CATALOG_ADDITIONS_KEY, JSON.stringify(additions));
-    localStorage.setItem(CATALOG_REMOVALS_KEY, JSON.stringify(removals));
-  } catch (error) {
-    console.warn("Nao foi possivel salvar o cache local do catalogo.", error);
-  }
+  writeLocalEntries(
+    [
+      [CATALOG_ADDITIONS_KEY, additions],
+      [CATALOG_REMOVALS_KEY, removals],
+    ],
+    "Nao foi possivel salvar o cache local do catalogo."
+  );
 }
 
 function cleanCatalogLabel(value) {

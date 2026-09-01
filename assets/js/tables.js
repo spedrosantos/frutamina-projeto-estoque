@@ -207,11 +207,17 @@ export function renderCountSyncStatus() {
     state.previousPublicRows.length
   );
   const lastSaved = formatDateTime(state.countDraftSavedAt);
+  const pendingCount = state.countMode === "new" ? 0 : getPendingChanges().length;
 
   let title = "";
   let text = "";
 
-  if (hasDraft) {
+  // A fila pendente vem primeiro: e o aviso mais urgente da tela, e o rascunho
+  // da nova contagem pode continuar guardado mesmo no modo "Ajustar estoque".
+  if (pendingCount) {
+    title = `${pendingCount} lançamento(s) não salvos`;
+    text = online ? "Guardados neste aparelho." : "Guardados neste aparelho. Sem internet.";
+  } else if (hasDraft) {
     if (online) {
       title =
         state.countMode === "new"
@@ -459,96 +465,63 @@ function renderSummaryTables(rows, container, options = {}) {
   container.appendChild(grid);
 }
 
+// Os dois seletores de visualizacao (estoque publico e itens contados) tinham a
+// mesma funcao escrita duas vezes, trocando so o prefixo dos elementos. Quando um
+// ganhava um ajuste, o outro ficava atras.
+function applyViewMode(mode, ui, renderSummary) {
+  const next = mode === "summary" ? "summary" : "detailed";
+  ui.toggle?.classList.toggle("mode-summary", next === "summary");
+  ui.detailedBtn?.setAttribute("aria-pressed", next === "detailed");
+  ui.summaryBtn?.setAttribute("aria-pressed", next === "summary");
+  ui.detailed?.classList.toggle("hidden", next !== "detailed");
+  ui.summary?.classList.toggle("hidden", next !== "summary");
+  if (next === "summary") renderSummary();
+  return next;
+}
+
 export function setPublicViewMode(mode) {
-  state.publicViewMode = mode === "summary" ? "summary" : "detailed";
-  if (elements.publicViewToggle) {
-    elements.publicViewToggle.classList.toggle(
-      "mode-summary",
-      state.publicViewMode === "summary"
-    );
-  }
-  if (elements.publicViewDetailedBtn) {
-    elements.publicViewDetailedBtn.setAttribute(
-      "aria-pressed",
-      state.publicViewMode === "detailed"
-    );
-  }
-  if (elements.publicViewSummaryBtn) {
-    elements.publicViewSummaryBtn.setAttribute(
-      "aria-pressed",
-      state.publicViewMode === "summary"
-    );
-  }
-  if (elements.publicTableDetailed) {
-    elements.publicTableDetailed.classList.toggle(
-      "hidden",
-      state.publicViewMode !== "detailed"
-    );
-  }
-  if (elements.publicTableSummary) {
-    elements.publicTableSummary.classList.toggle(
-      "hidden",
-      state.publicViewMode !== "summary"
-    );
-  }
-  if (state.publicViewMode === "summary") {
-    renderPublicSummary();
-  }
+  state.publicViewMode = applyViewMode(
+    mode,
+    {
+      toggle: elements.publicViewToggle,
+      detailedBtn: elements.publicViewDetailedBtn,
+      summaryBtn: elements.publicViewSummaryBtn,
+      detailed: elements.publicTableDetailed,
+      summary: elements.publicTableSummary,
+    },
+    renderPublicSummary
+  );
 }
 
 export function setCountViewMode(mode) {
-  state.countViewMode = mode === "summary" ? "summary" : "detailed";
-  if (elements.countViewToggle) {
-    elements.countViewToggle.classList.toggle(
-      "mode-summary",
-      state.countViewMode === "summary"
-    );
-  }
-  if (elements.countViewDetailedBtn) {
-    elements.countViewDetailedBtn.setAttribute(
-      "aria-pressed",
-      state.countViewMode === "detailed"
-    );
-  }
-  if (elements.countViewSummaryBtn) {
-    elements.countViewSummaryBtn.setAttribute(
-      "aria-pressed",
-      state.countViewMode === "summary"
-    );
-  }
-  if (elements.countTableDetailed) {
-    elements.countTableDetailed.classList.toggle(
-      "hidden",
-      state.countViewMode !== "detailed"
-    );
-  }
-  if (elements.countTableSummary) {
-    elements.countTableSummary.classList.toggle(
-      "hidden",
-      state.countViewMode !== "summary"
-    );
-  }
-  if (state.countViewMode === "summary") {
-    renderCountSummary();
-  }
+  state.countViewMode = applyViewMode(
+    mode,
+    {
+      toggle: elements.countViewToggle,
+      detailedBtn: elements.countViewDetailedBtn,
+      summaryBtn: elements.countViewSummaryBtn,
+      detailed: elements.countTableDetailed,
+      summary: elements.countTableSummary,
+    },
+    renderCountSummary
+  );
+}
+
+// Mesmo resumo, fontes de linha diferentes. getRows so roda se o container
+// existe: nas paginas sem a tabela nao ha nada para montar.
+function renderSummaryFor(container, getRows) {
+  if (!container) return;
+  renderSummaryTables(getRows(), container, { showSetor: true, colorizeFirst: true });
 }
 
 function renderPublicSummary() {
-  if (!elements.publicTableSummary) return;
-  const rows = state.publicRows.filter(matchesPublicFilters);
-  renderSummaryTables(rows, elements.publicTableSummary, {
-    showSetor: true,
-    colorizeFirst: true,
-  });
+  renderSummaryFor(elements.publicTableSummary, () =>
+    state.publicRows.filter(matchesPublicFilters)
+  );
 }
 
 function renderCountSummary() {
-  if (!elements.countTableSummary) return;
-  const rows = getCountRows();
-  renderSummaryTables(rows, elements.countTableSummary, {
-    showSetor: true,
-    colorizeFirst: true,
-  });
+  renderSummaryFor(elements.countTableSummary, getCountRows);
 }
 
 export function renderPublicTable() {
@@ -756,6 +729,11 @@ function applyCountSourceUI() {
   const editingStock = state.countSource === "estoque";
   elements.countSaveBtn?.classList.toggle("hidden", editingStock);
   elements.countClearBtn?.classList.toggle("hidden", editingStock);
+  if (elements.countItemsHint) {
+    elements.countItemsHint.textContent = editingStock
+      ? "Já gravado · todos os setores"
+      : "Não gravado · todos os setores";
+  }
 }
 
 // "Contagem" so faz sentido quando existe contagem: sem nada lancado a opcao

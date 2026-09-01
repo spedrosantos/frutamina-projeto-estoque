@@ -9,6 +9,33 @@
 // PRIMEIROS imports do entry point da pagina - state.js resolve os elementos do
 // shell (sidebar, toggles, botoes do menu) no momento em que e avaliado.
 
+// Cabecalho de cada pagina: a estrutura era a mesma nas quatro, so o texto
+// mudava. O <header class="page-head" data-page-head> vazio no HTML marca onde
+// entra (na Visao Geral ele vive dentro do .overview-shell, nao no topo do .app).
+const PAGE_HEADS = {
+  view: {
+    eyebrow: "CD | Contagem do estoque",
+    title: "Estoque",
+    sub: 'Estoque atual. Para editar, acesse <a href="editar.html">Editar estoque</a>.',
+    meta: { label: "Atualizado por", id: "public-last-update" },
+  },
+  dashboard: {
+    eyebrow: "CD | Analítico do estoque",
+    title: "Visão Geral",
+    sub: "Resumo analítico do estoque atual do CD.",
+  },
+  edit: {
+    eyebrow: "CD | Contagem do estoque",
+    title: "Editar Estoque",
+    sub: 'Lance a contagem por voz ou manualmente. Para so consultar, veja o <a href="index.html">Estoque</a>.',
+  },
+  products: {
+    eyebrow: "CD | Cadastro",
+    title: "Produtos",
+    sub: 'Combinacoes de setor, produto e marca usadas na contagem. Para lancar estoque, va em <a href="editar.html">Editar estoque</a>.',
+  },
+};
+
 const NAV_ITEMS = [
   { id: "menu-view", page: "view", href: "index.html", icon: "bi-box-seam", label: "Estoque" },
   {
@@ -113,6 +140,25 @@ function buildTopbar() {
   return topbar;
 }
 
+function fillPageHead(currentPage) {
+  const host = document.querySelector("[data-page-head]");
+  const head = PAGE_HEADS[currentPage];
+  if (!host || !head) return;
+  const meta = head.meta
+    ? `
+        <div class="page-head-meta">
+          <span>${head.meta.label}</span>
+          <strong id="${head.meta.id}">--</strong>
+        </div>`
+    : "";
+  host.innerHTML = `
+        <div class="page-head-main">
+          <p class="eyebrow">${head.eyebrow}</p>
+          <h1>${head.title}</h1>
+          <p class="page-head-sub">${head.sub}</p>
+        </div>${meta}`;
+}
+
 function mountAppShell() {
   if (document.getElementById("app-sidebar")) return;
   const app = document.querySelector(".app");
@@ -120,6 +166,7 @@ function mountAppShell() {
   const currentPage = document.body.dataset.page || "";
   document.body.prepend(...buildSidebar(currentPage));
   app.prepend(buildTopbar());
+  fillPageHead(currentPage);
 }
 
 mountAppShell();
