@@ -439,3 +439,39 @@ export async function fetchWithTimeout(url, options, ms) {
     clearTimeout(timeoutId);
   }
 }
+
+/*
+  localStorage sempre no mesmo formato: JSON dentro de try/catch com um aviso no
+  console. O par abaixo existia solto em catalog-overrides.js e supabase-api.js,
+  com a mesma logica escrita duas vezes.
+
+  Todo acesso pode falhar (aba privada, cota cheia, site data bloqueado), por isso
+  a leitura devolve [] em vez de estourar e a escrita apenas avisa.
+*/
+export function readJsonArray(key, warning) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn(warning, error);
+    return [];
+  }
+}
+
+/**
+ * @param {[string, unknown][]} entries pares chave/valor; valor vai como JSON,
+ *   exceto string, que e gravada crua (datas ISO, ids).
+ */
+export function writeLocalEntries(entries, warning) {
+  try {
+    for (const [key, value] of entries) {
+      localStorage.setItem(key, typeof value === "string" ? value : JSON.stringify(value));
+    }
+    return true;
+  } catch (error) {
+    console.warn(warning, error);
+    return false;
+  }
+}

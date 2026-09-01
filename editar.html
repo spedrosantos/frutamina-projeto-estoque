@@ -2,46 +2,14 @@
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0d14" media="(prefers-color-scheme: dark)" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Estoque CD" />
     <title>Editar Estoque</title>
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="./assets/img/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-      media="print"
-      onload="this.media='all'"
-    />
     <link rel="stylesheet" href="styles.css" />
+    <script src="assets/js/head.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
     <div class="app">
-      <!-- Cabecalho visual da area de edicao. -->
-      <header class="page-head">
-        <div class="page-head-main">
-          <p class="eyebrow">CD | Contagem do estoque</p>
-          <h1>Editar Estoque</h1>
-          <p class="page-head-sub">
-            Lance a contagem por voz ou manualmente. Para so consultar, veja o
-            <a href="index.html">Estoque</a>.
-          </p>
-        </div>
-      </header>
+      <header class="page-head" data-page-head></header>
 
       <!-- Login do operador antes de liberar a area de contagem.
            O conteudo vem de assets/js/auth-panel.js (mesma tela em toda pagina). -->
@@ -304,61 +272,52 @@
 
 
     <!-- Modal de manutencao manual dos itens ja lancados. -->
-    <div id="edit-modal" class="modal hidden">
-      <div class="modal-backdrop" id="edit-close"></div>
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 id="edit-title"><i class="bi bi-pencil"></i>Editar item</h3>
-          <button id="edit-close-btn" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div>
-        <div class="modal-body">
-          <label for="edit-setor">Setor</label>
-          <select id="edit-setor"></select>
+    <div id="edit-modal" class="modal hidden" data-modal data-modal-icon="bi-pencil" data-modal-title="Editar item" data-modal-title-id="edit-title" data-modal-close="edit" data-modal-x>
+      <div class="modal-body">
+        <label for="edit-setor">Setor</label>
+        <select id="edit-setor"></select>
 
-          <label for="edit-produto">Produto</label>
-          <input id="edit-produto" type="text" />
+        <label for="edit-produto">Produto</label>
+        <input id="edit-produto" type="text" />
 
-          <label for="edit-marca">Marca</label>
-          <input id="edit-marca" type="text" />
+        <label for="edit-marca">Marca</label>
+        <input id="edit-marca" type="text" />
 
-          <label for="edit-tipo">Tipo</label>
-          <input id="edit-tipo" type="text" placeholder="Ex: 4 ou 6A" />
+        <label for="edit-tipo">Tipo</label>
+        <input id="edit-tipo" type="text" placeholder="Ex: 4 ou 6A" />
 
-          <label for="edit-caixas">Caixas por pallet</label>
-          <input id="edit-caixas" type="number" />
+        <label for="edit-caixas">Caixas por pallet</label>
+        <input id="edit-caixas" type="number" />
 
-          <label for="edit-pallets">Pallets</label>
-          <input id="edit-pallets" type="number" />
+        <label for="edit-pallets">Pallets</label>
+        <input id="edit-pallets" type="number" />
 
-          <label for="edit-loose-boxes">Caixas avulsas (sem pallet fechado)</label>
-          <input id="edit-loose-boxes" type="number" />
-        </div>
-        <div class="modal-actions">
-          <button id="edit-save" class="primary" type="button">
-            <i class="bi bi-floppy-fill"></i><span>Salvar</span>
-          </button>
-        </div>
-        <div class="debug-card hidden" id="debug-panel">
-          <h4>Diagnóstico</h4>
-          <div class="debug-row">
-            <strong>URL:</strong> <span id="debug-url">--</span>
-          </div>
-          <div class="debug-row">
-            <strong>Chave:</strong> <span id="debug-key">--</span>
-          </div>
-          <div class="debug-row">
-            <strong>Login:</strong> <span id="debug-user">--</span>
-          </div>
-          <div class="debug-row">
-            <strong>Resposta:</strong>
-            <pre id="debug-result">--</pre>
-          </div>
-          <button id="debug-hide" class="ghost">Fechar</button>
-        </div>
-        <div id="edit-msg" class="msg-area"></div>
+        <label for="edit-loose-boxes">Caixas avulsas (sem pallet fechado)</label>
+        <input id="edit-loose-boxes" type="number" />
       </div>
+      <div class="modal-actions">
+        <button id="edit-save" class="primary" type="button">
+          <i class="bi bi-floppy-fill"></i><span>Salvar</span>
+        </button>
+      </div>
+      <div class="debug-card hidden" id="debug-panel">
+        <h4>Diagnóstico</h4>
+        <div class="debug-row">
+          <strong>URL:</strong> <span id="debug-url">--</span>
+        </div>
+        <div class="debug-row">
+          <strong>Chave:</strong> <span id="debug-key">--</span>
+        </div>
+        <div class="debug-row">
+          <strong>Login:</strong> <span id="debug-user">--</span>
+        </div>
+        <div class="debug-row">
+          <strong>Resposta:</strong>
+          <pre id="debug-result">--</pre>
+        </div>
+        <button id="debug-hide" class="ghost">Fechar</button>
+      </div>
+      <div id="edit-msg" class="msg-area"></div>
     </div>
 
     <script type="module" src="assets/js/main-edit.js"></script>

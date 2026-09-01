@@ -2,50 +2,15 @@
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f5f6f8" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0a0d14" media="(prefers-color-scheme: dark)" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Estoque CD" />
     <title>Estoque</title>
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="./assets/img/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
-      rel="stylesheet"
-      media="print"
-      onload="this.media='all'"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-      media="print"
-      onload="this.media='all'"
-    />
     <link rel="stylesheet" href="styles.css" />
+    <script src="assets/js/head.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="view">
     <!-- P?gina p?blica de estoque: consulta, filtro, exporta??o e impress?o. -->
     <div class="app">
-      <!-- Cabecalho visual da pagina. -->
-      <header class="page-head">
-        <div class="page-head-main">
-          <p class="eyebrow">CD | Contagem do estoque</p>
-          <h1>Estoque</h1>
-          <p class="page-head-sub">
-            Estoque atual. Para editar, acesse <a href="editar.html">Editar estoque</a>.
-          </p>
-        </div>
-        <div class="page-head-meta">
-          <span>Atualizado por</span>
-          <strong id="public-last-update">--</strong>
-        </div>
-      </header>
+      <header class="page-head" data-page-head></header>
 
       <!-- Painel principal com busca, filtros e tabela publica do estoque. -->
       <section id="public-panel" class="card public-section">
@@ -141,32 +106,23 @@
 
 
       <!-- Modal de filtros avancados da tabela publica. -->
-      <div id="filter-modal" class="modal hidden">
-        <div class="modal-backdrop" id="filter-close"></div>
-        <div class="modal-card">
-          <div class="modal-header">
-            <h3><i class="bi bi-funnel"></i>Filtros</h3>
-            <button id="filter-close-btn" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
-              <i class="bi bi-x-lg"></i>
-            </button>
-          </div>
-          <div class="modal-body">
-            <label for="filter-setor">Setor</label>
-            <select id="filter-setor"></select>
+      <div id="filter-modal" class="modal hidden" data-modal data-modal-icon="bi-funnel" data-modal-title="Filtros" data-modal-close="filter" data-modal-x>
+        <div class="modal-body">
+          <label for="filter-setor">Setor</label>
+          <select id="filter-setor"></select>
 
-            <label for="filter-produto">Produto</label>
-            <select id="filter-produto"></select>
+          <label for="filter-produto">Produto</label>
+          <select id="filter-produto"></select>
 
-            <label for="filter-marca">Marca</label>
-            <select id="filter-marca"></select>
+          <label for="filter-marca">Marca</label>
+          <select id="filter-marca"></select>
 
-            <label for="filter-tipo">Tipo</label>
-            <input id="filter-tipo" type="number" placeholder="Ex: 4" />
-          </div>
-          <div class="modal-actions">
-            <button id="filter-clear" class="ghost">Limpar</button>
-            <button id="filter-apply" class="primary">Aplicar</button>
-          </div>
+          <label for="filter-tipo">Tipo</label>
+          <input id="filter-tipo" type="number" placeholder="Ex: 4" />
+        </div>
+        <div class="modal-actions">
+          <button id="filter-clear" class="ghost">Limpar</button>
+          <button id="filter-apply" class="primary">Aplicar</button>
         </div>
       </div>
     </div>

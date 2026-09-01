@@ -22,6 +22,8 @@ import {
   toInt,
   getSpecialTipoVariantByValue,
   withTimeout,
+  readJsonArray,
+  writeLocalEntries,
 } from "./utils.js";
 import {
   aggregateRows,
@@ -193,24 +195,17 @@ export async function saveSnapshotRecord({ rows, outflowCaixas = 0, showSuccess 
 }
 
 function savePublicCache(rows) {
-  try {
-    localStorage.setItem(PUBLIC_CACHE_KEY, JSON.stringify(rows || []));
-    localStorage.setItem(PUBLIC_CACHE_AT_KEY, new Date().toISOString());
-  } catch (error) {
-    console.warn("Nao foi possivel salvar cache publico.", error);
-  }
+  writeLocalEntries(
+    [
+      [PUBLIC_CACHE_KEY, rows || []],
+      [PUBLIC_CACHE_AT_KEY, new Date().toISOString()],
+    ],
+    "Nao foi possivel salvar cache publico."
+  );
 }
 
 function loadPublicCache() {
-  try {
-    const raw = localStorage.getItem(PUBLIC_CACHE_KEY);
-    if (!raw) return [];
-    const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
-  } catch (error) {
-    console.warn("Nao foi possivel ler cache publico.", error);
-    return [];
-  }
+  return readJsonArray(PUBLIC_CACHE_KEY, "Nao foi possivel ler cache publico.");
 }
 
 export async function loadPublicRecords() {

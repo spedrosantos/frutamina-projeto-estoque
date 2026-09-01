@@ -163,7 +163,7 @@ const DASHBOARD_OVERVIEW_COLORS = [
 // aparecia como mancha no tema claro).
 function readOverviewTrackColor() {
   const value = getComputedStyle(document.body)
-    .getPropertyValue("--ov-track")
+    .getPropertyValue("--app-track")
     .trim();
   return value || "#eef0f4";
 }
@@ -439,7 +439,7 @@ function renderDashboardBrands(data) {
   }
   if (elements.ovBrandChart) {
     elements.ovBrandChart.style.setProperty(
-      "--ov-brand-donut",
+      "--app-brand-donut",
       buildDashboardBrandGradient(data.marcas)
     );
   }

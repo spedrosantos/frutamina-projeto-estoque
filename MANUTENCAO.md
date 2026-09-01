@@ -26,7 +26,18 @@ Este projeto foi documentado em duas camadas:
   página realmente usa. Ver "Mapa de módulos" abaixo.
 
 - `styles.css`
-  Estilos compartilhados entre as quatro páginas.
+  Estilos compartilhados entre as quatro páginas. Toda cor, raio, sombra e padding
+  sai dos tokens `--app-*` do bloco `:root` (tema escuro em
+  `body[data-theme="dark"]`) — não existe mais paleta por página.
+
+  Os componentes (`.card`, `.modal-card`, `.ghost`, `.primary`, `.view-toggle`,
+  `.summary-table`, `input`/`select`/`label`, `th`/`td`) são definidos **uma vez**,
+  já tokenizados. Havia duas versões de cada um — a antiga com cor cravada e a
+  tokenizada escopada em `body[data-page="view"]` — e as páginas divergiam.
+  Ao mexer num componente, mexa na regra base: vale para as quatro páginas.
+  `body[data-page=...]` sobrou só para o que é de fato exclusivo de uma tela.
+  No tema escuro ficam apenas as exceções que não são cor de token (`.msg.*`,
+  gradientes, `color-scheme` dos `<select>`).
 
 - `manifest.webmanifest`
   Configuração do PWA instalado no celular.
@@ -150,6 +161,17 @@ Essas funções permitem continuar a nova contagem sem internet.
 
 ### 11. Bootstrap
 
+- `head.js`: metatags, manifest e fontes do `<head>`. Cada HTML traz só charset,
+  `<title>`, `styles.css` e este script — o resto era idêntico nas quatro páginas.
+  Script clássico e síncrono de propósito (o `theme-color` precisa valer antes da
+  primeira pintura).
+- `app-shell.js`: sidebar, topbar mobile e o conteúdo do `<header class="page-head">`
+  (`PAGE_HEADS`, escolhido pelo `data-page` do `<body>`). Tem que ser um dos
+  primeiros imports do entry point, antes de `state.js`.
+- `modal-shell.js`: moldura dos modais (backdrop, `.modal-card`, `.modal-header`).
+  O HTML declara só o conteúdo dentro de um `<div data-modal ...>`; ver os
+  atributos aceitos no topo do arquivo. Também antes de `state.js`.
+- `boot-common.js`: `finishBoot`, o fim de boot igual nas quatro páginas.
 - `auth-ui.js`: `setupAuth`, `handleAuthState`, `setupShellEvents`, `setupTheme`,
   `initSetorSelects`, notificações push. Roda em todas as páginas.
 - `main-view.js` / `main-edit.js` / `main-dashboard.js` / `main-products.js`:

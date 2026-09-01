@@ -82,7 +82,10 @@ function showCountPanel() {
   setEditSection();
 }
 
-function showProductsPanel() {
+// scroll: false no boot. Rolar ate o painel faz sentido quando o usuario clica
+// em "Produtos" no menu, mas ao abrir a pagina jogava o cabecalho fora da tela.
+function showProductsPanel(options = {}) {
+  const { scroll = true } = options;
   if (!requireAuthenticatedUser("Faça login para acessar o cadastro de produtos.")) {
     return;
   }
@@ -90,7 +93,7 @@ function showProductsPanel() {
   if (elements.countPanel) elements.countPanel.classList.add("hidden");
   if (elements.productsPanel) {
     elements.productsPanel.classList.remove("hidden");
-    elements.productsPanel.scrollIntoView({ behavior: "smooth" });
+    if (scroll) elements.productsPanel.scrollIntoView({ behavior: "smooth" });
   }
 }
 
@@ -273,7 +276,7 @@ async function handleAuthState(event, session) {
       setEditSection();
     } else if (PAGE_MODE === "products") {
       hideAuthPanel();
-      showProductsPanel();
+      showProductsPanel({ scroll: false });
       const { renderCatalogTable } = await import("./catalog-crud.js");
       renderCatalogTable();
     } else {

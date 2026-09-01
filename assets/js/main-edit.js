@@ -2,6 +2,7 @@
 // Primeiros imports de proposito: montam o shell (sidebar/topbar) e a tela de
 // login antes de state.js resolver os elementos.
 import "./app-shell.js";
+import "./modal-shell.js";
 import "./auth-panel.js";
 import "./register-sw.js";
 import { state } from "./state.js";

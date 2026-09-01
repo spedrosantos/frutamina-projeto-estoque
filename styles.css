@@ -17,17 +17,17 @@
 body {
   margin: 0;
   font-family: "Source Sans 3", system-ui, sans-serif;
-  background: radial-gradient(circle at top, #f1f5ff, #fef7ea);
-  color: #1f2937;
+  background: var(--app-bg);
+  color: var(--app-text);
   min-height: 100vh;
   padding-left: 80px;
   overflow-x: hidden;
 }
 
 .app {
-  max-width: 1200px;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: 40px 28px 72px;
 }
 
 /*
@@ -267,8 +267,6 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   opacity: 0.8;
 }
 
-
-
 .logo {
   width: 200px;
   height: auto;
@@ -301,7 +299,7 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(16, 24, 40, 0.5);
   backdrop-filter: blur(2px);
   animation: modal-fade 0.16s ease;
 }
@@ -313,11 +311,11 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   max-height: calc(100vh - 36px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
   padding: 20px 22px 22px;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
   animation: modal-rise 0.18s ease;
 }
 
@@ -364,7 +362,7 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 .modal-body > p {
   margin: 0;
   line-height: 1.5;
-  color: #475569;
+  color: var(--app-text-soft);
 }
 
 .modal-actions {
@@ -435,10 +433,11 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 }
 
 .card {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 20px;
+  box-shadow: var(--app-shadow);
 }
 
 .card.full {
@@ -452,7 +451,7 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 
 .card-header p {
   margin: 0;
-  color: #6b7280;
+  color: var(--app-text-soft);
 }
 
 .public-section {
@@ -462,33 +461,6 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 
 .public-section > * {
   min-width: 0;
-}
-
-.public-section-header {
-  display: grid;
-  gap: 6px;
-}
-
-.public-section-header h2 {
-  margin: 0;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 32px;
-  line-height: 1.1;
-}
-
-.public-section-header p {
-  margin: 0;
-  color: #6b7280;
-}
-
-.public-section-header a {
-  color: #0f172a;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.public-section-header a:hover {
-  text-decoration: underline;
 }
 
 .public-last-update {
@@ -509,8 +481,8 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 }
 
 .user-chip {
-  background: #0f172a;
-  color: #f8fafc;
+  background: var(--sb-chip);
+  color: var(--sb-text-strong);
   padding: 10px 16px;
   border-radius: 999px;
   display: flex;
@@ -562,9 +534,9 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   height: 42px;
   padding: 0 12px;
   border-radius: 12px;
-  border: 1px solid var(--ed-border-strong, #d0d5dd);
-  background: var(--ed-surface-soft, #f7f8fa);
-  color: var(--ed-text, #101828);
+  border: 1px solid var(--app-border-strong, #d0d5dd);
+  background: var(--app-surface-soft, #f7f8fa);
+  color: var(--app-text, #101828);
   font-size: 14.5px;
 }
 
@@ -572,13 +544,13 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 .catalog-form select:focus,
 .catalog-range input:focus {
   outline: none;
-  border-color: var(--ed-accent, #2563eb);
+  border-color: var(--app-accent, #2563eb);
 }
 
 .catalog-hint {
   margin-top: 2px;
   font-size: 12px;
-  color: var(--ed-text-soft, #667085);
+  color: var(--app-text-soft, #667085);
 }
 
 .catalog-options {
@@ -593,15 +565,15 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   gap: 10px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid var(--ed-border, #e4e7ec);
-  background: var(--ed-surface-soft, #f7f8fa);
+  border: 1px solid var(--app-border, #e4e7ec);
+  background: var(--app-surface-soft, #f7f8fa);
   cursor: pointer;
   text-align: left;
 }
 
 .catalog-checkbox:has(input:checked) {
-  border-color: var(--ed-accent, #2563eb);
-  background: var(--ed-accent-soft, #eef4ff);
+  border-color: var(--app-accent, #2563eb);
+  background: var(--app-accent-soft, #eef4ff);
 }
 
 .catalog-checkbox input {
@@ -610,7 +582,7 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   margin: 1px 0 0;
   padding: 0;
   border: 0;
-  accent-color: var(--ed-accent, #2563eb);
+  accent-color: var(--app-accent, #2563eb);
   flex: 0 0 auto;
 }
 
@@ -622,20 +594,20 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 .catalog-checkbox strong {
   font-size: 14px;
   font-weight: 600;
-  color: var(--ed-text, #101828);
+  color: var(--app-text, #101828);
 }
 
 .catalog-checkbox small {
   font-size: 12px;
-  color: var(--ed-text-soft, #667085);
+  color: var(--app-text-soft, #667085);
 }
 
 .catalog-range {
   margin: 16px 0 0;
   padding: 14px;
   border-radius: 12px;
-  border: 1px solid var(--ed-border, #e4e7ec);
-  background: var(--ed-surface, #ffffff);
+  border: 1px solid var(--app-border, #e4e7ec);
+  background: var(--app-surface, #ffffff);
 }
 
 .catalog-range legend {
@@ -644,7 +616,7 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ed-text-dim, #98a2b3);
+  color: var(--app-text-dim, #98a2b3);
 }
 
 /* A excecao por tipo e lida como frase: "do tipo 4 ao 6 tem 66 caixas por
@@ -655,7 +627,7 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: var(--ed-text, #101828);
+  color: var(--app-text, #101828);
 }
 
 .catalog-rule-line select,
@@ -665,9 +637,9 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   height: 38px;
   padding: 0 10px;
   border-radius: 10px;
-  border: 1px solid var(--ed-border-strong, #d0d5dd);
-  background: var(--ed-surface-soft, #f7f8fa);
-  color: var(--ed-text, #101828);
+  border: 1px solid var(--app-border-strong, #d0d5dd);
+  background: var(--app-surface-soft, #f7f8fa);
+  color: var(--app-text, #101828);
   font-size: 14px;
   font-weight: 600;
   text-align: center;
@@ -680,19 +652,18 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 .catalog-rule-line select:focus,
 .catalog-rule-line input:focus {
   outline: none;
-  border-color: var(--ed-accent, #2563eb);
+  border-color: var(--app-accent, #2563eb);
 }
 
 .catalog-rule-preview {
   margin: 12px 0 0;
   padding: 9px 11px;
   border-radius: 10px;
-  background: var(--ed-accent-soft, #eef4ff);
-  color: var(--ed-accent, #2563eb);
+  background: var(--app-accent-soft, #eef4ff);
+  color: var(--app-accent, #2563eb);
   font-size: 12.5px;
   font-weight: 600;
 }
-
 
 .autofill-trap {
   position: absolute;
@@ -723,18 +694,33 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
 
 label {
   font-weight: 600;
-  color: #1f2937;
+  color: var(--app-text);
 }
 
 input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--app-radius-sm);
+  color: var(--app-text);
   padding: 10px 12px;
-  font-size: 15px;
+  font-size: 14px;
   font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px var(--app-accent-soft);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--app-text-soft);
 }
 
 textarea {
@@ -746,13 +732,6 @@ textarea {
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 16px;
-}
-
-.card-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 12px;
 }
 
 /* Sem display:flex na <td>: a celula flex perde o alinhamento e a borda de
@@ -779,26 +758,8 @@ textarea {
   font-size: 14px;
 }
 
-
 .row-selected {
-  background: #e0f2fe;
-}
-
-.mode-toggle {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-  margin-top: 12px;
-}
-
-.mode-tag {
-  background: #fde68a;
-  color: #7c2d12;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-weight: 600;
-  font-size: 13px;
+  background: var(--app-accent-soft);
 }
 
 button {
@@ -817,13 +778,24 @@ button:hover {
 }
 
 .primary {
-  background: #2563eb;
+  background: var(--app-accent);
   color: #ffffff;
+  border-radius: var(--app-radius-sm);
+  box-shadow: none;
 }
 
 .ghost {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text);
+  border-radius: var(--app-radius-sm);
+}
+
+.primary:hover,
+.ghost:hover {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.97);
 }
 
 .danger {
@@ -836,27 +808,6 @@ button:hover {
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
   margin: 18px 0;
-}
-
-.context-item {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.context-item span {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.context-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
 }
 
 .voice {
@@ -883,119 +834,15 @@ button:hover {
   font-size: 16px;
 }
 
-.voice-visual {
-  position: absolute;
-  inset: -30%;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-
-.voice-visual::after {
-  content: "";
-  position: absolute;
-  width: 360px;
-  height: 360px;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(125, 211, 252, 0.12),
-    transparent 65%
-  );
-  filter: blur(6px);
-  animation: siri-ring 2.6s ease-in-out infinite;
-}
-
-.voice-visual span {
-  position: absolute;
-  width: 240px;
-  height: 240px;
-  border-radius: 50%;
-  filter: blur(22px);
-  mix-blend-mode: screen;
-  animation: siri-blob 1.8s ease-in-out infinite;
-  transform: translate(0, 0) scale(0.95);
-  opacity: 0.95;
-}
-
-.voice-visual span:nth-child(1) {
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.9), transparent 60%);
-  --x: -20px;
-  --y: -12px;
-  --s: 1.1;
-  animation-delay: 0s;
-}
-
-.voice-visual span:nth-child(2) {
-  background: radial-gradient(circle, rgba(129, 140, 248, 0.85), transparent 62%);
-  --x: 18px;
-  --y: -8px;
-  --s: 1.05;
-  animation-delay: 0.4s;
-}
-
-.voice-visual span:nth-child(3) {
-  background: radial-gradient(circle, rgba(34, 197, 94, 0.75), transparent 60%);
-  --x: -8px;
-  --y: 18px;
-  --s: 1.12;
-  animation-delay: 0.8s;
-}
-
-.voice-visual span:nth-child(4) {
-  background: radial-gradient(circle, rgba(248, 113, 113, 0.65), transparent 60%);
-  --x: 16px;
-  --y: 16px;
-  --s: 1;
-  animation-delay: 1.2s;
-}
-
 .voice-card.listening {
   transform: translateY(-2px);
   box-shadow: 0 26px 60px rgba(15, 23, 42, 0.18);
   background: radial-gradient(circle at center, rgba(15, 23, 42, 0.04), #ffffff);
 }
 
-.voice-card.listening .voice-visual {
-  opacity: 1;
-}
-
 .voice-card.listening .voice-action {
   background: #0f172a;
   color: #f8fafc;
-}
-
-@keyframes siri-blob {
-  0% {
-    transform: translate(calc(var(--x) * -1), calc(var(--y) * -1)) scale(0.9);
-  }
-  50% {
-    transform: translate(var(--x), var(--y)) scale(var(--s));
-  }
-  100% {
-    transform: translate(calc(var(--x) * -1), calc(var(--y) * -1)) scale(0.9);
-  }
-}
-
-@keyframes siri-ring {
-  0% {
-    transform: scale(0.92);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(0.92);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .voice-visual span,
-  .voice-visual::after {
-    animation: none;
-  }
 }
 
 .voice-status {
@@ -1060,9 +907,6 @@ table {
   border-collapse: collapse;
   font-size: 14px;
 }
-
-
-
 
 .public-toolbar {
   position: relative;
@@ -1129,19 +973,18 @@ table {
 
 .catalog-empty {
   text-align: center;
-  color: #64748b;
+  color: var(--app-text-soft);
 }
-
 
 th,
 td {
   text-align: left;
   padding: 10px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--app-border);
 }
 
 th {
-  background: #f8fafc;
+  background: var(--app-surface-soft);
 }
 
 .table-footer {
@@ -1156,9 +999,9 @@ th {
 .debug-card {
   margin-top: 12px;
   padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #f8fafc;
+  border-radius: var(--app-radius-sm);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-soft);
   display: grid;
   gap: 8px;
 }
@@ -1176,8 +1019,8 @@ th {
 
 .debug-row pre {
   margin: 0;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   border-radius: 8px;
   padding: 8px;
   max-height: 120px;
@@ -1185,8 +1028,6 @@ th {
   white-space: pre-wrap;
   word-break: break-word;
 }
-
-
 
 .table-modes {
   display: flex;
@@ -1199,40 +1040,41 @@ th {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  background: #e2e8f0;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
 }
 
 .view-toggle::before {
   content: "";
   position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 44px;
-  height: 36px;
-  border-radius: 999px;
-  background: #2563eb;
+  top: 3px;
+  left: 3px;
+  width: 42px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--app-accent);
   transition: transform 0.2s ease;
 }
 
 .view-toggle:not(.mode-summary)::before {
-  transform: translateX(48px);
+  transform: translateX(44px);
 }
 
 .view-toggle-btn {
   position: relative;
   z-index: 1;
-  width: 44px;
-  height: 36px;
+  width: 42px;
+  height: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: 8px;
   padding: 0;
   background: transparent;
-  color: #0f172a;
+  color: var(--app-text-soft);
   box-shadow: none;
 }
 
@@ -1262,10 +1104,10 @@ th {
 }
 
 .summary-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 12px;
-  background: #ffffff;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  padding: 14px;
+  background: var(--app-surface);
   min-width: 0;
 }
 
@@ -1289,12 +1131,6 @@ th {
   font-size: 12px;
 }
 
-.summary-legend {
-  margin: 0 0 8px;
-  color: #6b7280;
-  font-size: 12px;
-}
-
 .summary-table th,
 .summary-table td {
   text-align: center;
@@ -1305,17 +1141,20 @@ th {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
-  border: 1px solid #111827;
+  border: 1px solid var(--app-border);
 }
 
 .summary-table th,
 .summary-table td {
-  border: 1px solid #111827;
+  border: 1px solid var(--app-border);
 }
 
 .summary-table thead th {
-  background: #f3f4f6;
+  background: var(--app-surface-soft);
   font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 8px;
 }
 
 .summary-table th:first-child,
@@ -1325,7 +1164,7 @@ th {
 
 .summary-table tfoot td {
   font-weight: 600;
-  background: #f8fafc;
+  background: var(--app-surface-soft);
 }
 
 #public-table-summary,
@@ -1373,69 +1212,23 @@ th {
   cursor: crosshair;
 }
 
-.chart-metrics {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 16px;
-  color: #475569;
-}
-
-.chart-metrics .metric strong {
-  color: #0f172a;
-  font-weight: 700;
-}
-
-.dashboard-card {
-  background: #0b1220;
-  color: #e2e8f0;
-}
-
-.dashboard-card .card-header p,
-.dashboard-card .chart-sub {
-  color: #94a3b8;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dashboard-title {
-  margin: 6px 0 0;
-  font-family: "Space Grotesk", sans-serif;
-  color: #f8fafc;
-}
-
 .chart-summary {
   margin-top: 12px;
   display: grid;
   gap: 6px;
 }
 
-.chart-main-value {
-  font-size: 36px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #f8fafc;
-}
-
 .chart-sub {
   font-size: 14px;
-}
-
-.chart-date {
-  font-size: 12px;
 }
 
 .chart-tooltip {
   position: absolute;
   pointer-events: none;
-  background: var(--ov-surface-solid, rgba(15, 23, 42, 0.95));
-  border: 1px solid var(--ov-border-strong, transparent);
-  color: var(--ov-text, #f8fafc);
-  box-shadow: var(--ov-shadow, none);
+  background: var(--app-surface-solid, rgba(15, 23, 42, 0.95));
+  border: 1px solid var(--app-border-strong, transparent);
+  color: var(--app-text, #f8fafc);
+  box-shadow: var(--app-shadow, none);
   font-size: 12px;
   padding: 6px 9px;
   border-radius: 6px;
@@ -1454,60 +1247,20 @@ th {
   display: block;
   margin-top: 2px;
   font-size: 11px;
-  color: var(--ov-text-soft, #cbd5f5);
+  color: var(--app-text-soft, #cbd5f5);
 }
 
 .chart-tooltip.visible {
   opacity: 1;
 }
 
-
 /* ==========================================================================
-   Visão Geral (dashboard) — visual tokenizado.
-   Todas as cores saem das vars abaixo; o tema claro apenas troca os tokens.
+   Visão Geral (dashboard).
+   Todas as cores saem dos tokens --app-* da paleta unica do app.
    ========================================================================== */
-/* Base clara como as outras paginas; o escuro e o override. */
 body[data-page="dashboard"] {
-  --ov-bg: var(--app-bg);
-  --ov-surface: var(--app-surface);
-  --ov-surface-soft: var(--app-surface-soft);
-  --ov-surface-solid: #ffffff;
-  --ov-border: var(--app-border);
-  --ov-border-strong: var(--app-border-strong);
-  --ov-text: var(--app-text);
-  --ov-text-soft: var(--app-text-soft);
-  --ov-text-dim: var(--app-text-dim);
-  --ov-track: #eef0f4;
-  --ov-shadow: var(--app-shadow);
-  --ov-shadow-hover: 0 1px 2px rgba(16, 24, 40, 0.06), 0 14px 32px -20px rgba(16, 24, 40, 0.4);
-  --ov-accent: var(--app-accent);
-  --ov-accent-soft: var(--app-accent-soft);
-  --ov-green: #16a34a;
-  --ov-amber: #b45309;
-  --ov-blue: #2563eb;
-  --ov-red: #dc2626;
-  --ov-radius: var(--app-radius);
-  --ov-radius-sm: var(--app-radius-sm);
-  --ov-pad: 20px;
-  background: var(--ov-bg);
-  color: var(--ov-text-soft);
-}
-
-/* So o que o escuro realmente muda: os tokens que apontam para --app-* ja
-   trocam sozinhos, repeti-los aqui nao fazia nada. */
-body[data-theme="dark"][data-page="dashboard"] {
-  --ov-surface-solid: #10141d;
-  --ov-track: #1b2130;
-  --ov-shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 32px -20px rgba(0, 0, 0, 0.6);
-  --ov-green: #34d399;
-  --ov-amber: #fbbf24;
-  --ov-blue: #4d8dff;
-  --ov-red: #f87171;
-}
-
-body[data-page="dashboard"] .app {
-  max-width: 1320px;
-  padding: 40px 28px 72px;
+  --app-pad: 20px;
+  color: var(--app-text-soft);
 }
 
 .overview-shell {
@@ -1528,8 +1281,8 @@ body[data-page="dashboard"] .app {
    ativa da Visao Geral era uma pilula com a cor do FUNDO da pagina mais sombra,
    e a do Editar usava accent-soft com texto na cor de destaque - que e o mesmo
    idioma do .select-menu-item.active. Ficou a do Editar. A barra da Visao Geral
-   tambem lia --ov-card, token que nao existe em lugar nenhum, entao caia sempre
-   no cinza translucido do fallback. */
+   tambem lia um token que nao existia, entao caia sempre no cinza translucido
+   do fallback. */
 .overview-tabs,
 .edit-tabs {
   display: flex;
@@ -1593,12 +1346,12 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-metric {
-  --ov-metric: var(--ov-blue);
+  --app-metric: var(--app-blue);
   position: relative;
-  border: 1px solid var(--ov-border);
-  border-radius: var(--ov-radius);
-  background: var(--ov-surface);
-  box-shadow: var(--ov-shadow);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
   padding: 18px 18px 16px;
   display: grid;
   gap: 10px;
@@ -1607,20 +1360,16 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-metric:hover {
-  border-color: var(--ov-border-strong);
-  box-shadow: var(--ov-shadow-hover);
+  border-color: var(--app-border-strong);
+  box-shadow: var(--app-shadow-hover);
 }
 
 .overview-metric.metric-green {
-  --ov-metric: var(--ov-green);
+  --app-metric: var(--app-green);
 }
 
 .overview-metric.metric-amber {
-  --ov-metric: var(--ov-amber);
-}
-
-.overview-metric.metric-blue {
-  --ov-metric: var(--ov-blue);
+  --app-metric: var(--app-amber);
 }
 
 .overview-metric-top {
@@ -1636,9 +1385,9 @@ body[data-page="dashboard"] .app {
   width: 30px;
   height: 30px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--ov-metric) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ov-metric) 30%, transparent);
-  color: var(--ov-metric);
+  background: color-mix(in srgb, var(--app-metric) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-metric) 30%, transparent);
+  color: var(--app-metric);
   font-size: 15px;
   flex: 0 0 auto;
 }
@@ -1648,7 +1397,7 @@ body[data-page="dashboard"] .app {
   letter-spacing: 0.14em;
   font-size: 11px;
   font-weight: 600;
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
 }
 
 .overview-metric-value {
@@ -1657,11 +1406,11 @@ body[data-page="dashboard"] .app {
   line-height: 1;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
-  color: var(--ov-text);
+  color: var(--app-text);
 }
 
 .overview-metric-meta {
-  color: var(--ov-text-soft);
+  color: var(--app-text-soft);
   font-size: 13px;
   line-height: 1.35;
 }
@@ -1675,10 +1424,10 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-card {
-  border: 1px solid var(--ov-border);
-  border-radius: var(--ov-radius);
-  background: var(--ov-surface);
-  box-shadow: var(--ov-shadow);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
   overflow: hidden;
   padding: 0;
   display: flex;
@@ -1690,13 +1439,13 @@ body[data-page="dashboard"] .app {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  padding: 16px var(--ov-pad);
-  border-bottom: 1px solid var(--ov-border);
+  padding: 16px var(--app-pad);
+  border-bottom: 1px solid var(--app-border);
 }
 
 .overview-card-head h2 {
   margin: 0;
-  color: var(--ov-text);
+  color: var(--app-text);
   font-size: 18px;
   font-weight: 600;
   line-height: 1.2;
@@ -1717,9 +1466,9 @@ body[data-page="dashboard"] .app {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  border: 1px solid var(--ov-border-strong);
-  background: var(--ov-surface-soft);
-  color: var(--ov-text-soft);
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface-soft);
+  color: var(--app-text-soft);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
@@ -1729,16 +1478,16 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-pill.highlight {
-  color: var(--ov-accent);
-  border-color: color-mix(in srgb, var(--ov-accent) 40%, transparent);
-  background: var(--ov-accent-soft);
+  color: var(--app-accent);
+  border-color: color-mix(in srgb, var(--app-accent) 40%, transparent);
+  background: var(--app-accent-soft);
 }
 
 /* --- Distribuição por setor --------------------------------------------- */
 .overview-bars {
   display: grid;
   gap: 14px;
-  padding: var(--ov-pad);
+  padding: var(--app-pad);
 }
 
 .overview-bar-row {
@@ -1748,14 +1497,14 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-bar-label {
-  color: var(--ov-text-soft);
+  color: var(--app-text-soft);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
 .overview-bar-track {
-  background: var(--ov-track);
+  background: var(--app-track);
   border-radius: 999px;
   overflow: hidden;
   height: 22px;
@@ -1784,11 +1533,11 @@ body[data-page="dashboard"] .app {
 .overview-top-list {
   display: grid;
   gap: 6px;
-  padding: var(--ov-pad);
+  padding: var(--app-pad);
 }
 
 .overview-top-item {
-  border-radius: var(--ov-radius-sm);
+  border-radius: var(--app-radius-sm);
   background: transparent;
   border: 1px solid transparent;
   padding: 9px 10px;
@@ -1800,8 +1549,8 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-top-item:hover {
-  background: var(--ov-surface-soft);
-  border-color: var(--ov-border);
+  background: var(--app-surface-soft);
+  border-color: var(--app-border);
 }
 
 .overview-rank {
@@ -1810,15 +1559,15 @@ body[data-page="dashboard"] .app {
   width: 26px;
   height: 26px;
   border-radius: 999px;
-  background: var(--ov-track);
-  color: var(--ov-text-dim);
+  background: var(--app-track);
+  color: var(--app-text-dim);
   font-size: 11px;
   font-weight: 700;
 }
 
 .overview-top-item:nth-child(1) .overview-rank {
-  background: var(--ov-accent-soft);
-  color: var(--ov-accent);
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
 }
 
 .overview-top-details {
@@ -1828,7 +1577,7 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-top-details strong {
-  color: var(--ov-text);
+  color: var(--app-text);
   font-size: 14px;
   font-weight: 600;
   overflow: hidden;
@@ -1837,12 +1586,12 @@ body[data-page="dashboard"] .app {
 }
 
 .overview-top-details span {
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
   font-size: 12px;
 }
 
 .overview-top-total {
-  color: var(--ov-text);
+  color: var(--app-text);
   font-size: 18px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -1851,7 +1600,7 @@ body[data-page="dashboard"] .app {
 
 /* --- Histórico de contagens -------------------------------------------- */
 .overview-history-wrap {
-  margin: var(--ov-pad);
+  margin: var(--app-pad);
   max-height: 370px;
   overflow: auto;
 }
@@ -1881,15 +1630,15 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
 }
 
 .overview-delta.positive {
-  color: var(--ov-green);
+  color: var(--app-green);
 }
 
 .overview-delta.negative {
-  color: var(--ov-red);
+  color: var(--app-red);
 }
 
 .overview-delta.neutral {
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
 }
 
 /* --- Marcas ------------------------------------------------------------ */
@@ -1897,7 +1646,7 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
   display: grid;
   grid-template-columns: 160px 1fr;
   gap: 18px;
-  padding: var(--ov-pad);
+  padding: var(--app-pad);
   align-items: center;
 }
 
@@ -1908,11 +1657,11 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
 }
 
 .overview-donut {
-  --ov-brand-donut: conic-gradient(var(--ov-track) 0 100%);
+  --app-brand-donut: conic-gradient(var(--app-track) 0 100%);
   width: 150px;
   aspect-ratio: 1 / 1;
   border-radius: 999px;
-  background: var(--ov-brand-donut);
+  background: var(--app-brand-donut);
   position: relative;
   display: grid;
   place-items: center;
@@ -1923,8 +1672,8 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
   position: absolute;
   inset: 26px;
   border-radius: 999px;
-  background: var(--ov-surface-solid);
-  border: 1px solid var(--ov-border);
+  background: var(--app-surface-solid);
+  border: 1px solid var(--app-border);
 }
 
 .overview-donut-center {
@@ -1939,11 +1688,11 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
   font-family: "Space Grotesk", sans-serif;
   font-size: 30px;
   line-height: 1;
-  color: var(--ov-text);
+  color: var(--app-text);
 }
 
 .overview-donut-center span {
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -1958,10 +1707,10 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
 .overview-brand-item {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--ov-border);
-  border-radius: var(--ov-radius-sm);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
   padding: 13px 14px;
-  background: var(--ov-surface-soft);
+  background: var(--app-surface-soft);
   display: grid;
   gap: 5px;
   transition: border-color 0.16s ease;
@@ -1980,7 +1729,7 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
 }
 
 .overview-brand-label {
-  color: var(--ov-text-soft);
+  color: var(--app-text-soft);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 10px;
@@ -1996,19 +1745,19 @@ body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
 }
 
 .overview-brand-meta {
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
   font-size: 12px;
 }
 
 .overview-empty {
   margin: 0;
-  padding: var(--ov-pad);
-  color: var(--ov-text-dim);
+  padding: var(--app-pad);
+  color: var(--app-text-dim);
 }
 
 .overview-empty-cell {
   text-align: center;
-  color: var(--ov-text-dim);
+  color: var(--app-text-dim);
   padding: 18px;
 }
 
@@ -2018,7 +1767,7 @@ body[data-page="dashboard"] .historico-filtros {
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 0;
-  padding: var(--ov-pad) var(--ov-pad) 0;
+  padding: var(--app-pad) var(--app-pad) 0;
 }
 
 body[data-page="dashboard"] .historico-filtro {
@@ -2063,25 +1812,25 @@ body[data-page="dashboard"] .historico-filtros select {
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
-  background-color: var(--ov-surface-soft);
+  background-color: var(--app-surface-soft);
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 13px center;
   background-size: 15px;
-  border: 1px solid var(--ov-border-strong);
-  color: var(--ov-text);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text);
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 body[data-page="dashboard"] .historico-filtros select:hover:not(:disabled) {
-  border-color: var(--ov-text-dim);
+  border-color: var(--app-text-dim);
 }
 
 body[data-page="dashboard"] .historico-filtros select:focus-visible {
   outline: none;
-  border-color: var(--ov-accent, #16a34a);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ov-accent, #16a34a) 22%, transparent);
+  border-color: var(--app-accent, #16a34a);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent, #16a34a) 22%, transparent);
 }
 
 body[data-page="dashboard"] .historico-filtros select:disabled {
@@ -2225,7 +1974,7 @@ body[data-page="dashboard"] .chart-range {
   display: flex;
   flex-wrap: wrap;
   margin-top: 0;
-  padding: 12px var(--ov-pad) 0;
+  padding: 12px var(--app-pad) 0;
   gap: 6px;
 }
 
@@ -2233,7 +1982,7 @@ body[data-page="dashboard"] .range-btn {
   padding: 5px 12px;
   border-radius: 999px;
   background: transparent;
-  color: var(--ov-text-soft);
+  color: var(--app-text-soft);
   border: 1px solid transparent;
   font-weight: 600;
   font-size: 12px;
@@ -2241,32 +1990,32 @@ body[data-page="dashboard"] .range-btn {
 }
 
 body[data-page="dashboard"] .range-btn:hover {
-  background: var(--ov-surface-soft);
+  background: var(--app-surface-soft);
   box-shadow: none;
 }
 
 body[data-page="dashboard"] .range-btn.active {
-  background: var(--ov-accent-soft);
-  border-color: color-mix(in srgb, var(--ov-accent) 40%, transparent);
-  color: var(--ov-accent);
+  background: var(--app-accent-soft);
+  border-color: color-mix(in srgb, var(--app-accent) 40%, transparent);
+  color: var(--app-accent);
 }
 
 body[data-page="dashboard"] .chart-wrap {
   position: relative;
-  margin: 14px var(--ov-pad) 0;
-  background: var(--ov-surface-soft);
-  border: 1px solid var(--ov-border);
-  border-radius: var(--ov-radius-sm);
+  margin: 14px var(--app-pad) 0;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
   padding: 12px;
 }
 
 body[data-page="dashboard"] .chart-summary {
   margin: 0;
-  padding: 14px var(--ov-pad) var(--ov-pad);
+  padding: 14px var(--app-pad) var(--app-pad);
 }
 
 body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
-  color: var(--ov-text);
+  color: var(--app-text);
   font-weight: 600;
   font-size: 13px;
 }
@@ -2299,15 +2048,15 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
 }
 
 .chart-chip-max {
-  background: color-mix(in srgb, var(--ov-green) 12%, transparent);
-  border-color: color-mix(in srgb, var(--ov-green) 40%, transparent);
-  color: var(--ov-green);
+  background: color-mix(in srgb, var(--app-green) 12%, transparent);
+  border-color: color-mix(in srgb, var(--app-green) 40%, transparent);
+  color: var(--app-green);
 }
 
 .chart-chip-min {
-  background: var(--ov-track);
-  border-color: var(--ov-border-strong);
-  color: var(--ov-text-soft);
+  background: var(--app-track);
+  border-color: var(--app-border-strong);
+  color: var(--app-text-soft);
 }
 
 /* --- Responsivo -------------------------------------------------------- */
@@ -2334,7 +2083,7 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
 
 @media (max-width: 720px) {
   body[data-page="dashboard"] {
-    --ov-pad: 14px;
+    --app-pad: 14px;
   }
 
   .overview-shell {
@@ -2475,14 +2224,6 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
   line-height: 1.45;
 }
 
-.edit-section-bar {
-  margin-bottom: 10px;
-}
-
-.edit-section-bar .actions {
-  margin-top: 0;
-}
-
 .count-mode-bar {
   display: grid;
   gap: 12px;
@@ -2497,38 +2238,35 @@ body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
   flex-wrap: wrap;
 }
 
-
-
 /*
-  ===== Editar Estoque e Produtos: tokens e shell =====
-  Mesmo sistema do index (--vw-*) e da Visao Geral (--ov-*). As duas paginas de
-  operacao dividem a paleta: elas tem os mesmos cartoes, tabelas e toolbars, e
-  duplicar tokens so faria as duas divergirem com o tempo.
+  ===== Editar Estoque e Produtos: shell =====
+  As duas paginas de operacao dividem a paleta --app-*: tem os mesmos cartoes,
+  tabelas e toolbars.
 */
 body[data-page="edit"],
 body[data-page="products"] {
-  --ed-bg: var(--app-bg);
-  --ed-surface: var(--app-surface);
-  --ed-surface-soft: var(--app-surface-soft);
-  --ed-border: var(--app-border);
-  --ed-border-strong: var(--app-border-strong);
-  --ed-text: var(--app-text);
-  --ed-text-soft: var(--app-text-soft);
-  --ed-text-dim: var(--app-text-dim);
-  --ed-accent: var(--app-accent);
-  --ed-accent-soft: var(--app-accent-soft);
-  --ed-radius: var(--app-radius);
-  --ed-radius-sm: var(--app-radius-sm);
-  --ed-pad: 18px;
-  --ed-shadow: var(--app-shadow);
-  background: var(--ed-bg);
-  color: var(--ed-text);
+  --app-pad: 18px;
+  /* O card de voz herda os tokens dos outros cards; so o que e proprio dele
+     (branco sobre o accent, vermelho de "ouvindo") vive aqui. */
+  --voice-action-text: #ffffff;
+  --voice-btn-border: var(--app-border-strong);
+  --voice-btn-bg: var(--app-surface);
+  --voice-btn-text: var(--app-text-soft);
+  --voice-listening-action-border: #b91c1c;
+  --voice-listening-action-bg: #b91c1c;
+  --voice-listening-action-text: #ffffff;
+  --voice-listening-dot: #ef4444;
+  --voice-listening-status-text: #dc2626;
+  --voice-listening-status-dot: #ef4444;
 }
 
-body[data-page="edit"] .app,
-body[data-page="products"] .app {
-  max-width: 1320px;
-  padding: 40px 28px 72px;
+body[data-theme="dark"][data-page="edit"],
+body[data-theme="dark"][data-page="products"] {
+  --voice-action-text: #0a0d14;
+  --voice-btn-border: #2a3a57;
+  --voice-btn-bg: transparent;
+  --voice-btn-text: #cdd9ef;
+  --voice-listening-status-text: #fca5a5;
 }
 
 /* --- Cabecalho ----------------------------------------------------------- */
@@ -2598,16 +2336,15 @@ body[data-page="products"] .app {
 }
 
 /* --- Login (compartilhado por todas as paginas) --------------------------- */
-/* O markup vem de assets/js/auth-panel.js. As cores usam os tokens da pagina de
-   edicao com fallback claro, porque --ed-* so existe nas paginas de operacao -
-   assim a mesma tela serve index, produtos e visao geral sem duplicar regra. */
+/* O markup vem de assets/js/auth-panel.js. As cores saem dos tokens --app-*, os
+   mesmos das quatro paginas, entao a mesma tela serve todas sem duplicar regra. */
 .auth-card {
   width: min(100%, 420px);
   margin: 0 auto;
   padding: 30px 28px 26px;
   border-radius: 18px;
-  background: var(--ed-surface, #ffffff);
-  border: 1px solid var(--ed-border, #e4e7ec);
+  background: var(--app-surface, #ffffff);
+  border: 1px solid var(--app-border, #e4e7ec);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 24px 60px -34px rgba(16, 24, 40, 0.45);
   text-align: center;
 }
@@ -2627,8 +2364,8 @@ body[data-page="products"] .app {
   height: 52px;
   margin: 0 auto 14px;
   border-radius: 16px;
-  background: var(--ed-accent-soft, #eef4ff);
-  color: var(--ed-accent, #2563eb);
+  background: var(--app-accent-soft, #eef4ff);
+  color: var(--app-accent, #2563eb);
   font-size: 22px;
 }
 
@@ -2636,11 +2373,11 @@ body[data-page="products"] .app {
   font-family: "Space Grotesk", sans-serif;
   font-size: 22px;
   letter-spacing: -0.01em;
-  color: var(--ed-text, #101828);
+  color: var(--app-text, #101828);
 }
 
 .auth-card .card-header p {
-  color: var(--ed-text-soft, #667085);
+  color: var(--app-text-soft, #667085);
   font-size: 13.5px;
 }
 
@@ -2666,7 +2403,7 @@ body[data-page="products"] .app {
   position: absolute;
   left: 13px;
   font-size: 15px;
-  color: var(--ed-text-dim, #98a2b3);
+  color: var(--app-text-dim, #98a2b3);
   pointer-events: none;
 }
 
@@ -2674,17 +2411,17 @@ body[data-page="products"] .app {
   width: 100%;
   padding: 12px 14px 12px 38px;
   border-radius: 12px;
-  border: 1px solid var(--ed-border-strong, #d0d5dd);
-  background: var(--ed-surface-soft, #f7f8fa);
-  color: var(--ed-text, #101828);
+  border: 1px solid var(--app-border-strong, #d0d5dd);
+  background: var(--app-surface-soft, #f7f8fa);
+  color: var(--app-text, #101828);
   font-size: 14.5px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .auth-field input:focus {
   outline: none;
-  border-color: var(--ed-accent, #2563eb);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ed-accent, #2563eb) 20%, transparent);
+  border-color: var(--app-accent, #2563eb);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent, #2563eb) 20%, transparent);
 }
 
 .auth-card .actions {
@@ -2704,7 +2441,7 @@ body[data-page="products"] .app {
 }
 
 /* --- Produtos: busca, chip de origem e estado vazio ----------------------- */
-body[data-page="products"] #catalog-card .table-wrap table {
+#catalog-card .table-wrap table {
   min-width: 720px;
 }
 
@@ -2721,7 +2458,7 @@ body[data-page="products"] .catalog-search i {
   position: absolute;
   left: 11px;
   font-size: 14px;
-  color: var(--ed-text-dim);
+  color: var(--app-text-dim);
   pointer-events: none;
 }
 
@@ -2730,15 +2467,15 @@ body[data-page="products"] .catalog-search input {
   height: 36px;
   padding: 0 12px 0 34px;
   border-radius: 10px;
-  border: 1px solid var(--ed-border-strong);
-  background: var(--ed-surface);
-  color: var(--ed-text);
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface);
+  color: var(--app-text);
   font-size: 13.5px;
 }
 
 body[data-page="products"] .catalog-search input:focus {
   outline: none;
-  border-color: var(--ed-accent);
+  border-color: var(--app-accent);
 }
 
 /* Origem do item: padrao do sistema x cadastrado pela equipe. */
@@ -2751,14 +2488,14 @@ body[data-page="products"] .catalog-search input:focus {
   font-size: 11.5px;
   font-weight: 600;
   white-space: nowrap;
-  background: var(--ed-surface-soft, #f2f4f7);
-  color: var(--ed-text-soft, #667085);
-  border: 1px solid var(--ed-border, #e4e7ec);
+  background: var(--app-surface-soft, #f2f4f7);
+  color: var(--app-text-soft, #667085);
+  border: 1px solid var(--app-border, #e4e7ec);
 }
 
 .catalog-origin.is-custom {
-  background: var(--ed-accent-soft, #eef4ff);
-  color: var(--ed-accent, #2563eb);
+  background: var(--app-accent-soft, #eef4ff);
+  color: var(--app-accent, #2563eb);
   border-color: transparent;
 }
 
@@ -2780,7 +2517,7 @@ body[data-page="products"] .catalog-search input:focus {
 body[data-page="products"] .catalog-empty {
   padding: 26px 12px;
   text-align: center;
-  color: var(--ed-text-soft);
+  color: var(--app-text-soft);
 }
 
 /* --- Faixa de status online/offline -------------------------------------- */
@@ -2789,20 +2526,20 @@ body[data-page="edit"] .sync-banner {
   gap: 12px;
   padding: 12px 16px;
   margin-bottom: 14px;
-  border-radius: var(--ed-radius);
-  background: var(--ed-surface);
-  border: 1px solid var(--ed-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
   box-shadow: none;
 }
 
 body[data-page="edit"] .sync-copy strong {
   font-size: 14px;
-  color: var(--ed-text);
+  color: var(--app-text);
 }
 
 body[data-page="edit"] .sync-copy span {
   font-size: 12.5px;
-  color: var(--ed-text-soft);
+  color: var(--app-text-soft);
 }
 
 /* --- Seletor de modo -------------------------------------------------------
@@ -2882,14 +2619,14 @@ body[data-page="edit"] #new-count-actions button i {
 }
 
 body[data-page="edit"] #save-new-count {
-  background: var(--ed-accent);
-  border: 1px solid var(--ed-accent);
+  background: var(--app-accent);
+  border: 1px solid var(--app-accent);
   color: #ffffff;
 }
 
 body[data-page="edit"] #save-new-count:hover {
-  background: color-mix(in srgb, var(--ed-accent) 88%, #000);
-  border-color: color-mix(in srgb, var(--ed-accent) 88%, #000);
+  background: color-mix(in srgb, var(--app-accent) 88%, #000);
+  border-color: color-mix(in srgb, var(--app-accent) 88%, #000);
   box-shadow: none;
 }
 
@@ -2910,86 +2647,6 @@ body[data-page="edit"] #discard-new-count:hover {
   ===== Layout da contagem (Editar Estoque) =====
   Ajuste estrutural de posicionamento/tamanho dos cards.
 */
-
-body[data-page="edit"],
-body[data-page="products"] {
-  /* O card de voz tinha paleta azulada propria, de antes do redesign. Agora ele
-     herda os mesmos tokens dos outros cards e so o estado "ouvindo" foge disso. */
-  --voice-card-border: var(--ed-border, #e4e7ec);
-  --voice-card-bg: var(--ed-surface, #ffffff);
-  --voice-card-shadow: var(--ed-shadow, 0 1px 2px rgba(16, 24, 40, 0.05));
-  --voice-divider: var(--ed-border, #e4e7ec);
-  --voice-text: var(--ed-text, #101828);
-  --voice-muted: var(--ed-text-soft, #667085);
-  --voice-engine-border: var(--ed-border, #e4e7ec);
-  --voice-engine-text: var(--ed-text-dim, #8a94a6);
-  --voice-context-border: var(--ed-border, #e4e7ec);
-  --voice-context-bg: var(--ed-surface-soft, #f7f8fa);
-  --voice-context-title: var(--ed-text-dim, #8a94a6);
-  --voice-context-text: var(--ed-text-soft, #667085);
-  --voice-context-strong: var(--ed-text, #101828);
-  --voice-action-border: var(--ed-accent, #2563eb);
-  --voice-action-bg: var(--ed-accent, #2563eb);
-  --voice-action-text: #ffffff;
-  --voice-action-dot: rgba(255, 255, 255, 0.85);
-  --voice-status-text: var(--ed-text-soft, #667085);
-  --voice-status-dot: var(--ed-text-dim, #8a94a6);
-  --voice-input-border: var(--ed-border-strong, #d2d7e0);
-  --voice-input-bg: var(--ed-surface-soft, #f7f8fa);
-  --voice-input-text: var(--ed-text, #101828);
-  --voice-input-placeholder: var(--ed-text-dim, #8a94a6);
-  --voice-manual-label: var(--ed-text-dim, #8a94a6);
-  --voice-btn-border: var(--ed-border-strong, #d2d7e0);
-  --voice-btn-bg: var(--ed-surface, #ffffff);
-  --voice-btn-text: var(--ed-text-soft, #667085);
-  --voice-clear-border: #fca5a5;
-  --voice-clear-text: #dc2626;
-  --voice-listening-action-border: #b91c1c;
-  --voice-listening-action-bg: #b91c1c;
-  --voice-listening-action-text: #ffffff;
-  --voice-listening-dot: #ef4444;
-  --voice-listening-status-text: #dc2626;
-  --voice-listening-status-dot: #ef4444;
-}
-
-body[data-theme="dark"][data-page="edit"],
-body[data-theme="dark"][data-page="products"] {
-  --voice-card-border: var(--ed-border, #212836);
-  --voice-card-bg: var(--ed-surface, #10141d);
-  --voice-card-shadow: var(--ed-shadow, 0 1px 2px rgba(0, 0, 0, 0.4));
-  --voice-divider: var(--ed-border, #212836);
-  --voice-text: var(--ed-text, #e6eaf2);
-  --voice-muted: var(--ed-text-soft, #93a0b7);
-  --voice-engine-border: var(--ed-border, #212836);
-  --voice-engine-text: var(--ed-text-dim, #6f7d94);
-  --voice-context-border: var(--ed-border, #212836);
-  --voice-context-bg: var(--ed-surface-soft, #151a25);
-  --voice-context-title: var(--ed-text-dim, #6f7d94);
-  --voice-context-text: var(--ed-text-soft, #93a0b7);
-  --voice-context-strong: var(--ed-text, #e6eaf2);
-  --voice-action-border: var(--ed-accent, #4d8dff);
-  --voice-action-bg: var(--ed-accent, #4d8dff);
-  --voice-action-text: #0a0d14;
-  --voice-action-dot: rgba(10, 13, 20, 0.75);
-  --voice-status-text: var(--ed-text-soft, #93a0b7);
-  --voice-status-dot: var(--ed-text-dim, #6f7d94);
-  --voice-input-border: var(--ed-border-strong, #2d3648);
-  --voice-input-bg: var(--ed-surface-soft, #151a25);
-  --voice-input-text: var(--ed-text, #e6eaf2);
-  --voice-input-placeholder: var(--ed-text-dim, #6f7d94);
-  --voice-manual-label: #64748b;
-  --voice-btn-border: #2a3a57;
-  --voice-btn-bg: transparent;
-  --voice-btn-text: #cdd9ef;
-  --voice-clear-border: #7f1d1d;
-  --voice-clear-text: #f87171;
-  --voice-listening-action-border: #b91c1c;
-  --voice-listening-action-bg: #b91c1c;
-  --voice-listening-action-text: #ffffff;
-  --voice-listening-dot: #ef4444;
-  --voice-listening-status-text: #fca5a5;
-  --voice-listening-status-dot: #ef4444;
-}
 
 body.auth-locked[data-page="edit"] #count-panel,
 body.auth-locked[data-page="products"] #products-panel {
@@ -3022,7 +2679,7 @@ body.auth-locked .auth-card:not(.hidden) {
   width: min(100%, 420px);
 }
 
-body[data-page="edit"] #count-panel {
+#count-panel {
   display: grid;
   gap: 16px;
 }
@@ -3055,13 +2712,13 @@ body[data-page="edit"] .count-right-column > * {
   max-width: 100%;
 }
 
-body[data-page="edit"] #manual-card {
+#manual-card {
   order: 1;
   min-height: 0;
   align-self: start;
 }
 
-body[data-page="edit"] #voice-card {
+#voice-card {
   order: 2;
   min-height: 220px;
   height: auto;
@@ -3070,102 +2727,101 @@ body[data-page="edit"] #voice-card {
   gap: 12px;
   place-items: initial;
   text-align: left;
-  padding: var(--ed-pad);
-  border-radius: var(--ed-radius);
-  border: 1px solid var(--voice-card-border);
-  background: var(--voice-card-bg);
-  box-shadow: var(--voice-card-shadow);
-  color: var(--voice-text);
+  padding: var(--app-pad);
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+  color: var(--app-text);
 }
 
-body[data-page="edit"] #voice-card .voice-card-header {
+#voice-card .voice-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid var(--voice-divider);
+  border-bottom: 1px solid var(--app-border);
 }
 
-body[data-page="edit"] #voice-card .voice-card-header h2 {
+#voice-card .voice-card-header h2 {
   margin: 0;
   font-size: 18px;
   line-height: 1.2;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: var(--voice-text);
+  color: var(--app-text);
 }
 
-body[data-page="edit"] #voice-card .voice-card-header i {
+#voice-card .voice-card-header i {
   font-size: 14px;
   opacity: 0.9;
 }
 
-
-body[data-page="edit"] #voice-card .voice-context-box {
+#voice-card .voice-context-box {
   display: grid;
   gap: 8px;
-  border: 1px solid var(--voice-context-border);
+  border: 1px solid var(--app-border);
   border-radius: 10px;
   padding: 12px;
-  background: var(--voice-context-bg);
+  background: var(--app-surface-soft);
 }
 
-body[data-page="edit"] #voice-card .voice-context-box h3 {
+#voice-card .voice-context-box h3 {
   margin: 0;
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--voice-context-title);
+  color: var(--app-text-dim);
 }
 
-body[data-page="edit"] #voice-card .voice-context-grid {
+#voice-card .voice-context-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
-body[data-page="edit"] #voice-card .voice-chip {
+#voice-card .voice-chip {
   display: grid;
   gap: 2px;
   min-width: 0;
   padding: 8px 10px;
   border-radius: 9px;
-  background: var(--ed-surface);
-  border: 1px solid var(--ed-border);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
 }
 
-body[data-page="edit"] #voice-card .voice-chip span {
+#voice-card .voice-chip span {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ed-text-dim);
+  color: var(--app-text-dim);
 }
 
-body[data-page="edit"] #voice-card .voice-chip strong {
+#voice-card .voice-chip strong {
   font-size: 14px;
-  color: var(--ed-text);
+  color: var(--app-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-body[data-page="edit"] #voice-card .voice-context-box strong {
-  color: var(--voice-context-strong);
+#voice-card .voice-context-box strong {
+  color: var(--app-text);
 }
 
-body[data-page="edit"] #voice-card .voice-action {
+#voice-card .voice-action {
   width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   min-height: 48px;
-  border: 1px solid var(--voice-action-border);
+  border: 1px solid var(--app-accent);
   border-radius: 12px;
-  background: var(--voice-action-bg);
+  background: var(--app-accent);
   color: var(--voice-action-text);
   font-size: 15px;
   font-weight: 600;
@@ -3173,93 +2829,69 @@ body[data-page="edit"] #voice-card .voice-action {
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-body[data-page="edit"] #voice-card .voice-action i {
+#voice-card .voice-action i {
   font-size: 16px;
 }
 
-body[data-page="edit"] #voice-card .voice-action:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--voice-action-bg) 88%, #000);
-  border-color: color-mix(in srgb, var(--voice-action-bg) 88%, #000);
+#voice-card .voice-action:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--app-accent) 88%, #000);
+  border-color: color-mix(in srgb, var(--app-accent) 88%, #000);
 }
 
-body[data-page="edit"] #voice-card .voice-action:disabled {
+#voice-card .voice-action:disabled {
   opacity: 0.6;
 }
 
-body[data-page="edit"] #voice-card .voice-action:hover {
+#voice-card .voice-action:hover {
   transform: none;
   box-shadow: none;
 }
 
-body[data-page="edit"] #voice-card .voice-status {
+#voice-card .voice-status {
   margin-top: -2px;
   font-size: 15px;
-  color: var(--voice-status-text);
+  color: var(--app-text-soft);
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-body[data-page="edit"] #voice-card #voice-status::before {
+#voice-card #voice-status::before {
   content: "";
   width: 7px;
   height: 7px;
   border-radius: 999px;
-  background: var(--voice-status-dot);
+  background: var(--app-text-dim);
   flex: 0 0 auto;
 }
 
-body[data-page="edit"] #voice-card #voice-last {
+#voice-card #voice-last {
   width: 100%;
   min-height: 68px;
-  border: 1px solid var(--voice-input-border);
+  border: 1px solid var(--app-border-strong);
   border-radius: 10px;
-  background: var(--voice-input-bg);
-  color: var(--voice-input-text);
+  background: var(--app-surface-soft);
+  color: var(--app-text);
   margin-top: 0;
 }
 
-body[data-page="edit"] #voice-card #voice-last::placeholder {
-  color: var(--voice-input-placeholder);
+#voice-card #voice-last::placeholder {
+  color: var(--app-text-dim);
 }
 
-body[data-page="edit"] #voice-card .voice-manual-area {
-  display: grid;
-  gap: 10px;
-  margin-top: 2px;
-  padding-top: 12px;
-  border-top: 1px solid var(--voice-divider);
-}
-
-body[data-page="edit"] #voice-card .voice-manual-title {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 11px;
-  color: var(--voice-manual-label);
-}
-
-body[data-page="edit"] #voice-card .voice-command-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
-}
-
-body[data-page="edit"] #voice-card #command-input {
+#voice-card #command-input {
   width: 100%;
   border-radius: 10px;
-  border-color: var(--voice-input-border);
-  background: var(--voice-input-bg);
-  color: var(--voice-input-text);
+  border-color: var(--app-border-strong);
+  background: var(--app-surface-soft);
+  color: var(--app-text);
 }
 
-body[data-page="edit"] #voice-card #command-input::placeholder {
-  color: var(--voice-input-placeholder);
+#voice-card #command-input::placeholder {
+  color: var(--app-text-dim);
 }
 
-body[data-page="edit"] #voice-card #process-btn,
-body[data-page="edit"] #voice-card .voice-sector-button,
-body[data-page="edit"] #voice-card .clear-context-btn {
+#voice-card #process-btn {
   min-height: 40px;
   border-radius: 10px;
   border: 1px solid var(--voice-btn-border);
@@ -3268,60 +2900,31 @@ body[data-page="edit"] #voice-card .clear-context-btn {
   box-shadow: none;
 }
 
-body[data-page="edit"] #voice-card #process-btn:hover,
-body[data-page="edit"] #voice-card .voice-sector-button:hover,
-body[data-page="edit"] #voice-card .clear-context-btn:hover {
+#voice-card #process-btn:hover {
   transform: none;
   box-shadow: none;
 }
 
-body[data-page="edit"] #voice-card .voice-context-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-body[data-page="edit"] #voice-card .voice-sector-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 14px;
-  overflow: hidden;
-}
-
-body[data-page="edit"] #voice-card .voice-sector-button select {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-body[data-page="edit"] #voice-card .clear-context-btn {
-  color: var(--voice-clear-text);
-  border-color: var(--voice-clear-border);
-}
-
-body[data-page="edit"] #voice-card.listening {
+#voice-card.listening {
   transform: none;
-  background: var(--voice-card-bg);
+  background: var(--app-surface);
 }
 
-body[data-page="edit"] #voice-card.listening .voice-action {
+#voice-card.listening .voice-action {
   border-color: var(--voice-listening-action-border);
   background: var(--voice-listening-action-bg);
   color: var(--voice-listening-action-text);
 }
 
-body[data-page="edit"] #voice-card.listening .voice-action::before {
+#voice-card.listening .voice-action::before {
   background: var(--voice-listening-dot);
 }
 
-body[data-page="edit"] #voice-card.listening #voice-status {
+#voice-card.listening #voice-status {
   color: var(--voice-listening-status-text);
 }
 
-body[data-page="edit"] #voice-card.listening #voice-status::before {
+#voice-card.listening #voice-status::before {
   background: var(--voice-listening-status-dot);
 }
 
@@ -3338,39 +2941,39 @@ body[data-page="edit"] .edit-tabpanel > * {
 }
 
 /* --- Cards internos (padrao .overview-card da Visao Geral) ---------------- */
-body[data-page="edit"] #manual-card,
-body[data-page="edit"] #count-items-card,
-body[data-page="products"] #catalog-card {
-  padding: var(--ed-pad);
-  border-radius: var(--ed-radius);
-  background: var(--ed-surface);
-  border: 1px solid var(--ed-border);
-  box-shadow: var(--ed-shadow);
+#manual-card,
+#count-items-card,
+#catalog-card {
+  padding: var(--app-pad);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow);
 }
 
-body[data-page="edit"] #manual-card .card-header h2,
-body[data-page="edit"] #count-items-card .card-header h2,
-body[data-page="products"] #catalog-card .card-header h2 {
+#manual-card .card-header h2,
+#count-items-card .card-header h2,
+#catalog-card .card-header h2 {
   display: flex;
   align-items: center;
   gap: 9px;
   font-family: "Space Grotesk", sans-serif;
   font-size: 18px;
   letter-spacing: -0.01em;
-  color: var(--ed-text);
+  color: var(--app-text);
 }
 
-body[data-page="edit"] #manual-card .card-header h2 i,
-body[data-page="edit"] #count-items-card .card-header h2 i,
-body[data-page="products"] #catalog-card .card-header h2 i {
+#manual-card .card-header h2 i,
+#count-items-card .card-header h2 i,
+#catalog-card .card-header h2 i {
   font-size: 15px;
-  color: var(--ed-text-dim);
+  color: var(--app-text-dim);
 }
 
-body[data-page="edit"] #manual-card .card-header p,
-body[data-page="edit"] #count-items-card .card-header p,
-body[data-page="products"] #catalog-card .card-header p {
-  color: var(--ed-text-soft);
+#manual-card .card-header p,
+#count-items-card .card-header p,
+#catalog-card .card-header p {
+  color: var(--app-text-soft);
   font-size: 13px;
 }
 
@@ -3392,17 +2995,17 @@ body[data-page="edit"] .manual-field input {
   width: 100%;
   padding: 11px 14px;
   border-radius: 12px;
-  border: 1px solid var(--ed-border-strong);
-  background: var(--ed-surface-soft);
-  color: var(--ed-text);
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface-soft);
+  color: var(--app-text);
   font-size: 14px;
   font-weight: 600;
 }
 
 body[data-page="edit"] .manual-field input:focus {
   outline: none;
-  border-color: var(--ed-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ed-accent) 20%, transparent);
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 20%, transparent);
 }
 
 body[data-page="edit"] .manual-actions {
@@ -3449,8 +3052,8 @@ body[data-page="products"] .count-toolbar {
   margin-top: 14px;
   padding: 12px 14px;
   border-radius: 12px;
-  background: var(--ed-surface-soft);
-  border: 1px solid var(--ed-border);
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
 }
 
 body[data-page="edit"] .count-toolbar-meta,
@@ -3465,12 +3068,12 @@ body[data-page="products"] .count-toolbar-meta span {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--ed-text-dim);
+  color: var(--app-text-dim);
 }
 
 body[data-page="edit"] .count-toolbar-meta strong,
 body[data-page="products"] .count-toolbar-meta strong {
-  color: var(--ed-text);
+  color: var(--app-text);
 }
 
 body[data-page="edit"] .count-toolbar-actions,
@@ -3507,8 +3110,8 @@ body[data-page="edit"] .count-toolbar-actions .view-toggle {
   gap: 2px;
   padding: 3px;
   border-radius: 10px;
-  background: var(--ed-surface);
-  border: 1px solid var(--ed-border);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
 }
 
 body[data-page="edit"] .count-toolbar-actions .view-toggle::before {
@@ -3517,7 +3120,7 @@ body[data-page="edit"] .count-toolbar-actions .view-toggle::before {
   width: 34px;
   height: 28px;
   border-radius: 8px;
-  background: var(--ed-accent);
+  background: var(--app-accent);
 }
 
 body[data-page="edit"] .count-toolbar-actions .view-toggle:not(.mode-summary)::before {
@@ -3528,7 +3131,7 @@ body[data-page="edit"] .count-toolbar-actions .view-toggle-btn {
   width: 34px;
   height: 28px;
   border-radius: 8px;
-  color: var(--ed-text-soft);
+  color: var(--app-text-soft);
 }
 
 body[data-page="edit"] .count-toolbar-actions .view-toggle i {
@@ -3554,18 +3157,18 @@ body[data-page="products"] .count-toolbar-actions .icon-btn i {
   font-size: 15px;
 }
 
-body[data-page="edit"] #count-items-card .table-footer {
+#count-items-card .table-footer {
   flex-wrap: wrap;
   gap: 8px;
 }
 
 /* A tabela detalhada tem nove colunas: ela rola dentro do proprio quadro em vez
    de esticar o card e, com ele, a pagina inteira. */
-body[data-page="edit"] #count-items-card .table-wrap {
+#count-items-card .table-wrap {
   -webkit-overflow-scrolling: touch;
 }
 
-body[data-page="edit"] #count-table-detailed .table-wrap table {
+#count-table-detailed .table-wrap table {
   min-width: 780px;
 }
 
@@ -3583,7 +3186,7 @@ body[data-page="edit"] #count-table-detailed .table-wrap table {
   background: var(--app-surface);
 }
 
-body[data-page="edit"] #count-items-card table,
+#count-items-card table,
 /* --- Tabela de dados (compartilhada) -------------------------------------
    O visual das celulas era o mesmo em index (#public-table), editar
    (#count-items-card) e produtos (#catalog-card), escrito tres vezes com
@@ -3624,27 +3227,32 @@ body[data-page="edit"] #count-items-card table,
 }
 
 /* Coluna Acoes: largura fixa para os icones nao empurrarem as outras colunas. */
-body[data-page="edit"] #count-table-detailed th:last-child,
-body[data-page="edit"] #count-table-body td:last-child,
-body[data-page="products"] #catalog-card th:last-child,
-body[data-page="products"] #catalog-table-body td:last-child {
+#count-table-detailed th:last-child,
+#count-table-body td:last-child,
+#catalog-card th:last-child,
+#catalog-table-body td:last-child {
   width: 1%;
   padding-left: 8px;
   padding-right: 12px;
   text-align: right;
 }
 
-body[data-page="edit"] #count-table-detailed th:nth-child(n + 5):not(:last-child),
-body[data-page="edit"] #count-table-body td:nth-child(n + 5):not(:last-child) {
+/* Colunas numericas alinhadas a direita nas duas tabelas detalhadas. O indice
+   da primeira coluna numerica muda (a do estoque tem uma coluna a menos), o
+   acabamento nao - por isso um bloco so. */
+#public-table-detailed th:nth-child(n + 4),
+#public-table-body td:nth-child(n + 4),
+#count-table-detailed th:nth-child(n + 5):not(:last-child),
+#count-table-body td:nth-child(n + 5):not(:last-child) {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-body[data-page="edit"] #count-table-body td:nth-child(2) {
+#count-table-body td:nth-child(2) {
   font-weight: 600;
 }
 
-body[data-page="edit"] #count-table-body td:nth-child(8) {
+#count-table-body td:nth-child(8) {
   font-weight: 700;
 }
 
@@ -3662,7 +3270,7 @@ body[data-page="edit"] #count-table-body td:nth-child(8) {
     gap: 6px;
     width: 100%;
     padding-bottom: 10px;
-    border-bottom: 1px solid var(--ed-border);
+    border-bottom: 1px solid var(--app-border);
   }
 
   body[data-page="edit"] .count-toolbar-meta span::after {
@@ -3704,20 +3312,20 @@ body[data-page="products"] .count-toolbar-actions button {
   box-shadow: none;
 }
 
-body[data-page="edit"] #count-items-card {
+#count-items-card {
   min-height: 0;
   height: auto;
   align-self: start;
 }
 
-body[data-page="edit"] #manual-card .table-wrap {
+#manual-card .table-wrap {
   margin-top: 16px;
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
 }
 
-body[data-page="edit"] #count-items-card .table-wrap {
+#count-items-card .table-wrap {
   margin-top: 12px;
   width: 100%;
   max-width: 100%;
@@ -3729,13 +3337,13 @@ body[data-page="edit"] #count-items-card .table-wrap {
     grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
   }
 
-  body[data-page="edit"] #voice-card .voice-card-header h2 {
+  #voice-card .voice-card-header h2 {
     font-size: 20px;
   }
 
-  body[data-page="edit"] #voice-card .voice-context-box h3,
-  body[data-page="edit"] #voice-card .voice-action,
-  body[data-page="edit"] #voice-card .voice-status {
+  #voice-card .voice-context-box h3,
+  #voice-card .voice-action,
+  #voice-card .voice-status {
     font-size: 16px;
   }
 }
@@ -3749,51 +3357,37 @@ body[data-page="edit"] #count-items-card .table-wrap {
     gap: 14px;
   }
 
-  body[data-page="edit"] #voice-card,
-  body[data-page="edit"] #manual-card,
-  body[data-page="edit"] #count-items-card {
+  #voice-card,
+  #manual-card,
+  #count-items-card {
     min-height: auto;
   }
 
-  body[data-page="edit"] #voice-card .voice-command-row {
-    grid-template-columns: 1fr;
-  }
-
-  body[data-page="edit"] #voice-card #process-btn {
-    width: 100%;
-  }
-
-  body[data-page="edit"] #voice-card .voice-context-actions {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  body[data-page="edit"] #voice-card .voice-sector-button,
-  body[data-page="edit"] #voice-card .clear-context-btn {
+  #voice-card #process-btn {
     width: 100%;
   }
 }
 
 @media (max-width: 560px) {
-  body[data-page="edit"] #voice-card {
+  #voice-card {
     padding: 14px;
   }
 
-  body[data-page="edit"] #voice-card .voice-card-header {
+  #voice-card .voice-card-header {
     flex-wrap: wrap;
   }
 
-  body[data-page="edit"] #voice-card .voice-card-header h2 {
+  #voice-card .voice-card-header h2 {
     font-size: 18px;
   }
 
-  body[data-page="edit"] #voice-card .voice-context-box h3,
-  body[data-page="edit"] #voice-card .voice-action,
-  body[data-page="edit"] #voice-card .voice-status {
+  #voice-card .voice-context-box h3,
+  #voice-card .voice-action,
+  #voice-card .voice-status {
     font-size: 15px;
   }
 
-  body[data-page="edit"] #voice-card .voice-context-box p {
+  #voice-card .voice-context-box p {
     font-size: 14px;
   }
 }
@@ -3805,78 +3399,11 @@ body[data-page="edit"] #count-items-card .table-wrap {
 }
 
 /*
-  ===== Tema (Dark / Light) =====
-  O tema e controlado via body[data-theme].
+  ===== Tema escuro: o que os tokens nao resolvem =====
+  Quase todo o app troca de tema so pelos tokens --app-* (ver "Paleta do app").
+  Aqui ficam as excecoes: cores de estado (.msg), gradientes e superficies que
+  nao sao uma cor de token, e o color-scheme dos <select> nativos.
 */
-
-body[data-theme="dark"] {
-  background: radial-gradient(circle at top, #0f172a 0%, #020617 52%, #010409 100%);
-  color: #dbe7ff;
-}
-
-body[data-theme="dark"] .card,
-body[data-theme="dark"] .modal-card,
-body[data-theme="dark"] .summary-card,
-body[data-theme="dark"] .debug-card,
-body[data-theme="dark"] .print-overlay-card {
-  background: #0f172a;
-  color: #dbe7ff;
-  border: 1px solid #22324a;
-  box-shadow: 0 20px 46px rgba(2, 6, 23, 0.38);
-}
-
-body[data-theme="dark"] .modal-body > p,
-body[data-theme="dark"] .confirm-message,
-body[data-theme="dark"] .card-header p,
-body[data-theme="dark"] .public-section-header p,
-body[data-theme="dark"] .summary-header p,
-body[data-theme="dark"] .summary-legend,
-body[data-theme="dark"] .voice-status,
-body[data-theme="dark"] .catalog-empty,
-body[data-theme="dark"] .sync-copy span {
-  color: #9fb2d4;
-}
-
-body[data-theme="dark"] .public-section-header a {
-  color: #93c5fd;
-}
-
-body[data-theme="dark"] label,
-body[data-theme="dark"] .catalog-checkbox,
-body[data-theme="dark"] .summary-header h3 {
-  color: #dbe7ff;
-}
-
-/* Cadastro de produto no tema escuro (fora da pagina de edicao nao ha --ed-*). */
-body[data-theme="dark"] .catalog-checkbox,
-body[data-theme="dark"] .catalog-range {
-  background: #121d31;
-  border-color: #2b3d5c;
-}
-
-body[data-theme="dark"] .catalog-checkbox:has(input:checked) {
-  background: rgba(77, 141, 255, 0.14);
-  border-color: #4d8dff;
-}
-
-body[data-theme="dark"] .catalog-checkbox strong {
-  color: #dbe7ff;
-}
-
-body[data-theme="dark"] .catalog-checkbox small,
-body[data-theme="dark"] .catalog-hint,
-body[data-theme="dark"] .catalog-range legend {
-  color: #93a0b7;
-}
-
-body[data-theme="dark"] .catalog-form input,
-body[data-theme="dark"] .catalog-form select,
-body[data-theme="dark"] .catalog-rule-line select,
-body[data-theme="dark"] .catalog-rule-line input {
-  background: #151a25;
-  border-color: #2d3648;
-  color: #e6eaf2;
-}
 
 /* O <select> nativo herda a cor do sistema: sem color-scheme a lista de opcoes
    abre branca mesmo com o campo escuro. */
@@ -3885,105 +3412,9 @@ body[data-theme="dark"] .catalog-rule-line select {
   color-scheme: dark;
 }
 
-body[data-theme="dark"] .catalog-rule-line {
-  color: #e6eaf2;
-}
-
-body[data-theme="dark"] .catalog-rule-preview {
-  background: rgba(77, 141, 255, 0.14);
-  color: #93c5fd;
-}
-
-body[data-theme="dark"] .catalog-form input::placeholder,
-body[data-theme="dark"] .catalog-rule-line input::placeholder {
-  color: #6f7d94;
-}
-
-body[data-theme="dark"] input,
-body[data-theme="dark"] select,
-body[data-theme="dark"] textarea,
-body[data-theme="dark"] #voice-last {
-  background: #111c31;
-  border-color: #2a3a57;
-  color: #dbe7ff;
-}
-
-body[data-theme="dark"] input::placeholder,
-body[data-theme="dark"] textarea::placeholder {
-  color: #8ea3c5;
-}
-
-body[data-theme="dark"] .ghost {
-  background: #1c2a42;
-  color: #dbe7ff;
-  border: 1px solid #304566;
-}
-
-body[data-theme="dark"] .primary {
-  background: #3b82f6;
-}
-
-body[data-theme="dark"] .context-item {
-  background: #111b2e;
-  border: 1px solid #22324a;
-}
-
-body[data-theme="dark"] .context-item span {
-  color: #8ea3c5;
-}
-
-body[data-theme="dark"] .row-selected {
-  background: #14314e;
-}
-
-body[data-theme="dark"] .view-toggle {
-  background: #17253b;
-}
-
-body[data-theme="dark"] .view-toggle-btn {
-  color: #dbe7ff;
-}
-
-body[data-theme="dark"] .summary-table,
-body[data-theme="dark"] .summary-table th,
-body[data-theme="dark"] .summary-table td {
-  border-color: #31455f;
-}
-
-/* O resumo tinha quatro fundos escuros diferentes (card, th generico, cabecalho
-   e rodape da summary-table, mais o primeiro card colorizado): agora sao dois -
-   o corpo herda o card e cabecalho/rodape usam o mesmo tom de cabecalho de
-   tabela do app. */
-/* Fora da pagina de edicao nao existe --ed-*, entao o tema escuro do login vem
-   daqui. */
-body[data-theme="dark"] .auth-card {
-  background: #0f172a;
-  border-color: #22324a;
-}
-
-body[data-theme="dark"] .auth-badge {
-  background: rgba(77, 141, 255, 0.14);
-  color: #4d8dff;
-}
-
-body[data-theme="dark"] .auth-card .card-header h2 {
-  color: #dbe7ff;
-}
-
-body[data-theme="dark"] .auth-card .card-header p,
-body[data-theme="dark"] .auth-field i {
-  color: #93a0b7;
-}
-
-body[data-theme="dark"] .auth-field input {
-  background: #121d31;
-  border-color: #2b3d5c;
-  color: #dbe7ff;
-}
-
 body[data-theme="dark"] .summary-table thead th,
 body[data-theme="dark"] .summary-table tfoot td {
-  background: #111d31;
+  background: var(--app-surface-soft);
 }
 
 body[data-theme="dark"] .summary-table td,
@@ -4004,7 +3435,6 @@ body[data-theme="dark"] .sync-copy strong {
   color: #e2ebff;
 }
 
-
 body[data-theme="dark"] .msg.info {
   background: rgba(29, 78, 216, 0.2);
   color: #93c5fd;
@@ -4023,10 +3453,6 @@ body[data-theme="dark"] .msg.warn {
 body[data-theme="dark"] .msg.error {
   background: rgba(185, 28, 28, 0.2);
   color: #fda4af;
-}
-
-body[data-theme="dark"] .print-overlay-card span {
-  color: #9fb2d4;
 }
 
 @media (max-width: 980px) {
@@ -4119,10 +3545,6 @@ body[data-theme="dark"] .print-overlay-card span {
     padding: 10px 12px;
   }
 
-  .public-section-header h2 {
-    font-size: 28px;
-  }
-
   .public-toolbar {
     flex-direction: column;
     align-items: stretch;
@@ -4158,11 +3580,6 @@ body[data-theme="dark"] .print-overlay-card span {
 
   .count-mode-row {
     align-items: stretch;
-  }
-
-
-  .public-section-header h2 {
-    font-size: 24px;
   }
 
   .public-toolbar-actions {
@@ -4235,10 +3652,6 @@ body[data-theme="dark"] .print-overlay-card span {
     min-width: 600px;
   }
 
-  .public-section-header h2 {
-    font-size: 22px;
-  }
-
   #public-table-summary .summary-table th,
   #public-table-summary .summary-table td,
   #count-table-summary .summary-table th,
@@ -4247,43 +3660,6 @@ body[data-theme="dark"] .print-overlay-card span {
     font-size: 10px;
   }
 }
-
-.print-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.print-overlay-card {
-  background: #ffffff;
-  color: #0f172a;
-  border-radius: 16px;
-  padding: 20px 24px;
-  min-width: 280px;
-  display: grid;
-  gap: 10px;
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.2);
-}
-
-.print-overlay-card strong {
-  font-size: 18px;
-}
-
-.print-overlay-card span {
-  font-size: 14px;
-  color: #475569;
-}
-
-.print-overlay-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
 @media print {
   /* Esconder o app com visibility deixava paginas em branco (os blocos
      continuavam ocupando espaco): fora da folha nada entra no layout. */
@@ -4361,10 +3737,9 @@ body[data-theme="dark"] .print-overlay-card span {
 
 /*
   ===== Paleta do app =====
-  As tres paginas nasceram com prefixos proprios (--vw-* no index, --ov-* na
-  Visao Geral, --ed-* em Editar/Produtos) e valores repetidos, por isso elas
-  divergiam a cada ajuste. Os valores agora vivem so aqui e os prefixos apontam
-  para estes tokens - o CSS de cada pagina continua igual.
+  Fonte unica de cor, raio e sombra para as quatro paginas. Cada pagina teve um
+  dia o seu proprio prefixo de token apontando para daqui; as camadas de alias
+  sairam e todo o CSS le --app-* direto. So --app-pad varia por pagina.
 */
 :root {
   --app-bg: #f5f6f8;
@@ -4379,7 +3754,15 @@ body[data-theme="dark"] .print-overlay-card span {
   --app-accent-soft: #eef4ff;
   --app-radius: 14px;
   --app-radius-sm: 10px;
+  --app-pad: 18px;
   --app-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 28px -22px rgba(16, 24, 40, 0.35);
+  --app-surface-solid: #ffffff;
+  --app-track: #eef0f4;
+  --app-shadow-hover: 0 1px 2px rgba(16, 24, 40, 0.06), 0 14px 32px -20px rgba(16, 24, 40, 0.4);
+  --app-green: #16a34a;
+  --app-amber: #b45309;
+  --app-blue: #2563eb;
+  --app-red: #dc2626;
 }
 
 body[data-theme="dark"] {
@@ -4394,58 +3777,25 @@ body[data-theme="dark"] {
   --app-accent: #4d8dff;
   --app-accent-soft: rgba(77, 141, 255, 0.14);
   --app-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --app-surface-solid: #10141d;
+  --app-track: #1b2130;
+  --app-shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 32px -20px rgba(0, 0, 0, 0.6);
+  --app-green: #34d399;
+  --app-amber: #fbbf24;
+  --app-blue: #4d8dff;
+  --app-red: #f87171;
 }
 
-/* ==========================================================================
-   Redesign da pagina de estoque (index.html) - visual neutro moderno.
-   Tudo escopado em body[data-page="view"] para nao afetar as demais paginas.
-   ========================================================================== */
-
-body[data-page="view"] {
-  --vw-bg: var(--app-bg);
-  --vw-surface: var(--app-surface);
-  --vw-surface-soft: var(--app-surface-soft);
-  --vw-border: var(--app-border);
-  --vw-border-strong: var(--app-border-strong);
-  --vw-text: var(--app-text);
-  --vw-text-soft: var(--app-text-soft);
-  --vw-accent: var(--app-accent);
-  --vw-accent-soft: var(--app-accent-soft);
-  --vw-radius: var(--app-radius);
-  --vw-radius-sm: var(--app-radius-sm);
-  --vw-shadow: var(--app-shadow);
-  background: var(--vw-bg);
-  color: var(--vw-text);
-}
-
-/* Mesma largura das outras paginas: o index era o unico com 1160px, e a
-   diferenca aparecia ao trocar de pagina pelo menu. */
-body[data-page="view"] .app {
-  max-width: 1320px;
-  padding: 40px 28px 72px;
-}
-
-/* Cabecalho da pagina */
-
-/* Card principal */
-body[data-page="view"] .card {
-  background: var(--vw-surface);
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius);
-  box-shadow: var(--vw-shadow);
-  padding: 20px;
-}
-
-body[data-page="view"] .public-section {
+.public-section {
   gap: 16px;
 }
 
 /* Barra de busca e acoes */
-body[data-page="view"] .public-toolbar {
+.public-toolbar {
   gap: 8px;
 }
 
-body[data-page="view"] .search-field {
+.search-field {
   position: relative;
   flex: 1;
   min-width: 240px;
@@ -4453,205 +3803,78 @@ body[data-page="view"] .search-field {
   align-items: center;
 }
 
-body[data-page="view"] .search-field i {
+.search-field i {
   position: absolute;
   left: 12px;
   font-size: 15px;
-  color: var(--vw-text-soft);
+  color: var(--app-text-soft);
   pointer-events: none;
 }
 
-body[data-page="view"] input,
-body[data-page="view"] select {
-  background: var(--vw-surface);
-  border: 1px solid var(--vw-border-strong);
-  border-radius: var(--vw-radius-sm);
-  color: var(--vw-text);
-  padding: 10px 12px;
-  font-size: 14px;
-}
-
-body[data-page="view"] .search-field input {
+.search-field input {
   padding-left: 36px;
   height: 42px;
 }
 
-body[data-page="view"] input:focus,
-body[data-page="view"] select:focus {
-  outline: none;
-  border-color: var(--vw-accent);
-  box-shadow: 0 0 0 3px var(--vw-accent-soft);
-}
-
-body[data-page="view"] input::placeholder {
-  color: var(--vw-text-soft);
-}
-
-body[data-page="view"] .public-toolbar-actions button {
+.public-toolbar-actions button {
   height: 42px;
-  border-radius: var(--vw-radius-sm);
+  border-radius: var(--app-radius-sm);
   padding: 0 14px;
   font-size: 14px;
   font-weight: 600;
-  background: var(--vw-surface);
-  border: 1px solid var(--vw-border-strong);
-  color: var(--vw-text);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text);
   box-shadow: none;
 }
 
-body[data-page="view"] .public-toolbar-actions button:hover {
+.public-toolbar-actions button:hover {
   transform: none;
-  background: var(--vw-surface-soft);
-  border-color: var(--vw-accent);
-  color: var(--vw-accent);
+  background: var(--app-surface-soft);
+  border-color: var(--app-accent);
+  color: var(--app-accent);
   box-shadow: none;
-}
-
-/* Segmentado de modo de tabela */
-body[data-page="view"] .view-toggle {
-  background: var(--vw-surface-soft);
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius-sm);
-  padding: 3px;
-  gap: 2px;
-}
-
-body[data-page="view"] .view-toggle::before {
-  top: 3px;
-  left: 3px;
-  width: 42px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--vw-accent);
-}
-
-body[data-page="view"] .view-toggle:not(.mode-summary)::before {
-  transform: translateX(44px);
-}
-
-body[data-page="view"] .view-toggle-btn {
-  width: 42px;
-  height: 32px;
-  border-radius: 8px;
-  color: var(--vw-text-soft);
-}
-
-body[data-page="view"] .view-toggle.mode-summary .view-toggle-btn:first-child,
-body[data-page="view"] .view-toggle:not(.mode-summary) .view-toggle-btn:last-child {
-  color: #ffffff;
 }
 
 /* Tabela detalhada */
-body[data-page="view"] #public-table-detailed th:nth-child(n + 4),
-body[data-page="view"] #public-table-body td:nth-child(n + 4) {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-body[data-page="view"] #public-table-body td:first-child {
+#public-table-body td:first-child {
   font-weight: 600;
 }
 
-body[data-page="view"] #public-table-body td:nth-child(7) {
+#public-table-body td:nth-child(7) {
   font-weight: 700;
 }
 
 /* Rodape com total */
-body[data-page="view"] .table-footer {
+.table-footer {
   margin-top: 14px;
 }
 
-body[data-page="view"] .table-footer .total {
+.table-footer .total {
   display: inline-flex;
   align-items: baseline;
   gap: 8px;
   padding: 10px 16px;
   border-radius: 999px;
-  background: var(--vw-accent-soft);
-  color: var(--vw-accent);
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
   font-size: 14px;
   font-weight: 600;
 }
 
-body[data-page="view"] .table-footer .total strong {
+.table-footer .total strong {
   font-family: "Space Grotesk", sans-serif;
   font-size: 20px;
 }
 
-/* Cards do modo resumo */
-body[data-page="view"] .summary-card {
-  background: var(--vw-surface);
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius-sm);
-  padding: 14px;
-}
-
-/* Modal de filtros */
-body[data-page="view"] .modal-card {
-  background: var(--vw-surface);
-  border: 1px solid var(--vw-border);
-  border-radius: var(--vw-radius);
-  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
-}
-
-body[data-page="view"] .modal-backdrop {
-  background: rgba(16, 24, 40, 0.5);
-  backdrop-filter: blur(2px);
-}
-
-body[data-page="view"] .summary-table,
-body[data-page="view"] .summary-table th,
-body[data-page="view"] .summary-table td {
-  border-color: var(--vw-border);
-}
-
-body[data-page="view"] .summary-table thead th {
-  background: var(--vw-surface-soft);
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 12px;
-  padding: 8px;
-}
-
-body[data-page="view"] .summary-table td {
-  padding: 8px;
-  font-size: 12px;
-}
-
-body[data-page="view"] .summary-table tfoot td {
-  background: var(--vw-surface-soft);
-}
-
-/* Modal de filtros e folha de exportacao */
-body[data-page="view"] .ghost {
-  background: var(--vw-surface-soft);
-  border: 1px solid var(--vw-border-strong);
-  color: var(--vw-text);
-  border-radius: var(--vw-radius-sm);
-}
-
-body[data-page="view"] .primary {
-  background: var(--vw-accent);
-  color: #ffffff;
-  border-radius: var(--vw-radius-sm);
-  box-shadow: none;
-}
-
-body[data-page="view"] .primary:hover,
-body[data-page="view"] .ghost:hover {
-  transform: none;
-  box-shadow: none;
-  filter: brightness(0.97);
-}
-
 @media (max-width: 980px) {
-  body[data-page="view"] .app {
+  .app {
     padding: 14px 14px 48px;
   }
 
   /* Cor vem dos tokens --sb-*; aqui so o raio menor da pagina de estoque. */
-  body[data-page="view"] .mobile-topbar {
-    border-radius: var(--vw-radius-sm);
+  .mobile-topbar {
+    border-radius: var(--app-radius-sm);
   }
 
   .page-head {
@@ -4667,11 +3890,11 @@ body[data-page="view"] .ghost:hover {
     width: 100%;
   }
 
-  body[data-page="view"] .public-toolbar-actions {
+  .public-toolbar-actions {
     gap: 8px;
   }
 
-  body[data-page="view"] .public-toolbar-actions button {
+  .public-toolbar-actions button {
     padding: 0 8px;
     font-size: 13px;
   }
@@ -4764,8 +3987,7 @@ body[data-page="view"] .ghost:hover {
 }
 
 .print-sheet .summary-header h3,
-.print-sheet .summary-header p,
-.print-sheet .summary-legend {
+.print-sheet .summary-header p {
   color: #111827;
 }
 
@@ -4848,8 +4070,7 @@ body[data-page="view"] .ghost:hover {
 }
 
 #print-area .summary-header h3,
-#print-area .summary-header p,
-#print-area .summary-legend {
+#print-area .summary-header p {
   color: #111827;
 }
 
