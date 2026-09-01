@@ -3,66 +3,65 @@
 Aplicação web (PWA) para contagem e acompanhamento de estoque do CD, com:
 
 - consulta pública do estoque;
-- edição por usuário autenticado;
-- lançamento por voz e manual;
-- modo de **nova contagem** com rascunho offline;
-- dashboard histórico com total de caixas e saída entre contagens;
-- exportação para CSV e impressão/PDF.
+- edição por usuário autenticado (voz ou formulário manual);
+- modo **estoque atual** (fila de lançamentos) e modo **nova contagem** (rascunho offline);
+- cadastro de produtos/marcas compartilhado entre todos os usuários;
+- dashboard com total de caixas, saída entre contagens e histórico diário (sazonalidade);
+- exportação CSV, impressão/PDF e envio da tabela por WhatsApp.
 
 ## Visão Geral
 
-O sistema é 100% frontend (HTML/CSS/JavaScript) e usa o Supabase como backend (Auth + Postgres + RLS).
+O sistema é 100% frontend (HTML/CSS/JavaScript vanilla, sem bundler) e usa o Supabase como backend (Auth + Postgres + RLS).
 
 Fluxo principal:
 
-1. Usuário faz login em `editar.html`.
-2. Lança itens no estoque atual ou inicia uma nova contagem.
-3. O sistema salva no Supabase (modo atual) ou localmente até sincronizar (modo nova contagem).
-4. Ao salvar a nova contagem, o sistema substitui a contagem antiga e grava snapshot para o dashboard.
+1. Usuário faz login (a mesma tela de login vale para qualquer página).
+2. Em `editar.html`, lança itens no estoque atual ou inicia uma nova contagem.
+3. Nos dois modos o lançamento fica primeiro no aparelho; o envio ao Supabase acontece quando o operador salva.
+4. Ao salvar a nova contagem, o sistema substitui a contagem antiga do setor e grava um snapshot para o dashboard.
 
-## Funcionalidades
+## Páginas
 
 - **Estoque público (`index.html`)**
   - tabela detalhada e tabela-resumo;
-  - busca por texto;
-  - filtros por setor/produto/marca/tipo;
-  - exportação CSV;
-  - impressão/PDF (via janela de impressão).
+  - busca por texto e filtros por setor/produto/marca/tipo;
+  - exportação CSV e impressão/PDF.
 
-- **Edição (`editar.html`)**
-  - login por usuário/senha;
-  - comando por voz (Web Speech API);
-  - lançamento manual com selects dependentes;
-  - edição e remoção de itens;
-  - alternância entre:
-    - `Estoque atual` (grava direto no Supabase);
-    - `Nova contagem` (rascunho local com sincronização posterior).
+- **Edição (`editar.html`)** — duas abas:
+  - `Contagem`: comando por voz (Web Speech API) e formulário manual com selects dependentes;
+  - `Conferência`: fila de lançamentos ainda não gravados, edição/remoção de itens, impressão e envio por WhatsApp;
+  - alternância entre `Estoque atual` e `Nova contagem`.
 
-- **Visão Geral (`visao-geral.html`)**
-  - total de caixas e pallets, produtos/marcas distintos;
-  - distribuição por setor e por marca;
-  - top produtos por volume;
-  - alertas de estoque baixo/próximo do mínimo;
-  - histórico de contagens com a saída de caixas de cada uma.
+- **Visão Geral (`visao-geral.html`)** — três abas:
+  - `Agora`: total de caixas e pallets, produtos/marcas distintos, distribuição por setor e marca, top produtos, alertas de estoque baixo;
+  - `Movimento`: histórico de contagens com o operador e a saída de caixas de cada uma;
+  - `Tendência`: histórico diário por produto+marca (ou total do CD), para ver sazonalidade.
+
+- **Produtos (`produtos.html`)**
+  - cadastro de combinações setor/produto/marca e de caixas por pallet (com faixa por tipo);
+  - remoção de itens do catálogo e "restaurar catálogo original";
+  - tudo salvo na tabela `catalog_overrides`, visível para todos os usuários.
 
 - **PWA**
   - manifesto (`manifest.webmanifest`);
-  - service worker com cache do app shell e fallback offline.
+  - service worker com cache do app shell e fallback offline;
+  - tema claro/escuro, sidebar e topbar mobile compartilhados pelas quatro páginas.
 
-## Stack Tecnica
+## Stack Técnica
 
-- HTML + CSS + JavaScript vanilla.
+- HTML + CSS + JavaScript vanilla, módulos ES nativos (`import`/`export`), sem build.
 - [Supabase JS v2](https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2) via CDN.
 - Bootstrap Icons via CDN.
 - Web Speech API para reconhecimento de voz.
-- `localStorage` para cache publico e rascunho offline.
+- jsPDF (carregado sob demanda) para o PDF do WhatsApp.
+- `localStorage` para cache público, fila de lançamentos e rascunho offline.
 
 ## Estrutura do Projeto
 
 ```text
 projeto-estoque/
 |- assets/
-|  |- js/       (modulos ES; ver MANUTENCAO.md)
+|  |- js/       (31 modulos ES; mapa completo em MANUTENCAO.md)
 |  `- img/
 |- index.html
 |- editar.html
@@ -71,235 +70,180 @@ projeto-estoque/
 |- styles.css
 |- service-worker.js
 |- manifest.webmanifest
-|- supabase-completo.sql
-|- supabase-caixas-avulsas.sql
-|- supabase-dashboard-migracao.sql
+|- MANUTENCAO.md
+`- *.sql        (ver "Banco de Dados")
 ```
+
+Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, `styles.css` e `assets/js/head.js` — o resto das metatags é injetado por esse script.
 
 ## Banco de Dados (Supabase)
 
 ### Script principal
 
-Para ambiente novo, execute:
-
-- `supabase-completo.sql`
-
-Ele cria/ajusta:
+Para ambiente novo, execute `supabase-completo.sql`. Ele cria/ajusta:
 
 - tabela `public.estoque_registros`;
 - tabela `public.estoque_snapshots`;
-- funcao/trigger `calcular_total_caixas`;
-- indices;
-- politicas RLS;
-- grants.
+- função/trigger `calcular_total_caixas`;
+- índices, políticas RLS e grants.
 
-### Scripts de migracao adicionais
+### Demais scripts
 
-Use apenas se estiver atualizando ambiente antigo:
+Aplicar na ordem abaixo (num ambiente novo, todos; num ambiente antigo, só os que faltam):
 
-- `supabase-caixas-avulsas.sql`:
-  - adiciona `caixas_avulsas`;
-  - recalcula totais;
-  - recria trigger de normalizacao.
-- `supabase-dashboard-migracao.sql`:
-  - adiciona `outflow_caixas` em snapshots.
+| Script | O que faz |
+| --- | --- |
+| `supabase-caixas-avulsas.sql` | adiciona `caixas_avulsas`, recalcula totais e recria o trigger de normalização |
+| `supabase-dashboard-migracao.sql` | adiciona `outflow_caixas` em `estoque_snapshots` |
+| `supabase-estoque-delete-policy.sql` | permite que uma nova contagem substitua as linhas do setor gravadas por **qualquer** operador (sem isso o RLS bloqueia em silêncio e o estoque duplica) |
+| `supabase-usuarios-label.sql` | cria `usuarios_label`, para o nome do operador aparecer em todos os aparelhos e não só em quem já logou naquele |
+| `supabase-historico-diario.sql` | cria `estoque_historico_diario` e o job `pg_cron` que captura o estoque 1x/dia |
+| `supabase-historico-diario-total.sql` | cria a view `estoque_historico_diario_total`, usada quando a aba Tendência não filtra produto/marca |
+
+Não há script para `catalog_overrides` — a tabela foi criada manualmente no Supabase. Estrutura em `assets/js/catalog-overrides.js`.
+
+`supabase-notifications-remover.sql` é opcional e **destrutivo**: dá `DROP TABLE push_subscriptions`, sobra da função de notificações push que foi removida do app. Rode só se quiser limpar a tabela órfã.
 
 ### Modelo de dados (resumo)
 
 - `estoque_registros`
-  - chave de unicidade por: `user_id + setor + produto + marca + tipo`.
-  - metrica central: `total_caixas = pallets * caixas_pallet + caixas_avulsas`.
+  - unicidade por `user_id + setor + produto + marca + tipo`;
+  - métrica central: `total_caixas = pallets * caixas_pallet + caixas_avulsas` (calculada por trigger).
 - `estoque_snapshots`
-  - guarda total consolidado da contagem;
-  - guarda `outflow_caixas` para dashboard.
+  - total consolidado da contagem e `outflow_caixas` para o dashboard.
+- `estoque_historico_diario`
+  - uma linha por dia/produto/marca, alimentada pelo cron.
+- `catalog_overrides`
+  - produtos/marcas adicionados ou removidos por cima de `CONFIG_GERAL`.
+- `usuarios_label`
+  - nome legível do operador por `user_id`.
 
-### Politicas RLS (resumo)
+### Políticas RLS (resumo)
 
-- Leitura de `estoque_registros`: publica (`anon`, `authenticated`).
-- Escrita de `estoque_registros`: somente dono (`auth.uid() = user_id`).
-- Leitura de `estoque_snapshots`: publica.
-- Insercao em `estoque_snapshots`: usuario autenticado dono do registro.
+- Leitura de `estoque_registros`: pública (`anon`, `authenticated`).
+- Escrita de `estoque_registros`: somente o dono (`auth.uid() = user_id`).
+- Exclusão de `estoque_registros`: qualquer usuário autenticado (ver `supabase-estoque-delete-policy.sql`).
+- Leitura de `estoque_snapshots`: pública. Inserção: usuário autenticado dono do registro.
 
-## Autenticacao
+## Autenticação
 
-No login, o campo "usuario" e convertido para e-mail automaticamente:
+No login, o campo "usuário" é convertido para e-mail automaticamente:
 
-- se digitar `1234` -> `1234@cd.local`;
-- se digitar e-mail completo, ele e usado como esta.
+- `1234` -> `1234@cd.local`;
+- e-mail completo é usado como está.
 
-Entao, no Supabase Auth, os usuarios devem existir com esse padrao de e-mail (ou e-mail completo equivalente) e senha valida.
+Os usuários devem existir no Supabase Auth com esse padrão de e-mail e senha válida. A sessão local expira em 1 hora (`SESSION_MAX_MS`).
 
-## Regras de Negocio Importantes
+## Regras de Negócio Importantes
 
 - Setores principais: `CHAO`, `GELADEIRA`, `ITAUEIRA`.
-- Configuracao de produto/marca/caixas por pallet fica em `CONFIG_GERAL` (`assets/js/config.js`); cadastros feitos por usuarios em `produtos.html` ficam na tabela `catalog_overrides` do Supabase e sao aplicados por cima disso.
-- Tipos validos padrao: de `3` a `15`.
-- Produto sem tipo:
-  - `PIMENTAO` usa tipo interno `0` e exibicao `S/T`.
-- Tipo especial:
-  - `ORANGE` divide tipo 6 em:
-    - `6A` (valor interno 14)
-    - `6B` (valor interno 15)
-- Caixas avulsas:
-  - se caixas avulsas fecharem pallet, ocorre conversao automatica.
+- Regras fixas de produto/marca/caixas por pallet ficam em `CONFIG_GERAL` (`assets/js/config.js`); o que os usuários cadastram em `produtos.html` vai para `catalog_overrides` e é aplicado por cima.
+- Tipos válidos padrão: `3` a `15`.
+- `PIMENTÃO` não usa tipo: valor interno `0`, exibição `S/T`.
+- `ORANGE` divide o tipo 6 em `6A` (interno `14`) e `6B` (interno `15`).
+- Caixas avulsas que fecham um pallet são convertidas automaticamente.
+- O catálogo permite caixas/pallet diferente por faixa de tipo (`tipo_min`/`tipo_max`).
 
-## Comandos de Voz (resumo pratico)
+## Comandos de Voz (resumo prático)
 
-Exemplos de uso no modo edicao:
+- Fixar contexto: `CHAO`, `AMARELO`, `ANGEL`
+- Lançar pallets por tipo: `4`, ou `4 4 5` para vários
+- Adicionar quantidade: `ADICIONAR 2`
+- Caixas avulsas: `8 CAIXAS`, `ADICIONAR 8 CAIXAS`
+- Especiais: `REMOVER` (desfaz o último lançamento ainda não gravado), `CORRIGIR` (fluxo guiado)
 
-- Fixar contexto:
-  - `CHAO`
-  - `AMARELO`
-  - `ANGEL`
-- Lancar pallets por tipo:
-  - `4` (registra tipo 4 no contexto atual)
-  - `4 4 5` (registra multiplos tipos)
-- Adicionar quantidade:
-  - `ADICIONAR 2`
-- Lancar caixas avulsas:
-  - `8 CAIXAS`
-  - `ADICIONAR 8 CAIXAS`
-- Comandos especiais:
-  - `REMOVER` (desfaz ultimo lancamento)
-  - `CORRIGIR` (inicia fluxo guiado de correcao)
+Observações:
 
-Observacoes:
-
-- Reconhecimento de voz foi pensado para Chrome/Edge.
-- O parser normaliza variacoes de fala (ex.: `BRASIL` -> `BRAZIL`, `CEP` -> `CEPI`).
+- reconhecimento de voz foi pensado para Chrome/Edge;
+- o parser normaliza variações de fala (ex.: `BRASIL` -> `BRAZIL`, `CEP` -> `CEPI`).
 
 ## Modo "Estoque Atual" vs "Nova Contagem"
 
 - **Estoque Atual**
-  - cada lancamento grava imediatamente no Supabase.
-- **Nova Contagem**
-  - alteracoes ficam em rascunho local (`localStorage`);
-  - ao salvar:
-    1. remove contagem antiga do usuario;
-    2. insere nova contagem;
-    3. calcula comparacao de saida;
-    4. salva snapshot para dashboard.
+  - cada lançamento entra numa fila de *deltas* no aparelho (`pending-changes.js`), visível na aba `Conferência`;
+  - ao salvar, cada delta é somado ao que já existe no Supabase, um por um — se a rede cair no meio, o que já foi gravado não é regravado;
+  - a fila sobrevive ao logout e ao fechamento do app.
 
-Se estiver offline no modo nova contagem, o rascunho e preservado e sincronizado quando houver internet.
+- **Nova Contagem**
+  - as alterações ficam em rascunho local (`localStorage`);
+  - ao salvar: insere a nova contagem, **depois** apaga as linhas antigas dos setores contados (de qualquer operador), calcula a saída e grava o snapshot;
+  - a ordem é inserir-antes-de-apagar de propósito: uma falha no meio deixa duplicata (recuperável), nunca estoque zerado.
+
+Offline, nos dois modos o que foi lançado fica no aparelho até haver internet.
 
 ## Comportamento Offline e Cache
 
-- Cache publico:
-  - chave `cd_public_cache` para ultimo estoque carregado;
-  - fallback em falha de leitura do servidor.
-- Rascunho nova contagem:
-  - chave prefixada `cd_count_draft_v1`.
-- Sessao local:
-  - timestamp `cd_login_at` com limite de 1 hora (`SESSION_MAX_MS`).
+- Cache público: `cd_public_cache` guarda o último estoque carregado e serve de fallback.
+- Fila do estoque atual: `cd_pending_changes_v1`.
+- Rascunho da nova contagem: `cd_count_draft_v1`.
+- Preferência de tema: `cd_theme_preference_v1`.
+- Sessão: `cd_login_at`, limite de 1 hora.
+- Leituras de boot usam timeout curto (`SUPABASE_READ_TIMEOUT_MS`, 12s): passado isso, o cache local é servido em vez de deixar a tela esperando.
 
-## Exportacao
+## Exportação e Compartilhamento
 
-- **CSV**: exporta dados filtrados (publico) ou setor atual (edicao).
-- **PDF/Impressao**:
-  - abre uma janela de impressao;
-  - "PDF" depende do recurso "Salvar como PDF" do navegador/SO.
-
-## Dashboard
-
-Fonte dos dados: estoque público atual (`estoque_registros`) para os totais/top
-produtos/alertas, e `estoque_snapshots` para o histórico de contagens (cada
-snapshot guarda o `outflow_caixas` calculado no momento em que a contagem foi
-salva).
-
-Indicadores:
-
-- total de caixas e pallets, com variação em relação à contagem anterior;
-- produtos/marcas distintos cadastrados;
-- quantidade de itens abaixo/próximo do estoque mínimo;
-- histórico das últimas contagens com quem operou e quanto saiu em cada uma.
+- **CSV**: exporta os dados filtrados (público) ou o setor atual (edição).
+- **Impressão/PDF**: abre a janela de impressão; "PDF" depende do "Salvar como PDF" do navegador/SO.
+- **WhatsApp**: gera o PDF no navegador e entrega pelo Web Share do aparelho (no celular o WhatsApp aparece na lista). No desktop, onde o Share não aceita arquivo, o PDF é baixado e o WhatsApp abre com o texto pedindo para anexar.
 
 ## Executando Localmente
 
-### 1) Pre-requisitos
+### 1) Pré-requisitos
 
-- Projeto Supabase criado.
-- Scripts SQL aplicados.
-- Usuarios criados no Supabase Auth.
-- Navegador moderno (Chrome/Edge recomendado para voz).
+- projeto Supabase criado, scripts SQL aplicados, usuários criados no Auth;
+- navegador moderno (Chrome/Edge para voz).
 
-### 2) Ajustar credenciais Supabase (se necessario)
+### 2) Credenciais Supabase
 
-No arquivo `assets/js/config.js`, revise:
+Em `assets/js/config.js`, revise `SUPABASE_URL` e `SUPABASE_ANON_KEY`.
 
-- `SUPABASE_URL`
-- `SUPABASE_ANON_KEY`
-
-### 3) Subir servidor estatico
-
-Exemplo com Python:
+### 3) Servidor estático
 
 ```bash
 python -m http.server 5500
 ```
 
-Depois acesse:
-
-- `http://localhost:5500/index.html`
+Depois acesse `http://localhost:5500/index.html`. Precisa ser servidor HTTP: os módulos ES não carregam por `file://`.
 
 ## Deploy
 
-Como e frontend estatico, pode ser publicado em:
+Frontend estático — Vercel, Netlify, GitHub Pages ou qualquer servidor HTTP. Use HTTPS em produção (exigido por microfone, PWA e Web Share).
 
-- Vercel;
-- Netlify;
-- GitHub Pages;
-- qualquer servidor HTTP estatico.
-
-Para microfone e PWA em producao, use HTTPS.
-
-## Manutencao
+## Manutenção
 
 ### Alterar regras de produto/marca/tipo
 
-Editar principalmente:
+Editar `CONFIG_GERAL` em `assets/js/config.js` (regras fixas) ou usar o cadastro em `produtos.html` (o que os usuários devem gerenciar sozinhos). Depois validar parser de voz (`normalizeText`, `processCommand`), formulário manual (`updateManualTipoOptions`, `addManualItem`) e renderização das tabelas/resumo.
 
-- `CONFIG_GERAL` em `assets/js/config.js` (regras fixas) ou o cadastro em `produtos.html` (regras que o proprio usuario deve poder gerenciar, salvas em `catalog_overrides` no Supabase).
+### Alterar estilos
 
-Depois validar:
+Toda cor, raio, sombra e padding sai dos tokens `--app-*` do `:root` em `styles.css` (tema escuro em `body[data-theme="dark"]`). Componentes como `.card`, `.ghost`, `.primary` e `.summary-table` são definidos uma única vez e valem para as quatro páginas.
 
-- parser de voz (`normalizeText`, `processCommand`);
-- formulario manual (`updateManualTipoOptions`, `addManualItem`);
-- renderizacao de tabelas/resumo.
+### Atualizar versão de cache PWA
 
-### Atualizar versao de cache PWA
-
-Ao publicar mudancas de assets:
+Ao publicar mudanças de assets:
 
 - incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js`;
-- atualize versoes de arquivos no `APP_SHELL`;
-- mantenha os query params (`?v=...`) coerentes entre HTML e service worker.
+- confira se todo arquivo novo está listado em `APP_SHELL`.
 
 ## Troubleshooting
 
-- **Erro mencionando `caixas_avulsas`**
-  - aplique `supabase-caixas-avulsas.sql`.
+- **Erro mencionando `caixas_avulsas`** — aplique `supabase-caixas-avulsas.sql`.
+- **Erro mencionando `outflow_caixas`** — aplique `supabase-dashboard-migracao.sql`.
+- **Estoque duplicando depois de uma nova contagem** — aplique `supabase-estoque-delete-policy.sql`.
+- **Histórico mostrando "usuário &lt;id curto&gt;"** — aplique `supabase-usuarios-label.sql`.
+- **Aba Tendência vazia** — aplique os dois scripts de histórico diário e confirme se o job `pg_cron` está ativo (o gráfico só tem dados a partir do primeiro dia capturado).
+- **Sem internet** — a consulta pública usa o último cache; a fila e o rascunho ficam no aparelho até sincronizar.
+- **Microfone não funciona** — use Chrome/Edge, confirme a permissão e valide HTTPS em produção.
+- **Mudança publicada não aparece** — é o service worker servindo cache: incremente a versão em `service-worker.js`.
 
-- **Erro mencionando `outflow_caixas`**
-  - aplique `supabase-dashboard-migracao.sql`.
+## Observações de Segurança
 
-- **Sem internet**
-  - consulta publica usa ultimo cache disponivel;
-  - nova contagem mantem rascunho local ate sincronizar.
+- A chave do frontend é publishable (`anon`), o que é esperado para apps web.
+- A proteção real de escrita depende das políticas RLS, previstas nos scripts SQL.
+- Não desabilite RLS nas tabelas de produção.
+- A exclusão em `estoque_registros` é liberada para qualquer usuário autenticado, por necessidade do fluxo de nova contagem. Quem tem login pode apagar linha de outro operador.
 
-- **Microfone nao funciona**
-  - use Chrome/Edge;
-  - confirme permissao do microfone;
-  - valide HTTPS em producao.
+## Documentação Complementar
 
-## Observacoes de Seguranca
-
-- A chave usada no frontend e publishable (`anon`), o que e esperado para apps web.
-- A protecao real de escrita depende das politicas RLS, que ja estao previstas nos scripts SQL.
-- Nao desabilite RLS nas tabelas de producao.
-
-## Documentacao Complementar
-
-- `MANUTENCAO.md`: mapa tecnico rapido das funcoes e fluxos internos.
-
-#   f r u t a m i n a - p r o j e t o - e s t o q u e v 3  
- 
+- `MANUTENCAO.md`: mapa técnico dos módulos, funções e fluxos internos.
