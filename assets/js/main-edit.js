@@ -19,7 +19,6 @@ import {
   setCountSource,
   setupCountTableEvents,
 } from "./tables.js";
-import { setupCommandEvents } from "./voice-actions.js";
 import { setupVoice } from "./voice-speech.js";
 import { initManualForm, setupManualFormEvents } from "./manual-form.js";
 import { setupCountModeEvents, updateCountModeUI, saveNewCount } from "./count-mode.js";
@@ -96,7 +95,6 @@ renderPendingChanges();
 );
 setupVoice();
 setupCountTableEvents();
-setupCommandEvents();
 setupManualFormEvents();
 setupCountModeEvents();
 finishBoot();

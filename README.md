@@ -61,7 +61,7 @@ Fluxo principal:
 ```text
 projeto-estoque/
 |- assets/
-|  |- js/       (31 modulos ES; mapa completo em MANUTENCAO.md)
+|  |- js/       (32 modulos ES; mapa completo em MANUTENCAO.md)
 |  `- img/
 |- index.html
 |- editar.html

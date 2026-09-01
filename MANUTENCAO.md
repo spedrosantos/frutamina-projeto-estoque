@@ -90,8 +90,9 @@ Este projeto foi documentado em duas camadas:
 
 ### 3. Desfazer e corrigir último lançamento
 
+- `launch-core.js`
+  - `registerInventoryChange`, `buildLaunchItem`, `buildLaunchRecord`, `setLastLaunch`
 - `voice-actions.js`
-  - `registerInventoryChange`, `buildLaunchItem`, `buildLaunchRecord`
   - `revertLaunchRecord`, `removeLastLaunchCommand`
   - `beginVoiceCorrection`, `handlePendingCorrection`
 
@@ -106,7 +107,9 @@ Este projeto foi documentado em duas camadas:
   `extractCommandNumbers`/`extractCommandTipoValues` extraem números e tipos do
   comando ignorando setor/produto/marca já reconhecidos.
 - `voice-speech.js`: `setupVoice`, integração real com a Web Speech API (só usado
-  em `editar.html`).
+  em `editar.html`). Carrega `voice-actions.js` por `import()` dinâmico, na
+  primeira frase reconhecida: o parser tem ~1200 linhas e só interessa a quem
+  fala com o app, então fica fora do boot de quem usa o Comando Manual.
 
 ### 5. Rascunho offline
 
@@ -197,8 +200,8 @@ Essas funções permitem continuar a nova contagem sem internet.
 
 1. `setupVoice` (`voice-speech.js`) liga a Web Speech API.
 2. `processCommand` (`voice-actions.js`) interpreta o texto final.
-3. `registerInventoryChange` aplica o lançamento.
-4. `upsertRecord` (`supabase-api.js`) salva no banco quando necessário.
+3. `registerInventoryChange` (`launch-core.js`) aplica o lançamento.
+4. `applyLaunchBatch` (`supabase-api.js`) salva no banco quando necessário.
 
 ### Fluxo 4: saída entre contagens
 

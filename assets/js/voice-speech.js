@@ -2,7 +2,6 @@
 import { elements, PAGE_MODE } from "./state.js";
 import { normalizeText } from "./utils.js";
 import { requireAuthenticatedUser } from "./auth-ui.js";
-import { processCommand } from "./voice-actions.js";
 
 // Inicializa a Web Speech API e encaminha cada frase final para `processCommand`.
 export function setupVoice() {
@@ -175,7 +174,11 @@ export function setupVoice() {
     }
 
     if (normalizedFinalTranscript) {
-      processCommand(normalizedFinalTranscript);
+      // voice-actions.js tem ~1200 linhas de parser e so serve a quem fala com o
+      // app: entra na primeira frase reconhecida, nao no boot.
+      import("./voice-actions.js").then((m) =>
+        m.processCommand(normalizedFinalTranscript)
+      );
     }
   };
 }

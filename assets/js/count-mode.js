@@ -18,7 +18,7 @@ import {
 } from "./draft.js";
 import { buildPublicRowsAfterUserReplacement, calculateOutflowCaixas } from "./comparison.js";
 import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
-import { clearVoiceActionState } from "./voice-actions.js";
+import { clearVoiceActionState } from "./launch-core.js";
 import { hasPendingChanges, clearPendingChanges, renderPendingChanges } from "./pending-changes.js";
 import { confirmAction } from "./confirm-modal.js";
 

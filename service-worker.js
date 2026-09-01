@@ -12,8 +12,8 @@
   assets. Subir estes numeros invalida o cache antigo, e o fetch abaixo ja e
   network-first para HTML/CSS/JS proprio, entao a versao nova chega na hora.
 */
-const STATIC_CACHE = "frutamina-static-v122";
-const RUNTIME_CACHE = "frutamina-runtime-v122";
+const STATIC_CACHE = "frutamina-static-v123";
+const RUNTIME_CACHE = "frutamina-runtime-v123";
 
 const APP_SHELL = [
   "./",
@@ -30,7 +30,6 @@ const APP_SHELL = [
   "./assets/js/main-dashboard.js",
   "./assets/js/main-products.js",
   "./assets/img/logo.webp",
-  "./assets/img/capa.png",
   "./assets/img/icon-192.png",
   "./assets/img/icon-512.png",
   "./assets/img/apple-touch-icon.png",

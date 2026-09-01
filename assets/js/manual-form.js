@@ -38,7 +38,7 @@ import { renderContext, renderCountTable } from "./tables.js";
 import { probeSupabase, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
 import { replacePendingDelta } from "./pending-changes.js";
 import { confirmAction } from "./confirm-modal.js";
-import { registerInventoryChange, clearVoiceActionState } from "./voice-actions.js";
+import { registerInventoryChange, clearVoiceActionState } from "./launch-core.js";
 
 function setEditMessage(type, text) {
   if (!elements.editMsg) return;
