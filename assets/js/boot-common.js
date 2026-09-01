@@ -13,12 +13,10 @@ import {
   enforceSessionLimit,
   lockRestrictedAccess,
   setSidebarOpen,
-  showNotificationInvite,
 } from "./auth-ui.js";
 import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
 
 const SESSION_CHECK_MS = 60 * 1000;
-const NOTIFICATION_INVITE_MS = 2000;
 
 /**
  * Roda depois dos renders e dos eventos proprios da pagina.
@@ -34,10 +32,6 @@ export function finishBoot() {
   loadPublicRecords();
   loadUserLabels();
   setInterval(enforceSessionLimit, SESSION_CHECK_MS);
-
-  window.addEventListener("load", () => {
-    setTimeout(showNotificationInvite, NOTIFICATION_INVITE_MS);
-  });
 
   // Catalogo global vem do Supabase, mas nao pode bloquear o boot: a UI ja subiu
   // com o cache local e so re-renderiza se a rede trouxer algo diferente.

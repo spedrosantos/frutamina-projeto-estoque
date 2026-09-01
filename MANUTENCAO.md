@@ -173,7 +173,7 @@ Essas funções permitem continuar a nova contagem sem internet.
   atributos aceitos no topo do arquivo. Também antes de `state.js`.
 - `boot-common.js`: `finishBoot`, o fim de boot igual nas quatro páginas.
 - `auth-ui.js`: `setupAuth`, `handleAuthState`, `setupShellEvents`, `setupTheme`,
-  `initSetorSelects`, notificações push. Roda em todas as páginas.
+  `initSetorSelects`. Roda em todas as páginas.
 - `main-view.js` / `main-edit.js` / `main-dashboard.js` / `main-products.js`:
   um entry point por página — cada um só importa e inicializa os módulos que
   aquela página usa.
