@@ -181,6 +181,8 @@ Offline, nos dois modos o que foi lançado fica no aparelho até haver internet.
 - Preferência de tema: `cd_theme_preference_v1`.
 - Sessão: `cd_login_at`, limite de 1 hora.
 - Leituras de boot usam timeout curto (`SUPABASE_READ_TIMEOUT_MS`, 12s): passado isso, o cache local é servido em vez de deixar a tela esperando.
+- Service worker: tudo (inclusive HTML/CSS/JS do app) é servido do cache e revalidado em segundo plano — a tela pinta sem esperar a rede. Em troca, **subir a versão do cache a cada deploy deixou de ser opcional**: sem isso a mudança só aparece no carregamento seguinte.
+- Ícones não vêm mais de CDN: `assets/fonts/bootstrap-icons-subset.woff2` (4KB) tem só os 38 ícones usados, e as classes `.bi-*` ficam no fim do `styles.css`.
 
 ## Exportação e Compartilhamento
 
@@ -223,9 +225,9 @@ Toda cor, raio, sombra e padding sai dos tokens `--app-*` do `:root` em `styles.
 
 ### Atualizar versão de cache PWA
 
-Ao publicar mudanças de assets:
+Ao publicar **qualquer** mudança de código ou asset:
 
-- incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js`;
+- incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` — obrigatório, o fetch é stale-while-revalidate e sem a troca de versão o aparelho continua servindo o que já tem;
 - confira se todo arquivo novo está listado em `APP_SHELL`.
 
 ## Troubleshooting

@@ -5,8 +5,9 @@
 // tag) e este script; o resto sai daqui.
 //
 // Script classico e sincrono de proposito: roda durante o parse do <head>, antes
-// da primeira pintura, para o theme-color valer ja na abertura. As folhas de
-// fonte/icone continuam preguicosas (media="print" trocado no onload).
+// da primeira pintura, para o theme-color valer ja na abertura. A folha de fonte
+// do Google continua preguicosa (media="print" trocado no onload); os icones
+// deixaram de vir de CDN - o subset local mora no fim do styles.css.
 document.head.insertAdjacentHTML(
   "beforeend",
   `
@@ -28,9 +29,10 @@ document.head.insertAdjacentHTML(
       onload="this.media='all'"
     />
     <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
-      media="print"
-      onload="this.media='all'"
+      rel="preload"
+      href="./assets/fonts/bootstrap-icons-subset.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
     />`,
 );

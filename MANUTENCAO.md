@@ -242,7 +242,30 @@ Quando precisar alterar alguma regra de negócio, siga esta ordem:
 5. se houver persistência nova, revise as funções do Supabase (`supabase-api.js`,
    `catalog-overrides.js`).
 
-Depois de qualquer mudança em `assets/js/*.js` ou `styles.css`, incremente os
-query params `?v=...` nos `<link>`/`<script>` das 4 páginas HTML (cache-busting
-do GitHub Pages) e, se algum arquivo do `APP_SHELL` mudou, também as versões de
-cache em `service-worker.js`.
+Depois de qualquer mudança em `assets/js/*.js`, `styles.css` ou nos HTML,
+incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js`. Não existe
+mais `?v=...` nos `<link>`/`<script>`: a versão do app vive só nessas duas
+constantes. Como o fetch é stale-while-revalidate, esquecer de subir a versão
+significa que o aparelho continua pintando o código antigo até o carregamento
+seguinte.
+
+### Ícones
+
+`assets/fonts/bootstrap-icons-subset.woff2` (4KB) é um subset do bootstrap-icons
+1.11.3 com **apenas os ícones que o projeto usa**; o `@font-face` e as classes
+`.bi-*` ficam no fim do `styles.css`. Uma classe `.bi-` que não esteja lá não
+desenha nada.
+
+Para usar um ícone novo:
+
+1. acrescente a classe no HTML/JS normalmente;
+2. levante a lista completa em uso:
+   `grep -rho "bi-[a-z0-9-]*" *.html assets/js/*.js | sort -u`;
+3. pegue o codepoint de cada nome no CSS oficial
+   (`https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css`,
+   linhas `.bi-nome::before { content: "5aa" }`);
+4. gere o subset a partir do woff2 oficial
+   (`.../font/fonts/bootstrap-icons.woff2`) com
+   `fonttools subset ... --unicodes=U+f5aa,... --flavor=woff2`;
+5. acrescente a regra `.bi-nome::before { content: "5aa"; }` no fim do
+   `styles.css` e suba a versão do cache.

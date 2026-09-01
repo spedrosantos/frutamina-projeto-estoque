@@ -4092,3 +4092,69 @@ button.is-loading i {
     transform: rotate(360deg);
   }
 }
+
+/* Icones: subset local do bootstrap-icons 1.11.3.
+   O CDN entregava ~2000 glifos (130KB de woff2 + 98KB de CSS) e uma conexao
+   externa no caminho critico para os 38 icones que o app usa. Este arquivo tem
+   so esses 38. Para adicionar um icone novo, gere o subset de novo (as
+   instrucoes estao em MANUTENCAO.md) - usar uma classe .bi- que nao esteja
+   aqui nao desenha nada. */
+@font-face {
+  font-family: "bootstrap-icons";
+  font-display: block;
+  src: url("assets/fonts/bootstrap-icons-subset.woff2") format("woff2");
+}
+
+.bi::before,
+[class^="bi-"]::before,
+[class*=" bi-"]::before {
+  display: inline-block;
+  font-family: "bootstrap-icons" !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -0.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bi-arrow-clockwise::before { content: "\f116"; }
+.bi-bar-chart-line::before { content: "\f17c"; }
+.bi-box-arrow-in-right::before { content: "\f1be"; }
+.bi-box-arrow-right::before { content: "\f1c3"; }
+.bi-box-seam::before { content: "\f1c7"; }
+.bi-boxes::before { content: "\f685"; }
+.bi-check-circle::before { content: "\f26b"; }
+.bi-chevron-down::before { content: "\f282"; }
+.bi-clock-history::before { content: "\f292"; }
+.bi-diagram-3::before { content: "\f2ee"; }
+.bi-exclamation-triangle::before { content: "\f33b"; }
+.bi-floppy-fill::before { content: "\f7c5"; }
+.bi-funnel::before { content: "\f3e1"; }
+.bi-graph-up::before { content: "\f3f2"; }
+.bi-grid-1x2::before { content: "\f3f4"; }
+.bi-key::before { content: "\f44f"; }
+.bi-list::before { content: "\f479"; }
+.bi-list-check::before { content: "\f473"; }
+.bi-list-ul::before { content: "\f478"; }
+.bi-mic::before { content: "\f490"; }
+.bi-mic-fill::before { content: "\f48d"; }
+.bi-moon-stars::before { content: "\f496"; }
+.bi-pencil::before { content: "\f4cb"; }
+.bi-pencil-square::before { content: "\f4ca"; }
+.bi-person::before { content: "\f4e1"; }
+.bi-pie-chart::before { content: "\f4e9"; }
+.bi-plus-lg::before { content: "\f64d"; }
+.bi-printer::before { content: "\f501"; }
+.bi-question-circle::before { content: "\f505"; }
+.bi-search::before { content: "\f52a"; }
+.bi-shield-lock::before { content: "\f538"; }
+.bi-stack::before { content: "\f585"; }
+.bi-sun::before { content: "\f5a2"; }
+.bi-table::before { content: "\f5aa"; }
+.bi-trash3::before { content: "\f78b"; }
+.bi-trophy::before { content: "\f5e7"; }
+.bi-whatsapp::before { content: "\f618"; }
+.bi-x-lg::before { content: "\f659"; }
