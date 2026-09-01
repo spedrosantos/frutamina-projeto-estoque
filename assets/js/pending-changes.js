@@ -64,8 +64,15 @@ export function hasPendingChanges() {
 export function renderPendingChanges({ persist = true } = {}) {
   if (persist) persistPendingChanges();
   if (elements.countSaveBtn) {
-    elements.countSaveBtn.disabled =
-      state.countMode === "new" ? false : !getPendingChanges().length;
+    const count = getPendingChanges().length;
+    elements.countSaveBtn.disabled = state.countMode === "new" ? false : !count;
+    // Botao so de icone e desabilitado nao mostrava quantos lancamentos esperam
+    // gravacao: o numero vira um badge (CSS le o data-pending).
+    if (count && state.countMode !== "new") {
+      elements.countSaveBtn.dataset.pending = count > 99 ? "99+" : String(count);
+    } else {
+      delete elements.countSaveBtn.dataset.pending;
+    }
   }
   renderCountTable();
 }

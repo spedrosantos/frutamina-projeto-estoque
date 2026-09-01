@@ -37,7 +37,7 @@
             <i class="bi bi-pencil-square"></i><span>Contagem</span>
           </button>
           <button class="edit-tab" type="button" role="tab" data-tab="conferencia" aria-selected="false" aria-controls="panel-conferencia">
-            <i class="bi bi-list-check"></i><span>Conferência</span>
+            <i class="bi bi-list-check"></i><span>Revisar e salvar</span>
           </button>
         </nav>
 
@@ -46,10 +46,10 @@
           <section id="count-mode-bar" class="count-mode-bar">
             <div class="count-mode-row">
               <div class="count-mode-field">
-                <span class="count-mode-caption">Editando</span>
+                <span class="count-mode-caption">Modo</span>
                 <select id="count-mode-select" aria-label="Modo de contagem">
-                  <option value="current">Estoque atual</option>
-                  <option value="new">Nova contagem</option>
+                  <option value="current">Ajustar estoque atual</option>
+                  <option value="new">Nova contagem (recontar tudo)</option>
                 </select>
               </div>
             </div>
@@ -164,7 +164,7 @@
           <section id="count-items-card" class="card full">
             <div class="card-header">
               <h2><i class="bi bi-list-check"></i>Itens Contados</h2>
-              <p>Todos os setores.</p>
+              <p id="count-items-hint">Já gravado · todos os setores</p>
             </div>
             <div class="count-toolbar">
               <div class="count-toolbar-meta">
@@ -174,8 +174,8 @@
               <div class="count-toolbar-actions">
                 <!-- Alterna entre a contagem em andamento e o estoque gravado. -->
                 <select id="count-source-select" aria-label="O que a tabela mostra">
-                  <option value="contagem">Contagem</option>
-                  <option value="estoque">Estoque atual</option>
+                  <option value="contagem">Meus lançamentos</option>
+                  <option value="estoque">Já no sistema</option>
                 </select>
                 <div id="count-view-toggle" class="view-toggle" role="group" aria-label="Modo de tabela">
                 <!-- Resumo primeiro, igual ao toggle do index: o CSS da pilula

@@ -502,6 +502,30 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   margin-top: 16px;
 }
 
+/* Contador de lancamentos esperando gravacao, no proprio botao Salvar. */
+.icon-btn[data-pending] {
+  position: relative;
+}
+
+.icon-btn[data-pending]::after {
+  content: attr(data-pending);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--app-red);
+  border: 2px solid var(--app-surface);
+  box-sizing: content-box;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+
 .icon-btn {
   width: 40px;
   height: 40px;
@@ -2571,7 +2595,7 @@ body[data-page="edit"] .count-mode-field {
 }
 
 body[data-page="edit"] .count-mode-field .select-menu {
-  width: 220px;
+  width: 260px;
 }
 
 body[data-page="edit"] #new-count-actions {

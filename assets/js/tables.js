@@ -207,11 +207,17 @@ export function renderCountSyncStatus() {
     state.previousPublicRows.length
   );
   const lastSaved = formatDateTime(state.countDraftSavedAt);
+  const pendingCount = state.countMode === "new" ? 0 : getPendingChanges().length;
 
   let title = "";
   let text = "";
 
-  if (hasDraft) {
+  // A fila pendente vem primeiro: e o aviso mais urgente da tela, e o rascunho
+  // da nova contagem pode continuar guardado mesmo no modo "Ajustar estoque".
+  if (pendingCount) {
+    title = `${pendingCount} lançamento(s) não salvos`;
+    text = online ? "Guardados neste aparelho." : "Guardados neste aparelho. Sem internet.";
+  } else if (hasDraft) {
     if (online) {
       title =
         state.countMode === "new"
@@ -723,6 +729,11 @@ function applyCountSourceUI() {
   const editingStock = state.countSource === "estoque";
   elements.countSaveBtn?.classList.toggle("hidden", editingStock);
   elements.countClearBtn?.classList.toggle("hidden", editingStock);
+  if (elements.countItemsHint) {
+    elements.countItemsHint.textContent = editingStock
+      ? "Já gravado · todos os setores"
+      : "Não gravado · todos os setores";
+  }
 }
 
 // "Contagem" so faz sentido quando existe contagem: sem nada lancado a opcao

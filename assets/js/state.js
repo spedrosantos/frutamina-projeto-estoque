@@ -191,6 +191,7 @@ export const elements = {
   countWhatsAppBtn: document.getElementById("count-whatsapp-btn"),
   countClearBtn: document.getElementById("count-clear-btn"),
   countSourceSelect: document.getElementById("count-source-select"),
+  countItemsHint: document.getElementById("count-items-hint"),
   ovTotalCaixas: document.getElementById("ov-total-caixas"),
   ovTotalCaixasMeta: document.getElementById("ov-total-caixas-meta"),
   ovTotalPallets: document.getElementById("ov-total-pallets"),
