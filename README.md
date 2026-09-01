@@ -99,6 +99,7 @@ Aplicar na ordem abaixo (num ambiente novo, todos; num ambiente antigo, só os q
 | `supabase-usuarios-label.sql` | cria `usuarios_label`, para o nome do operador aparecer em todos os aparelhos e não só em quem já logou naquele |
 | `supabase-historico-diario.sql` | cria `estoque_historico_diario` e o job `pg_cron` que captura o estoque 1x/dia |
 | `supabase-historico-diario-total.sql` | cria a view `estoque_historico_diario_total`, usada quando a aba Tendência não filtra produto/marca |
+| `supabase-lancamentos-rpc.sql` | cria a função `aplicar_lancamentos`, que grava a fila do modo "Estoque Atual" numa única requisição e numa transação; normaliza os tipos legados do ORANGE (`601`/`602` → `14`/`15`) |
 
 Não há script para `catalog_overrides` — a tabela foi criada manualmente no Supabase. Estrutura em `assets/js/catalog-overrides.js`.
 
@@ -161,7 +162,8 @@ Observações:
 
 - **Estoque Atual**
   - cada lançamento entra numa fila de *deltas* no aparelho (`pending-changes.js`), visível na aba `Conferência`;
-  - ao salvar, cada delta é somado ao que já existe no Supabase, um por um — se a rede cair no meio, o que já foi gravado não é regravado;
+  - ao salvar, a fila inteira vai numa única chamada (`aplicar_lancamentos`, ver `supabase-lancamentos-rpc.sql`) e é aplicada numa transação: ou grava tudo, ou nada — no erro a fila continua intacta no aparelho;
+  - se o banco ainda não tiver a função, o app volta sozinho ao caminho antigo (um `SELECT` + `UPDATE` por item, em série) e não avisa nada — só fica mais lento;
   - a fila sobrevive ao logout e ao fechamento do app.
 
 - **Nova Contagem**
@@ -232,6 +234,7 @@ Ao publicar mudanças de assets:
 - **Erro mencionando `outflow_caixas`** — aplique `supabase-dashboard-migracao.sql`.
 - **Estoque duplicando depois de uma nova contagem** — aplique `supabase-estoque-delete-policy.sql`.
 - **Histórico mostrando "usuário &lt;id curto&gt;"** — aplique `supabase-usuarios-label.sql`.
+- **Salvar a contagem está lento (dezenas de segundos)** — o banco não tem `aplicar_lancamentos`; aplique `supabase-lancamentos-rpc.sql`. O app funciona sem ela, mas gasta 2 a 3 requisições por item.
 - **Aba Tendência vazia** — aplique os dois scripts de histórico diário e confirme se o job `pg_cron` está ativo (o gráfico só tem dados a partir do primeiro dia capturado).
 - **Sem internet** — a consulta pública usa o último cache; a fila e o rascunho ficam no aparelho até sincronizar.
 - **Microfone não funciona** — use Chrome/Edge, confirme a permissão e valide HTTPS em produção.

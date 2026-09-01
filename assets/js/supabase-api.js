@@ -372,6 +372,77 @@ export async function upsertRecord({
   return true;
 }
 
+function isMissingRpcError(error) {
+  const message = error?.message || "";
+  return (
+    error?.code === "PGRST202" ||
+    /aplicar_lancamentos/i.test(message) ||
+    /could not find the function|does not exist/i.test(message)
+  );
+}
+
+// Caminho antigo: um SELECT + um UPDATE/INSERT por item, em serie.
+async function applyLaunchBatchLegacy(ops) {
+  for (const op of ops) {
+    const saved = await upsertRecord({
+      setor: op.setor,
+      produto: op.produto,
+      marca: op.marca,
+      tipo: op.tipo,
+      caixas_pallet: op.caixas_pallet,
+      palletsDelta: op.palletsDelta,
+      caixasAvulsasDelta: op.caixasAvulsasDelta,
+    });
+    if (!saved) {
+      await loadUserRecords({ showError: false });
+      return { rows: null, error: new Error("Falha ao gravar um dos itens.") };
+    }
+    // Sem transacao aqui: o item gravado sai da fila na hora, senao uma segunda
+    // tentativa depois de queda de rede somaria ele duas vezes.
+    state.pendingChanges = (state.pendingChanges || []).filter(
+      (item) => item !== op
+    );
+  }
+  const { data, error } = await loadUserRecords({ showError: false });
+  return { rows: data || [], error };
+}
+
+// Grava uma fila inteira de lancamentos numa unica chamada.
+//
+// A funcao aplicar_lancamentos (supabase-lancamentos-rpc.sql) soma os deltas no
+// proprio Postgres, numa transacao: 40 itens custam 1 requisicao em vez das ~100
+// que o laco de upsertRecord fazia, e nenhum item pode ficar gravado pela metade.
+// O retorno ja e o estoque do operador depois da gravacao, entao nao ha recarga.
+export async function applyLaunchBatch(ops) {
+  if (!state.user) return { rows: null, error: new Error("Sem sessao.") };
+  if (!Array.isArray(ops) || !ops.length) return { rows: [], error: null };
+
+  const payload = ops.map((op) => ({
+    setor: op.setor,
+    produto: op.produto,
+    marca: op.marca,
+    tipo: op.tipo,
+    caixas_pallet: op.caixas_pallet,
+    pallets_delta: toInt(op.palletsDelta, 0),
+    caixas_avulsas_delta: toInt(op.caixasAvulsasDelta, 0),
+  }));
+
+  const { data, error } = await runWrite(
+    supabaseClient.rpc("aplicar_lancamentos", { ops: payload }),
+    "Tempo limite ao salvar a contagem."
+  );
+  // Banco ainda sem a migracao: grava pelo caminho antigo em vez de deixar o
+  // operador sem conseguir salvar. Some quando o SQL estiver aplicado em todos
+  // os ambientes.
+  if (error && isMissingRpcError(error)) return applyLaunchBatchLegacy(ops);
+  if (error) return { rows: null, error };
+
+  const rows = (data || []).map((row) => hydrateInventoryRow(row));
+  state.userRows = rows;
+  updateLastUpdateFromRows(rows, "count");
+  return { rows, error: null };
+}
+
 export async function probeSupabase() {
   try {
     const response = await fetchWithTimeout(

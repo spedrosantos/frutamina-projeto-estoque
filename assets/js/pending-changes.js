@@ -7,7 +7,7 @@
 // a visao "Estoque atual" mostra o que ja esta gravado no banco.
 import { state, elements } from "./state.js";
 import { pushMessage } from "./utils.js";
-import { upsertRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
+import { applyLaunchBatch, loadPublicRecords } from "./supabase-api.js";
 import { PENDING_CHANGES_KEY_PREFIX } from "./config.js";
 import { renderCountTable } from "./tables.js";
 import { buildInventoryIdentityKey } from "./inventory-core.js";
@@ -98,25 +98,16 @@ export async function applyPendingRow(identityKey) {
     (op) => buildInventoryIdentityKey(op) === identityKey
   );
   if (!ops.length) return true;
-  for (const op of ops) {
-    const saved = await upsertRecord({
-      setor: op.setor,
-      produto: op.produto,
-      marca: op.marca,
-      tipo: op.tipo,
-      caixas_pallet: op.caixas_pallet,
-      palletsDelta: op.palletsDelta,
-      caixasAvulsasDelta: op.caixasAvulsasDelta,
-    });
-    if (!saved) {
-      renderPendingChanges();
-      await loadUserRecords();
-      return false;
-    }
-    state.pendingChanges = getPendingChanges().filter((item) => item !== op);
+
+  const { error } = await applyLaunchBatch(ops);
+  if (error) {
+    pushMessage("error", `Erro ao salvar o item: ${error.message}`);
     renderPendingChanges();
+    return false;
   }
-  await loadUserRecords();
+
+  state.pendingChanges = getPendingChanges().filter((op) => !ops.includes(op));
+  renderPendingChanges();
   await loadPublicRecords();
   pushMessage("success", "Item salvo no estoque.");
   return true;
@@ -156,30 +147,20 @@ export async function applyPendingChanges() {
     return false;
   }
 
-  // Grava e tira da fila um por um: se a rede cair no meio, o que ja foi
-  // gravado nao volta a ser gravado numa segunda tentativa.
-  while (ops.length) {
-    const op = ops[0];
-    const saved = await upsertRecord({
-      setor: op.setor,
-      produto: op.produto,
-      marca: op.marca,
-      tipo: op.tipo,
-      caixas_pallet: op.caixas_pallet,
-      palletsDelta: op.palletsDelta,
-      caixasAvulsasDelta: op.caixasAvulsasDelta,
-    });
-    if (!saved) {
-      renderPendingChanges();
-      await loadUserRecords();
-      return false;
-    }
-    ops.shift();
+  // A fila inteira vai numa chamada so (aplicar_lancamentos, no Postgres). E uma
+  // transacao: ou entra tudo, ou nada entra. Por isso, no erro, a fila continua
+  // intacta no aparelho - nao existe mais "metade gravada" para reconciliar.
+  const { error } = await applyLaunchBatch(ops);
+  if (error) {
+    pushMessage(
+      "error",
+      `Erro ao salvar a contagem: ${error.message}. O que não entrou continua neste aparelho.`
+    );
     renderPendingChanges();
+    return false;
   }
 
   clearPendingChanges();
-  await loadUserRecords();
   await loadPublicRecords();
   pushMessage("success", "Contagem salva no estoque.");
   return true;
