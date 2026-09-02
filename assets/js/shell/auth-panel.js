@@ -37,7 +37,7 @@ function buildPanelMarkup({ title, subtitle }) {
         <i class="bi bi-box-arrow-in-right"></i><span>Entrar</span>
       </button>
     </div>
-    <div id="auth-msg" class="msg-area"></div>`;
+    <div id="auth-msg" class="msg-area" role="status" aria-live="polite"></div>`;
 }
 
 function mountAuthPanel() {

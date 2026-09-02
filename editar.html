@@ -109,7 +109,9 @@
                   <i class="bi bi-mic-fill" aria-hidden="true"></i>
                   <span id="voice-btn-label">Iniciar escuta</span>
                 </button>
-                <div id="voice-status" class="voice-status">Microfone pronto.</div>
+                <div id="voice-status" class="voice-status" role="status" aria-live="polite">
+                  Microfone pronto.
+                </div>
 
                 <textarea
                   id="voice-last"
@@ -118,7 +120,7 @@
                   placeholder="O que a maquina esta ouvindo..."
                 ></textarea>
 
-                <div id="messages" class="msg-area"></div>
+                <div id="messages" class="msg-area" role="status" aria-live="polite"></div>
               </section>
             </div>
             <div class="count-right-column">
@@ -338,7 +340,7 @@
         </div>
         <button id="debug-hide" class="ghost">Fechar</button>
       </div>
-      <div id="edit-msg" class="msg-area"></div>
+      <div id="edit-msg" class="msg-area" role="status" aria-live="polite"></div>
     </div>
 
     <script type="module" src="assets/js/pages/main-edit.js"></script>

@@ -254,8 +254,13 @@ pallet, agregação por item, payload do banco) e
 `assets/js/features/comparison.js` (saída entre contagens).
 
 ```bash
-node --test tests/inventory-core.test.js tests/comparison.test.js tests/voice-parser.test.js
+node --test tests/*.test.js
 ```
+
+São 53 casos: matemática do estoque (`inventory-core`, `comparison`), parser de
+voz (`voice-parser`) e as funções de linguagem e de tipo que os dois usam
+(`utils`) — normalização da fala (`BRASIL` → `BRAZIL`), tipos 6A/6B do ORANGE,
+`PIMENTÃO` sem tipo, login por matrícula.
 
 O parser de voz tem teste porque virou módulo próprio: `voice-parser.js` recebe
 a frase reconhecida e devolve números, tipos e intenção, sem tocar em tela nem
@@ -268,6 +273,11 @@ tratar os arquivos como módulo ES; não há build, e a raiz continua sem
 
 Nada de DOM nos testes: `tests/dom-stub.js` planta o mínimo (`document`,
 `window.supabase`, `localStorage`) para `state.js` carregar fora do navegador.
+
+## CI
+
+`.github/workflows/ci.yml` roda os testes e `prettier --check` em cada push e
+pull request. É tudo que dá para verificar sem navegador — não há build.
 
 ## Formatação
 
