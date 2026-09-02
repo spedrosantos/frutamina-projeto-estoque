@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Editar Estoque</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="assets/js/head.js"></script>
+    <script src="assets/js/shell/head.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="edit">
@@ -12,7 +12,7 @@
       <header class="page-head" data-page-head></header>
 
       <!-- Login do operador antes de liberar a area de contagem.
-           O conteudo vem de assets/js/auth-panel.js (mesma tela em toda pagina). -->
+           O conteudo vem de assets/js/shell/auth-panel.js (mesma tela em toda pagina). -->
       <section
         id="auth-panel"
         class="card auth-card"
@@ -320,6 +320,6 @@
       <div id="edit-msg" class="msg-area"></div>
     </div>
 
-    <script type="module" src="assets/js/main-edit.js"></script>
+    <script type="module" src="assets/js/pages/main-edit.js"></script>
   </body>
 </html>

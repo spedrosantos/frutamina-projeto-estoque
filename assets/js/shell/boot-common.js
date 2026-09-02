@@ -4,8 +4,8 @@
 // bloqueio de acesso, sessao, catalogo global). Repetir isso ja tinha custado
 // paginas com um passo a menos que as outras; agora o bloco vive aqui e cada
 // entry point cuida so do que e proprio dela.
-import { isRestrictedPageMode } from "./state.js";
-import { refreshCatalogOverrides } from "./catalog-overrides.js";
+import { isRestrictedPageMode } from "../core/state.js";
+import { refreshCatalogOverrides } from "../data/catalog-overrides.js";
 import {
   setupTheme,
   setupShellEvents,
@@ -14,7 +14,7 @@ import {
   lockRestrictedAccess,
   setSidebarOpen,
 } from "./auth-ui.js";
-import { loadPublicRecords, loadUserLabels } from "./supabase-api.js";
+import { loadPublicRecords, loadUserLabels } from "../data/supabase-api.js";
 
 const SESSION_CHECK_MS = 60 * 1000;
 
@@ -37,7 +37,7 @@ export function finishBoot() {
   // com o cache local e so re-renderiza se a rede trouxer algo diferente.
   refreshCatalogOverrides().then((changed) => {
     if (changed) {
-      import("./catalog-crud.js").then((m) => m.refreshCatalogDependentUI());
+      import("../features/catalog-crud.js").then((m) => m.refreshCatalogDependentUI());
     }
   });
 }

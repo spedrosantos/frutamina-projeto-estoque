@@ -1,18 +1,18 @@
 // Autenticacao e shell da interface (menu, sidebar, tema).
 // Import dinamico para modulos especificos de pagina (dashboard, count-mode, catalog-crud):
 // este modulo roda em TODAS as paginas, mas essas features nao existem em todas.
-import { state, elements, supabaseClient, PAGE_MODE, isRestrictedPageMode } from "./state.js";
+import { state, elements, supabaseClient, PAGE_MODE, isRestrictedPageMode } from "../core/state.js";
 import {
   CONFIG_GERAL,
   SESSION_MAX_MS,
   THEME_PREFERENCE_KEY,
   SUPABASE_TIMEOUT_MS,
-} from "./config.js";
-import { pushMessage, toAuthEmail, displayUserFromEmail } from "./utils.js";
-import { renderContext, renderCountTable, renderCountSyncStatus, storeUserLabel } from "./tables.js";
-import { restoreCountDraftForCurrentUser } from "./draft.js";
-import { restorePendingChanges, forgetPendingChangesInMemory } from "./pending-changes.js";
-import { loadUserRecords } from "./supabase-api.js";
+} from "../core/config.js";
+import { pushMessage, toAuthEmail, displayUserFromEmail } from "../core/utils.js";
+import { renderContext, renderCountTable, renderCountSyncStatus, storeUserLabel } from "../features/tables.js";
+import { restoreCountDraftForCurrentUser } from "../data/draft.js";
+import { restorePendingChanges, forgetPendingChangesInMemory } from "../data/pending-changes.js";
+import { loadUserRecords } from "../data/supabase-api.js";
 
 function setAuthMessage(type, text) {
   if (!elements.authMsg) return;
@@ -183,7 +183,7 @@ function toggleTheme() {
   const nextTheme = state.theme === "dark" ? "light" : "dark";
   applyTheme(nextTheme);
   if (PAGE_MODE === "dashboard") {
-    import("./dashboard.js").then((m) => m.renderDashboard(true));
+    import("../features/dashboard.js").then((m) => m.renderDashboard(true));
   }
 }
 
@@ -266,7 +266,7 @@ async function handleAuthState(event, session) {
       if (elements.countPanel) elements.countPanel.classList.remove("hidden");
       renderContext();
       renderCountTable();
-      const { updateCountModeUI } = await import("./count-mode.js");
+      const { updateCountModeUI } = await import("../features/count-mode.js");
       updateCountModeUI();
       await loadUserRecords();
       await restoreCountDraftForCurrentUser();
@@ -275,7 +275,7 @@ async function handleAuthState(event, session) {
     } else if (PAGE_MODE === "products") {
       hideAuthPanel();
       showProductsPanel({ scroll: false });
-      const { renderCatalogTable } = await import("./catalog-crud.js");
+      const { renderCatalogTable } = await import("../features/catalog-crud.js");
       renderCatalogTable();
     } else {
       hideAuthPanel();

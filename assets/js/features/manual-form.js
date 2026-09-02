@@ -1,5 +1,5 @@
 // Formulario manual de lancamento e modal de edicao/remocao de item — so editar.html.
-import { state, elements, supabaseClient } from "./state.js";
+import { state, elements, supabaseClient } from "../core/state.js";
 import {
   CONFIG_GERAL,
   NO_TIPO_VALUE,
@@ -8,7 +8,7 @@ import {
   SUPABASE_URL,
   SUPABASE_ANON_KEY,
   TABLE_NAME,
-} from "./config.js";
+} from "../core/config.js";
 import {
   toNonNegativeInt,
   isNoTipoContext,
@@ -28,16 +28,16 @@ import {
   setSelectOptionsWithPlaceholder,
   setNumberOptions,
   getRowKey,
-} from "./utils.js";
+} from "../core/utils.js";
 import {
   normalizeInventoryMetrics,
   buildInventoryIdentityKey,
-} from "./inventory-core.js";
-import { requireAuthenticatedUser } from "./auth-ui.js";
+} from "../core/inventory-core.js";
+import { requireAuthenticatedUser } from "../shell/auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
-import { probeSupabase, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
-import { replacePendingDelta } from "./pending-changes.js";
-import { confirmAction } from "./confirm-modal.js";
+import { probeSupabase, loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
+import { replacePendingDelta } from "../data/pending-changes.js";
+import { confirmAction } from "../shell/confirm-modal.js";
 import { registerInventoryChange, clearVoiceActionState } from "./launch-core.js";
 
 function setEditMessage(type, text) {

@@ -1,8 +1,8 @@
 // Rascunho offline da nova contagem: protege os lancamentos no localStorage do aparelho.
-import { state } from "./state.js";
-import { COUNT_DRAFT_KEY_PREFIX } from "./config.js";
-import { pushMessage, normalizeSetorValue } from "./utils.js";
-import { aggregateRows, hydrateInventoryRow, cloneInventoryRows, getCurrentPublicAggregateRows } from "./inventory-core.js";
+import { state } from "../core/state.js";
+import { COUNT_DRAFT_KEY_PREFIX } from "../core/config.js";
+import { pushMessage, normalizeSetorValue } from "../core/utils.js";
+import { aggregateRows, hydrateInventoryRow, cloneInventoryRows, getCurrentPublicAggregateRows } from "../core/inventory-core.js";
 
 let countDraftPersistTimer = null;
 
@@ -43,7 +43,7 @@ export function saveCountDraftLocally() {
     localStorage.removeItem(storageKey);
     state.countDraftSavedAt = null;
     state.countDraftHash = "";
-    import("./tables.js").then((m) => m.renderCountSyncStatus());
+    import("../features/tables.js").then((m) => m.renderCountSyncStatus());
     return false;
   }
 
@@ -63,7 +63,7 @@ export function saveCountDraftLocally() {
   const payloadHash = JSON.stringify(payload);
 
   if (payloadHash === state.countDraftHash) {
-    import("./tables.js").then((m) => m.renderCountSyncStatus());
+    import("../features/tables.js").then((m) => m.renderCountSyncStatus());
     return true;
   }
 
@@ -73,7 +73,7 @@ export function saveCountDraftLocally() {
     localStorage.setItem(storageKey, JSON.stringify(payload));
     state.countDraftSavedAt = payload.saved_at;
     state.countDraftHash = payloadHash;
-    import("./tables.js").then((m) => m.renderCountSyncStatus());
+    import("../features/tables.js").then((m) => m.renderCountSyncStatus());
     return true;
   } catch (error) {
     console.warn("Nao foi possivel salvar rascunho local da contagem.", error);
@@ -81,13 +81,13 @@ export function saveCountDraftLocally() {
       "warn",
       "Nao foi possivel salvar o rascunho offline neste aparelho."
     );
-    import("./tables.js").then((m) => m.renderCountSyncStatus());
+    import("../features/tables.js").then((m) => m.renderCountSyncStatus());
     return false;
   }
 }
 
 export function scheduleCountDraftPersist() {
-  import("./tables.js").then((m) => m.renderCountSyncStatus());
+  import("../features/tables.js").then((m) => m.renderCountSyncStatus());
   if (!state.user || state.countMode !== "new") return;
   clearTimeout(countDraftPersistTimer);
   countDraftPersistTimer = setTimeout(() => {
@@ -106,7 +106,7 @@ export function clearCountDraft(options = {}) {
     state.countDraftSavedAt = null;
   }
   state.countDraftHash = "";
-  import("./tables.js").then((m) => m.renderCountSyncStatus());
+  import("../features/tables.js").then((m) => m.renderCountSyncStatus());
 }
 
 export async function restoreCountDraftForCurrentUser() {
@@ -115,8 +115,8 @@ export async function restoreCountDraftForCurrentUser() {
   const storageKey = getCountDraftStorageKey();
   if (!storageKey) return false;
 
-  const { renderContext, renderCountTable, renderCountSyncStatus } = await import("./tables.js");
-  const { updateCountModeUI } = await import("./count-mode.js");
+  const { renderContext, renderCountTable, renderCountSyncStatus } = await import("../features/tables.js");
+  const { updateCountModeUI } = await import("../features/count-mode.js");
 
   const raw = localStorage.getItem(storageKey);
   if (!raw) {

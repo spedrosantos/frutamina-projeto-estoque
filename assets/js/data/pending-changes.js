@@ -5,12 +5,12 @@
 // operacoes sao *deltas* somados ao estoque que ja existe, e nao uma contagem que
 // substitui tudo. A visao "Contagem" da Conferencia mostra exatamente esta fila;
 // a visao "Estoque atual" mostra o que ja esta gravado no banco.
-import { state, elements } from "./state.js";
-import { pushMessage } from "./utils.js";
+import { state, elements } from "../core/state.js";
+import { pushMessage } from "../core/utils.js";
 import { applyLaunchBatch, loadPublicRecords } from "./supabase-api.js";
-import { PENDING_CHANGES_KEY_PREFIX } from "./config.js";
-import { renderCountTable } from "./tables.js";
-import { buildInventoryIdentityKey } from "./inventory-core.js";
+import { PENDING_CHANGES_KEY_PREFIX } from "../core/config.js";
+import { renderCountTable } from "../features/tables.js";
+import { buildInventoryIdentityKey } from "../core/inventory-core.js";
 
 // A fila fica no aparelho: fechar o app (ou ficar sem bateria) no meio de uma
 // contagem nao pode custar os lancamentos que ainda nao foram gravados.

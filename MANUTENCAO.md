@@ -21,9 +21,19 @@ Este projeto foi documentado em duas camadas:
 
 - `assets/js/`
   Todo o código do sistema, dividido em módulos ES nativos (`import`/`export`, sem bundler).
-  Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`,
-  `main-dashboard.js`, `main-products.js`), que só importa os módulos que aquela
-  página realmente usa. Ver "Mapa de módulos" abaixo.
+  Cada página carrega um entry point próprio (`pages/main-view.js`,
+  `pages/main-edit.js`, `pages/main-dashboard.js`, `pages/main-products.js`), que
+  só importa os módulos que aquela página realmente usa. Os módulos ficam em
+  cinco pastas por papel — o "Mapa de módulos" abaixo cita os arquivos pelo nome,
+  sem a pasta:
+
+  | Pasta | O que vive lá |
+  | --- | --- |
+  | `core/` | `state`, `config`, `utils`, `inventory-core` |
+  | `shell/` | `head`, sidebar/topbar, modais, login, tema, `boot-common`, `register-sw` |
+  | `data/` | `supabase-api`, `draft`, `pending-changes`, `catalog-overrides` |
+  | `features/` | tabelas, voz, formulário manual, dashboard, catálogo, comparação, PDF |
+  | `pages/` | os quatro entry points |
 
 - `styles.css`
   Estilos compartilhados entre as quatro páginas. Toda cor, raio, sombra e padding
@@ -47,7 +57,7 @@ Este projeto foi documentado em duas camadas:
 
 > Nota: o repo não guarda scripts `.sql`. O schema (tabelas, triggers, views,
 > funções, RLS) vive no projeto do Supabase — ver "Banco de Dados" no README.
-> Estrutura de `catalog_overrides` em `assets/js/catalog-overrides.js`.
+> Estrutura de `catalog_overrides` em `assets/js/data/catalog-overrides.js`.
 
 ## Mapa de módulos (`assets/js/`)
 

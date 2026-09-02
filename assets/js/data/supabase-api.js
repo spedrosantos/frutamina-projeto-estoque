@@ -1,7 +1,7 @@
 // Leitura e escrita no Supabase: estoque publico, itens do usuario e snapshots do dashboard.
 // Import dinamico do dashboard.js: esse modulo roda em todas as paginas (loadPublicRecords
 // e chamado no bootstrap de todas elas), mas o dashboard so existe em visao-geral.html.
-import { state, supabaseClient } from "./state.js";
+import { state, supabaseClient } from "../core/state.js";
 import {
   TABLE_NAME,
   SNAPSHOT_TABLE,
@@ -15,7 +15,7 @@ import {
   SUPABASE_TIMEOUT_MS,
   SUPABASE_READ_TIMEOUT_MS,
   SNAPSHOT_FETCH_LIMIT,
-} from "./config.js";
+} from "../core/config.js";
 import {
   pushMessage,
   fetchWithTimeout,
@@ -24,17 +24,17 @@ import {
   withTimeout,
   readJsonArray,
   writeLocalEntries,
-} from "./utils.js";
+} from "../core/utils.js";
 import {
   aggregateRows,
   hydrateInventoryRow,
   buildDbRowPayload,
   isLooseBoxesSchemaError,
-} from "./inventory-core.js";
-import { updateLastUpdateFromRows, setPublicMessage, renderPublicTable, renderCountTable, getTotalCaixas } from "./tables.js";
+} from "../core/inventory-core.js";
+import { updateLastUpdateFromRows, setPublicMessage, renderPublicTable, renderCountTable, getTotalCaixas } from "../features/tables.js";
 
 function renderDashboardIfLoaded() {
-  import("./dashboard.js").then((m) => m.renderDashboard());
+  import("../features/dashboard.js").then((m) => m.renderDashboard());
 }
 
 export async function loadSnapshotRecords(options = {}) {

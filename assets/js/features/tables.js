@@ -1,8 +1,8 @@
 // Tabelas principais (estoque publico e contagem), resumos matriciais, contexto e "ultima atualizacao".
 // Import dinamico para o formulario manual/edicao: mantem tables.js utilizavel em index.html
 // sem carregar manual-form.js la (o botao de acoes so existe quando PAGE_MODE === "edit").
-import { state, elements, PAGE_MODE, supabaseClient } from "./state.js";
-import { CONFIG_GERAL, USER_LABELS_TABLE, SUPABASE_TIMEOUT_MS } from "./config.js";
+import { state, elements, PAGE_MODE, supabaseClient } from "../core/state.js";
+import { CONFIG_GERAL, USER_LABELS_TABLE, SUPABASE_TIMEOUT_MS } from "../core/config.js";
 import {
   getRowKey,
   normalizeText,
@@ -14,7 +14,7 @@ import {
   setSelectOptions,
   pushMessage,
   withTimeout,
-} from "./utils.js";
+} from "../core/utils.js";
 import {
   hydrateInventoryRow,
   applyInventoryDeltas,
@@ -22,12 +22,12 @@ import {
   buildInventoryIdentityKey,
   getCurrentPublicAggregateRows,
   getInventoryRowByIdentity,
-} from "./inventory-core.js";
-import { scheduleCountDraftPersist } from "./draft.js";
+} from "../core/inventory-core.js";
+import { scheduleCountDraftPersist } from "../data/draft.js";
 // Ciclo proposital com pending-changes.js: sao funcoes declaradas, chamadas so
 // em runtime, entao os dois modulos se resolvem sem problema.
-import { applyPendingRow, getPendingChanges, replacePendingDelta } from "./pending-changes.js";
-import { confirmAction } from "./confirm-modal.js";
+import { applyPendingRow, getPendingChanges, replacePendingDelta } from "../data/pending-changes.js";
+import { confirmAction } from "../shell/confirm-modal.js";
 
 export function formatDateTime(value) {
   if (!value) return "--";

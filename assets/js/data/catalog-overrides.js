@@ -5,7 +5,7 @@
 // Precisa rodar no boot de TODAS as paginas: um produto cadastrado em
 // produtos.html so aparece no parser de voz/manual de editar.html se isso
 // rodar la tambem.
-import { state, supabaseClient } from "./state.js";
+import { state, supabaseClient } from "../core/state.js";
 import {
   CONFIG_GERAL,
   BASE_CONFIG_GERAL,
@@ -19,7 +19,7 @@ import {
   CATALOG_REMOVALS_KEY,
   SUPABASE_TIMEOUT_MS,
   cloneConfigTree,
-} from "./config.js";
+} from "../core/config.js";
 import {
   toNonNegativeInt,
   normalizeSetorValue,
@@ -28,7 +28,7 @@ import {
   withTimeout,
   readJsonArray,
   writeLocalEntries,
-} from "./utils.js";
+} from "../core/utils.js";
 
 const CACHE_READ_WARNING = "Nao foi possivel ler o cache local do catalogo.";
 

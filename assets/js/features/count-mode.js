@@ -1,26 +1,26 @@
 // Modo de contagem: alterna "estoque atual" e "nova contagem" com rascunho offline.
-import { state, elements, supabaseClient } from "./state.js";
-import { TABLE_NAME, SUPABASE_TIMEOUT_MS } from "./config.js";
-import { pushMessage, withTimeout } from "./utils.js";
+import { state, elements, supabaseClient } from "../core/state.js";
+import { TABLE_NAME, SUPABASE_TIMEOUT_MS } from "../core/config.js";
+import { pushMessage, withTimeout } from "../core/utils.js";
 import {
   cloneInventoryRows,
   getCurrentPublicAggregateRows,
   buildDbRowPayload,
   isLooseBoxesSchemaError,
   aggregateRows,
-} from "./inventory-core.js";
-import { requireAuthenticatedUser } from "./auth-ui.js";
+} from "../core/inventory-core.js";
+import { requireAuthenticatedUser } from "../shell/auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
 import {
   hasCountDraftData,
   saveCountDraftLocally,
   clearCountDraft,
-} from "./draft.js";
+} from "../data/draft.js";
 import { buildPublicRowsAfterUserReplacement, calculateOutflowCaixas } from "./comparison.js";
-import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "./supabase-api.js";
+import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
 import { clearVoiceActionState } from "./launch-core.js";
-import { hasPendingChanges, clearPendingChanges, renderPendingChanges } from "./pending-changes.js";
-import { confirmAction } from "./confirm-modal.js";
+import { hasPendingChanges, clearPendingChanges, renderPendingChanges } from "../data/pending-changes.js";
+import { confirmAction } from "../shell/confirm-modal.js";
 
 export function updateCountModeUI() {
   if (elements.countModeSelect) {

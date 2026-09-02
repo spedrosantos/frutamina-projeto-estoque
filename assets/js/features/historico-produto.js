@@ -1,11 +1,11 @@
 // Historico diario de estoque por produto+marca (sazonalidade) — so visao-geral.html.
 // Fonte dos dados: tabela estoque_historico_diario, gravada 1x/dia por um cron no
 // Supabase (ver supabase-historico-diario.sql), independente de "Nova Contagem".
-import { state, elements, PAGE_MODE } from "./state.js";
-import { listProductsBySetor, listBrands, setSelectOptionsWithPlaceholder, formatNumber } from "./utils.js";
-import { loadHistoricoDiario, loadHistoricoDiarioTotal } from "./supabase-api.js";
+import { state, elements, PAGE_MODE } from "../core/state.js";
+import { listProductsBySetor, listBrands, setSelectOptionsWithPlaceholder, formatNumber } from "../core/utils.js";
+import { loadHistoricoDiario, loadHistoricoDiarioTotal } from "../data/supabase-api.js";
 import { renderLineChart } from "./dashboard.js";
-import { enhanceSelect } from "./select-menu.js";
+import { enhanceSelect } from "../shell/select-menu.js";
 
 let chartMeta = null;
 let hoverIndex = null;

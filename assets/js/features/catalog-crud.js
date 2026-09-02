@@ -1,9 +1,9 @@
 // Cadastro de produtos (CRUD do catalogo) — so produtos.html.
-import { state, elements } from "./state.js";
-import { CONFIG_GERAL, BASE_CONFIG_GERAL, TIPO_MIN, TIPO_MAX } from "./config.js";
-import { toNonNegativeInt, isNoTipoProduct, getTipoRuleValue, buildTipoOptionList, normalizeKey, setSelectOptions, setSelectOptionsWithPlaceholder } from "./utils.js";
-import { requireAuthenticatedUser, initSetorSelects } from "./auth-ui.js";
-import { confirmAction } from "./confirm-modal.js";
+import { state, elements } from "../core/state.js";
+import { CONFIG_GERAL, BASE_CONFIG_GERAL, TIPO_MIN, TIPO_MAX } from "../core/config.js";
+import { toNonNegativeInt, isNoTipoProduct, getTipoRuleValue, buildTipoOptionList, normalizeKey, setSelectOptions, setSelectOptionsWithPlaceholder } from "../core/utils.js";
+import { requireAuthenticatedUser, initSetorSelects } from "../shell/auth-ui.js";
+import { confirmAction } from "../shell/confirm-modal.js";
 import { renderContext, renderPublicTable, renderCountTable, buildFilterOptions } from "./tables.js";
 import {
   buildCatalogEntryKey,
@@ -15,7 +15,7 @@ import {
   normalizeCatalogAdditionEntry,
   sanitizeContextAfterCatalogChange,
   writeCatalogCache,
-} from "./catalog-overrides.js";
+} from "../data/catalog-overrides.js";
 
 function setMessageIn(target, type, text) {
   if (!target) return;

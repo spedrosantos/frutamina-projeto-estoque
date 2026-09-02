@@ -1,13 +1,13 @@
 // Entry point de visao-geral.html (dashboard: total do CD, saida de caixas, overview).
 // Primeiro import de proposito: monta o shell (sidebar/topbar) antes de state.js
 // resolver os elementos.
-import "./app-shell.js";
-import "./register-sw.js";
-import { PAGE_MODE } from "./state.js";
-import { applyCatalogOverridesFromCache } from "./catalog-overrides.js";
-import { finishBoot } from "./boot-common.js";
-import { renderDashboard } from "./dashboard.js";
-import { loadSnapshotRecords } from "./supabase-api.js";
+import "../shell/app-shell.js";
+import "../shell/register-sw.js";
+import { PAGE_MODE } from "../core/state.js";
+import { applyCatalogOverridesFromCache } from "../data/catalog-overrides.js";
+import { finishBoot } from "../shell/boot-common.js";
+import { renderDashboard } from "../features/dashboard.js";
+import { loadSnapshotRecords } from "../data/supabase-api.js";
 
 // Abas da Visao Geral: "Agora" (foto do estoque), "Movimento" (contagens) e
 // "Tendencia" (sazonalidade). O grafico so e montado quando a aba abre, porque
@@ -31,7 +31,7 @@ function setupOverviewTabs() {
 
     if (button.dataset.tab === "tendencia" && !historicoIniciado) {
       historicoIniciado = true;
-      import("./historico-produto.js").then((m) => m.setupHistoricoProduto());
+      import("../features/historico-produto.js").then((m) => m.setupHistoricoProduto());
     }
   });
 }

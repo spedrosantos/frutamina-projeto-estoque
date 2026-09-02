@@ -4,7 +4,7 @@
 // existe em editar.html, mas processCommand tambem roda em index.html (comando por
 // texto). Os comandos "salvar"/"descartar" so sao alcancados quando countMode==="new",
 // o que nunca acontece em index.html (nao ha modo "nova contagem" fora de editar.html).
-import { state, elements, supabaseClient } from "./state.js";
+import { state, elements, supabaseClient } from "../core/state.js";
 // Trava para evitar que um novo comando (voz/texto) rode enquanto um
 // registro/remocao/correcao anterior ainda esta salvando no servidor: sem
 // isso, um comando falado logo apos outro pode agir sobre o lancamento
@@ -26,7 +26,7 @@ import {
   SUPABASE_TIMEOUT_MS,
   TIPO_MIN,
   TIPO_MAX,
-} from "./config.js";
+} from "../core/config.js";
 import {
   toNonNegativeInt,
   normalizeText,
@@ -47,7 +47,7 @@ import {
   pushMessage,
   withTimeout,
   getRowKey,
-} from "./utils.js";
+} from "../core/utils.js";
 import {
   hydrateInventoryRow,
   normalizeInventoryMetrics,
@@ -55,11 +55,11 @@ import {
   isLooseBoxesSchemaError,
   getInventoryRowByIdentity,
   formatInventoryMessage,
-} from "./inventory-core.js";
-import { requireAuthenticatedUser } from "./auth-ui.js";
+} from "../core/inventory-core.js";
+import { requireAuthenticatedUser } from "../shell/auth-ui.js";
 import { renderContext, renderCountTable, updateSessionAggregateRecord } from "./tables.js";
-import { loadUserRecords, loadPublicRecords } from "./supabase-api.js";
-import { queuePendingDelta, undoLastPending } from "./pending-changes.js";
+import { loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
+import { queuePendingDelta, undoLastPending } from "../data/pending-changes.js";
 import {
   registerInventoryChange,
   clearVoiceActionState,

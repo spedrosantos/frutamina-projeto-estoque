@@ -61,7 +61,13 @@ Fluxo principal:
 ```text
 projeto-estoque/
 |- assets/
-|  |- js/       (32 modulos ES; mapa completo em MANUTENCAO.md)
+|  |- js/
+|  |  |- core/      (state, config, utils, inventory-core)
+|  |  |- shell/     (head, sidebar/topbar, modais, login, tema, boot)
+|  |  |- data/      (Supabase, rascunho offline, fila, catalogo)
+|  |  |- features/  (tabelas, voz, formulario, dashboard, catalogo)
+|  |  `- pages/     (um entry point por pagina)
+|  |- fonts/
 |  `- img/
 |- index.html
 |- editar.html
@@ -73,7 +79,7 @@ projeto-estoque/
 `- MANUTENCAO.md
 ```
 
-Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, `styles.css` e `assets/js/head.js` — o resto das metatags é injetado por esse script.
+Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, `styles.css` e `assets/js/shell/head.js` — o resto das metatags é injetado por esse script.
 
 ## Banco de Dados (Supabase)
 
@@ -122,7 +128,7 @@ Os usuários devem existir no Supabase Auth com esse padrão de e-mail e senha v
 ## Regras de Negócio Importantes
 
 - Setores principais: `CHAO`, `GELADEIRA`, `ITAUEIRA`.
-- Regras fixas de produto/marca/caixas por pallet ficam em `CONFIG_GERAL` (`assets/js/config.js`); o que os usuários cadastram em `produtos.html` vai para `catalog_overrides` e é aplicado por cima.
+- Regras fixas de produto/marca/caixas por pallet ficam em `CONFIG_GERAL` (`assets/js/core/config.js`); o que os usuários cadastram em `produtos.html` vai para `catalog_overrides` e é aplicado por cima.
 - Tipos válidos padrão: `3` a `15`.
 - `PIMENTÃO` não usa tipo: valor interno `0`, exibição `S/T`.
 - `ORANGE` divide o tipo 6 em `6A` (interno `14`) e `6B` (interno `15`).
@@ -183,7 +189,7 @@ Offline, nos dois modos o que foi lançado fica no aparelho até haver internet.
 
 ### 2) Credenciais Supabase
 
-Em `assets/js/config.js`, revise `SUPABASE_URL` e `SUPABASE_ANON_KEY`.
+Em `assets/js/core/config.js`, revise `SUPABASE_URL` e `SUPABASE_ANON_KEY`.
 
 ### 3) Servidor estático
 
@@ -201,7 +207,7 @@ Frontend estático — Vercel, Netlify, GitHub Pages ou qualquer servidor HTTP. 
 
 ### Alterar regras de produto/marca/tipo
 
-Editar `CONFIG_GERAL` em `assets/js/config.js` (regras fixas) ou usar o cadastro em `produtos.html` (o que os usuários devem gerenciar sozinhos). Depois validar parser de voz (`normalizeText`, `processCommand`), formulário manual (`updateManualTipoOptions`, `addManualItem`) e renderização das tabelas/resumo.
+Editar `CONFIG_GERAL` em `assets/js/core/config.js` (regras fixas) ou usar o cadastro em `produtos.html` (o que os usuários devem gerenciar sozinhos). Depois validar parser de voz (`normalizeText`, `processCommand`), formulário manual (`updateManualTipoOptions`, `addManualItem`) e renderização das tabelas/resumo.
 
 ### Alterar estilos
 

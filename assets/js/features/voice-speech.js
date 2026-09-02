@@ -1,7 +1,7 @@
 // Reconhecimento de voz real (Web Speech API) — usado somente em editar.html.
-import { elements, PAGE_MODE } from "./state.js";
-import { normalizeText } from "./utils.js";
-import { requireAuthenticatedUser } from "./auth-ui.js";
+import { elements, PAGE_MODE } from "../core/state.js";
+import { normalizeText } from "../core/utils.js";
+import { requireAuthenticatedUser } from "../shell/auth-ui.js";
 
 // Inicializa a Web Speech API e encaminha cada frase final para `processCommand`.
 export function setupVoice() {

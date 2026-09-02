@@ -1,12 +1,12 @@
 // Comparacao de saida entre a contagem anterior e a atual.
 // Usado para calcular o outflow_caixas mostrado no historico da Visao Geral.
-import { toNonNegativeInt } from "./utils.js";
+import { toNonNegativeInt } from "../core/utils.js";
 import {
   aggregateRows,
   hydrateInventoryRow,
   buildInventoryIdentityKey,
   buildInventoryTotalsMap,
-} from "./inventory-core.js";
+} from "../core/inventory-core.js";
 
 export function calculateOutflowCaixas(previousRows, currentRows) {
   const previousMap = buildInventoryTotalsMap(previousRows);

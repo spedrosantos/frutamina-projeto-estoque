@@ -1,8 +1,8 @@
 // Overview da Visao Geral (KPIs, barras, historico, marcas) e o
 // renderizador de grafico de linha reaproveitado pelo historico por produto.
-import { state, elements, PAGE_MODE } from "./state.js";
-import { toNonNegativeInt, formatNumber, formatPercent } from "./utils.js";
-import { hydrateInventoryRow } from "./inventory-core.js";
+import { state, elements, PAGE_MODE } from "../core/state.js";
+import { toNonNegativeInt, formatNumber, formatPercent } from "../core/utils.js";
+import { hydrateInventoryRow } from "../core/inventory-core.js";
 import { formatUserLabel, formatDateTime } from "./tables.js";
 
 // Exportada para reuso pelo grafico de historico por produto (historico-produto.js) —

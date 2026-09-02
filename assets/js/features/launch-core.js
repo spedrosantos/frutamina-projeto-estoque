@@ -4,16 +4,16 @@
 // editar.html carregava no boot inteiras, mesmo para o operador que so usa o
 // Comando Manual (o caminho mais usado). Aqui ficam so as pecas que o formulario
 // manual e a nova contagem precisam; o parser de voz virou carga sob demanda.
-import { state } from "./state.js";
-import { toNonNegativeInt, pushMessage } from "./utils.js";
+import { state } from "../core/state.js";
+import { toNonNegativeInt, pushMessage } from "../core/utils.js";
 import {
   hydrateInventoryRow,
   getInventoryRowByIdentity,
   formatInventoryMessage,
-} from "./inventory-core.js";
-import { requireAuthenticatedUser } from "./auth-ui.js";
+} from "../core/inventory-core.js";
+import { requireAuthenticatedUser } from "../shell/auth-ui.js";
 import { renderCountTable, updateSessionAggregateRecord } from "./tables.js";
-import { queuePendingDelta } from "./pending-changes.js";
+import { queuePendingDelta } from "../data/pending-changes.js";
 
 function buildLaunchItem({
   setor,

@@ -6,8 +6,8 @@
 // e o WhatsApp abre com o texto pedindo para anexar.
 //
 // jsPDF entra sob demanda (CDN) para nao pesar o boot de quem so vai contar.
-import { pushMessage, formatTipoLabelValue } from "./utils.js";
-import { hydrateInventoryRow } from "./inventory-core.js";
+import { pushMessage, formatTipoLabelValue } from "../core/utils.js";
+import { hydrateInventoryRow } from "../core/inventory-core.js";
 
 const JSPDF_URL = "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
 const AUTOTABLE_URL =

@@ -1,14 +1,14 @@
 // Entry point de editar.html (voz, formulario manual, edicao, nova contagem offline).
 // Primeiros imports de proposito: montam o shell (sidebar/topbar) e a tela de
 // login antes de state.js resolver os elementos.
-import "./app-shell.js";
-import "./modal-shell.js";
-import "./auth-panel.js";
-import "./register-sw.js";
-import { state } from "./state.js";
-import { applyCatalogOverridesFromCache } from "./catalog-overrides.js";
-import { finishBoot } from "./boot-common.js";
-import { initSetorSelects } from "./auth-ui.js";
+import "../shell/app-shell.js";
+import "../shell/modal-shell.js";
+import "../shell/auth-panel.js";
+import "../shell/register-sw.js";
+import { state } from "../core/state.js";
+import { applyCatalogOverridesFromCache } from "../data/catalog-overrides.js";
+import { finishBoot } from "../shell/boot-common.js";
+import { initSetorSelects } from "../shell/auth-ui.js";
 import {
   buildFilterOptions,
   renderContext,
@@ -18,17 +18,17 @@ import {
   setCountViewMode,
   setCountSource,
   setupCountTableEvents,
-} from "./tables.js";
-import { setupVoice } from "./voice-speech.js";
-import { initManualForm, setupManualFormEvents } from "./manual-form.js";
-import { setupCountModeEvents, updateCountModeUI, saveNewCount } from "./count-mode.js";
-import { enhanceSelect } from "./select-menu.js";
-import { confirmAction } from "./confirm-modal.js";
+} from "../features/tables.js";
+import { setupVoice } from "../features/voice-speech.js";
+import { initManualForm, setupManualFormEvents } from "../features/manual-form.js";
+import { setupCountModeEvents, updateCountModeUI, saveNewCount } from "../features/count-mode.js";
+import { enhanceSelect } from "../shell/select-menu.js";
+import { confirmAction } from "../shell/confirm-modal.js";
 import {
   applyPendingChanges,
   hasPendingChanges,
   renderPendingChanges,
-} from "./pending-changes.js";
+} from "../data/pending-changes.js";
 
 // Abas da area de contagem: "Contagem" (voz + comando manual) e "Conferencia"
 // (tabela dos itens lancados). O toggle Estoque atual / Nova contagem fica acima

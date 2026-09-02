@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v125";
-const RUNTIME_CACHE = "frutamina-runtime-v125";
+const STATIC_CACHE = "frutamina-static-v126";
+const RUNTIME_CACHE = "frutamina-runtime-v126";
 
 const APP_SHELL = [
   "./",
@@ -28,12 +28,12 @@ const APP_SHELL = [
   "./visao-geral.html",
   "./manifest.webmanifest",
   "./styles.css",
-  "./assets/js/head.js",
-  "./assets/js/boot-common.js",
-  "./assets/js/main-view.js",
-  "./assets/js/main-edit.js",
-  "./assets/js/main-dashboard.js",
-  "./assets/js/main-products.js",
+  "./assets/js/shell/head.js",
+  "./assets/js/shell/boot-common.js",
+  "./assets/js/pages/main-view.js",
+  "./assets/js/pages/main-edit.js",
+  "./assets/js/pages/main-dashboard.js",
+  "./assets/js/pages/main-products.js",
   "./assets/img/logo.webp",
   "./assets/img/icon-192.png",
   "./assets/img/icon-512.png",
