@@ -254,8 +254,14 @@ Quando precisar alterar alguma regra de negócio, siga esta ordem:
 5. se houver persistência nova, revise as funções do Supabase (`supabase-api.js`,
    `catalog-overrides.js`).
 
+Os testes da matemática do estoque rodam com
+`node --test tests/inventory-core.test.js tests/comparison.test.js` (sem
+dependência; ver "Testes" no README).
+
 Depois de qualquer mudança em `assets/js/`, `assets/css/` ou nos HTML,
-incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js`. Não existe
+`STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` precisam subir — o hook
+em `.githooks/pre-commit` faz isso no commit (ligue com
+`git config core.hooksPath .githooks`); sem o hook, é na mão. Não existe
 mais `?v=...` nos `<link>`/`<script>`: a versão do app vive só nessas duas
 constantes. Como o fetch é stale-while-revalidate, esquecer de subir a versão
 significa que o aparelho continua pintando o código antigo até o carregamento
@@ -280,4 +286,5 @@ Para usar um ícone novo:
    (`.../font/fonts/bootstrap-icons.woff2`) com
    `fonttools subset ... --unicodes=U+f5aa,... --flavor=woff2`;
 5. acrescente a regra `.bi-nome::before { content: "5aa"; }` no fim do
-   `assets/css/base.css` e suba a versão do cache.
+   `assets/css/base.css` (a versão do cache sobe sozinha no commit, pelo hook em
+   `.githooks/pre-commit`).

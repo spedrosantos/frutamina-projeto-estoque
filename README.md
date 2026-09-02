@@ -221,7 +221,7 @@ Toda cor, raio, sombra e padding sai dos tokens `--app-*` do `:root` em `assets/
 
 Ao publicar **qualquer** mudança de código ou asset:
 
-- incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` — obrigatório, o fetch é stale-while-revalidate e sem a troca de versão o aparelho continua servindo o que já tem;
+- a versão de `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` sobe sozinha no commit, pelo hook de pre-commit (ver "Hook de pre-commit"). Se você commita sem o hook ligado, suba na mão — o fetch é stale-while-revalidate e sem a troca de versão o aparelho continua servindo o que já tem;
 - confira se todo arquivo novo está listado em `APP_SHELL`.
 
 ## Troubleshooting
@@ -245,3 +245,32 @@ Ao publicar **qualquer** mudança de código ou asset:
 ## Documentação Complementar
 
 - `MANUTENCAO.md`: mapa técnico dos módulos, funções e fluxos internos.
+
+## Testes
+
+A matemática do estoque tem teste, e ela é a parte que vira número no relatório:
+`assets/js/core/inventory-core.js` (total de caixas, conversão de avulsas em
+pallet, agregação por item, payload do banco) e
+`assets/js/features/comparison.js` (saída entre contagens).
+
+```bash
+node --test tests/inventory-core.test.js tests/comparison.test.js
+```
+
+Sem dependência nenhuma — só o `node:test` que já vem no Node. Os dois
+`package.json` de uma linha (`assets/js/` e `tests/`) existem só para o Node
+tratar os arquivos como módulo ES; não há build, e a raiz continua sem
+`package.json` de propósito, para nenhum host de estático tentar instalar nada.
+
+Nada de DOM nos testes: `tests/dom-stub.js` planta o mínimo (`document`,
+`window.supabase`, `localStorage`) para `state.js` carregar fora do navegador.
+
+## Hook de pre-commit
+
+`.githooks/pre-commit` sobe a versão do cache do service worker sozinho quando o
+commit mexe em `assets/`, num HTML ou no manifest. Numa cópia nova do repo,
+ligue com:
+
+```bash
+git config core.hooksPath .githooks
+```
