@@ -207,12 +207,6 @@
   background: var(--app-accent-soft);
 }
 
-.voice {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
-
 .voice-card {
   position: relative;
   overflow: hidden;

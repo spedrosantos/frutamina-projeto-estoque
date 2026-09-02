@@ -285,24 +285,6 @@ button:hover {
   color: #ffffff;
 }
 
-.context {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  margin: 18px 0;
-}
-
-.command {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-top: 16px;
-}
-
-.command input {
-  flex: 1;
-}
-
 .table-wrap {
   overflow-x: auto;
   margin-top: 16px;
@@ -726,11 +708,6 @@ body[data-theme="dark"] .msg.error {
 
 
 @media (max-width: 720px) {
-  .command {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .form-grid {
     grid-template-columns: 1fr;
   }
