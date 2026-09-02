@@ -849,7 +849,7 @@ function getPrintNode(scope) {
 }
 
 // Impressao: monta a folha em #print-area (fora da tela) e chama o dialogo do
-// navegador. O @media print de styles.css imprime apenas esse bloco, e de la o
+// navegador. O @media print de assets/css/base.css imprime apenas esse bloco, e de la o
 // proprio navegador salva em PDF se o operador quiser - por isso nao existe mais
 // pre-visualizacao propria nem exportacao em CSV/PDF.
 function ensurePrintArea() {

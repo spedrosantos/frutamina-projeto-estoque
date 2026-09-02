@@ -1,0 +1,933 @@
+/*
+  Sidebar, topbar mobile, cabecalho de pagina, modais, abas, dropdown
+  customizado e tela de login. Carregado por todas as paginas.
+
+  Uma das quatro fatias do CSS do app. A ordem entre os arquivos e a dos
+  <link> no HTML: base, shell, tabelas, dashboard.
+*/
+
+.mobile-topbar {
+  display: none;
+}
+
+.mobile-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-topbar .sidebar-toggle {
+  background: var(--sb-hover);
+  border: 1px solid var(--sb-border);
+  color: var(--sb-text-strong);
+}
+
+.mobile-topbar .sidebar-toggle:hover {
+  background: var(--sb-accent-soft);
+  color: var(--sb-accent);
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  background: var(--sb-bg);
+  border-right: 1px solid var(--sb-border);
+  z-index: 120;
+  overflow: hidden;
+  transition: width 0.24s ease;
+}
+
+.sidebar:hover,
+body.sidebar-open .sidebar {
+  width: 248px;
+}
+
+.sidebar-top {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--sb-border);
+}
+
+.sidebar-logo {
+  width: 44px;
+  height: auto;
+  object-fit: contain;
+  transition: width 0.24s ease;
+}
+
+.sidebar:hover .sidebar-logo,
+body.sidebar-open .sidebar .sidebar-logo {
+  width: 126px;
+}
+
+.sidebar-nav {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+body .sidebar .sidebar-nav button,
+body .sidebar .sidebar-footer button {
+  position: relative;
+  width: 100%;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--sb-text);
+  font-size: 14px;
+  font-weight: 600;
+  transform: none;
+  box-shadow: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar .sidebar-nav button:hover,
+.sidebar .sidebar-footer button:hover {
+  background: var(--sb-hover);
+  color: var(--sb-text-strong);
+  transform: none;
+  box-shadow: none;
+}
+
+.sidebar .sidebar-nav button i,
+.sidebar .sidebar-footer button i {
+  font-size: 19px;
+  flex: 0 0 auto;
+}
+
+/* Pagina atual: barra colada na borda da sidebar + fundo tinto. */
+.sidebar .sidebar-nav button.primary,
+.sidebar .sidebar-nav button.primary:hover {
+  background: var(--sb-accent-soft);
+  color: var(--sb-accent);
+}
+
+.sidebar .sidebar-nav button.primary::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  width: 3px;
+  height: 20px;
+  border-radius: 0 3px 3px 0;
+  background: var(--sb-accent);
+  transform: translateY(-50%);
+}
+
+.sidebar-label {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transform: translateX(-6px);
+  transition: max-width 0.24s ease, opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar:hover .sidebar-label,
+body.sidebar-open .sidebar .sidebar-label {
+  max-width: 160px;
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.sidebar:hover .sidebar-nav button,
+.sidebar:hover .sidebar-footer button,
+body.sidebar-open .sidebar .sidebar-nav button,
+body.sidebar-open .sidebar .sidebar-footer button {
+  justify-content: flex-start;
+}
+
+.sidebar-footer {
+  margin-top: 0;
+  padding: 12px;
+  border-top: 1px solid var(--sb-border);
+  display: grid;
+  gap: 4px;
+}
+
+.sidebar .sidebar-footer .user-chip {
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--sb-border);
+  border-radius: 10px;
+  background: var(--sb-chip);
+  color: var(--sb-text-strong);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 0 12px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: opacity 0.2s ease, max-height 0.2s ease, padding 0.2s ease;
+}
+
+.sidebar:hover .sidebar-footer .user-chip,
+body.sidebar-open .sidebar .sidebar-footer .user-chip {
+  max-height: 86px;
+  opacity: 1;
+  padding: 10px 12px;
+}
+
+.sidebar .sidebar-footer .user-chip span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--sb-text);
+}
+
+.sidebar .sidebar-footer .user-chip strong {
+  font-size: 13px;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 110;
+}
+
+/* --- Modais ---------------------------------------------------------------
+   Um unico padrao para todos: filtros, edicao de item, cadastro de produto e
+   confirmacao. O cartao rola por dentro (nunca passa da altura da tela), o
+   cabecalho tem icone + titulo + fechar em X, e as acoes ficam a direita - no
+   celular elas viram botoes de largura cheia. */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 50;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 24, 40, 0.5);
+  backdrop-filter: blur(2px);
+  animation: modal-fade 0.16s ease;
+}
+
+.modal-card {
+  position: relative;
+  z-index: 1;
+  width: min(520px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 20px 22px 22px;
+  box-shadow: 0 24px 60px rgba(16, 24, 40, 0.18);
+  animation: modal-rise 0.18s ease;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.modal-header h3 i {
+  color: #2563eb;
+  font-size: 18px;
+}
+
+/* Fechar virou X: com o rotulo "Fechar" o cabecalho competia com o titulo. */
+.modal-close {
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 15px;
+  flex: 0 0 auto;
+}
+
+.modal-body {
+  display: grid;
+  gap: 10px;
+}
+
+.modal-body > p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--app-text-soft);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* Confirmacao (confirm-modal.js): mesmo cartao, so mais estreito. */
+.confirm-card {
+  width: min(420px, 100%);
+}
+
+.confirm-message {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.confirm-card .bi-exclamation-triangle {
+  color: #dc2626;
+}
+
+@media (max-width: 560px) {
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-card {
+    width: 100%;
+    max-height: 90vh;
+    border-radius: 20px 20px 0 0;
+    padding-bottom: 24px;
+    animation: modal-slide 0.2s ease;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+
+.user-chip {
+  background: var(--sb-chip);
+  color: var(--sb-text-strong);
+  padding: 10px 16px;
+  border-radius: 999px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.user-chip span {
+  opacity: 0.7;
+}
+
+/* --- Cabeçalho ----------------------------------------------------------- */
+
+/* --- Abas da Visao Geral -------------------------------------------------- */
+/* --- Abas (compartilhado) -------------------------------------------------
+   Visao Geral (Agora/Movimento/Tendencia) e Editar (Contagem/Conferencia)
+   tinham a mesma barra escrita duas vezes, mas com estados diferentes: a aba
+   ativa da Visao Geral era uma pilula com a cor do FUNDO da pagina mais sombra,
+   e a do Editar usava accent-soft com texto na cor de destaque - que e o mesmo
+   idioma do .select-menu-item.active. Ficou a do Editar. A barra da Visao Geral
+   tambem lia um token que nao existia, entao caia sempre no cinza translucido
+   do fallback. */
+.edit-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  overflow-x: auto;
+}
+
+/* A barra da Visao Geral ja recebe o respiro do gap do .overview-shell. */
+.edit-tabs {
+  margin-bottom: 16px;
+}
+
+.edit-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1 1 0;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--app-text-soft);
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.edit-tab:hover {
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  box-shadow: none;
+}
+
+.edit-tab.active {
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
+}
+
+/* --- Rotulo de campo (compartilhado) -------------------------------------
+   Caixa alta pequena em cima do controle. Estava escrito cinco vezes, uma por
+   formulario, e no escuro duas delas usavam um cinza mais claro que as outras
+   tres - os rotulos do login e do catalogo nao batiam com os da contagem. */
+.auth-form label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-text-dim);
+}
+
+/* No escuro o dim fica apagado demais para caixa alta de 11px. */
+body[data-theme="dark"] .auth-form label {
+  color: var(--app-text-soft);
+}
+
+/* --- Dropdown customizado (select-menu.js) -------------------------------
+   Estava duplicado para dashboard e edit, e as duas copias ja tinham divergido:
+   anel de foco 22% x 20%, fundo da lista --bg x --surface, e o .is-disabled
+   (opcao travada, ex: "Contagem" sem nada contado) existia so no edit - no
+   dashboard a opcao travada parecia clicavel. Agora e um bloco so, sobre os
+   tokens --app-*. O <select> real fica escondido, mas segue recebendo valor e
+   evento change. */
+.select-menu {
+  position: relative;
+}
+
+/* Esconder o <select> real com !important e de proposito: qualquer regra de
+   pagina que estilize "select" por tipo (ex.: uma barra de filtros) e mais
+   especifica que esta e fazia o select reaparecer como uma segunda caixa
+   fantasma embaixo do trigger. */
+.select-menu select {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+.select-menu-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.select-menu-trigger:hover:not(:disabled) {
+  border-color: var(--app-text-dim);
+  background: var(--app-surface-soft);
+}
+
+.select-menu-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.select-menu-trigger:focus-visible {
+  outline: none;
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 22%, transparent);
+}
+
+.select-menu-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-menu-value.is-placeholder {
+  color: var(--app-text-dim);
+  font-weight: 500;
+}
+
+.select-menu-trigger i {
+  font-size: 13px;
+  color: var(--app-text-dim);
+  transition: transform 0.18s ease;
+}
+
+.select-menu.open .select-menu-trigger {
+  border-color: var(--app-accent);
+}
+
+.select-menu.open .select-menu-trigger i {
+  transform: rotate(180deg);
+}
+
+.select-menu-list {
+  display: none;
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--app-bg);
+  border: 1px solid var(--app-border-strong);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+}
+
+.select-menu.open .select-menu-list {
+  display: block;
+}
+
+.select-menu-item {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--app-text);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.select-menu-item:hover {
+  background: var(--app-surface-soft);
+  box-shadow: none;
+}
+
+.select-menu-item.active {
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
+  font-weight: 600;
+}
+
+/* Opcao travada: o select-menu.js copia o disabled do <option>. */
+.select-menu-item.is-disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --- Cabecalho ----------------------------------------------------------- */
+/* --- Cabecalho da pagina (compartilhado) ---------------------------------
+   As quatro paginas tinham o mesmo cabecalho com tres nomes diferentes
+   (.view-head, .edit-head, .overview-head) e as mesmas medidas copiadas em
+   tres blocos - por isso elas iam divergindo a cada ajuste. Agora e um bloco
+   so, sobre os tokens --app-*. O -meta (direita) so existe no index. */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.page-head .eyebrow {
+  color: var(--app-text-soft);
+  opacity: 1;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.page-head h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 34px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 6px 0 8px;
+  color: var(--app-text);
+}
+
+.page-head-sub {
+  margin: 0;
+  color: var(--app-text-soft);
+  font-size: 14px;
+}
+
+.page-head-sub a {
+  color: var(--app-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.page-head-sub a:hover {
+  text-decoration: underline;
+}
+
+.page-head-meta {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface);
+  font-size: 13px;
+  box-shadow: var(--app-shadow);
+}
+
+.page-head-meta span {
+  color: var(--app-text-soft);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* --- Login (compartilhado por todas as paginas) --------------------------- */
+/* O markup vem de assets/js/auth-panel.js. As cores saem dos tokens --app-*, os
+   mesmos das quatro paginas, entao a mesma tela serve todas sem duplicar regra. */
+.auth-card {
+  width: min(100%, 420px);
+  margin: 0 auto;
+  padding: 30px 28px 26px;
+  border-radius: 18px;
+  background: var(--app-surface, #ffffff);
+  border: 1px solid var(--app-border, #e4e7ec);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 24px 60px -34px rgba(16, 24, 40, 0.45);
+  text-align: center;
+}
+
+.auth-card:not(.hidden) {
+  display: grid;
+  gap: 4px;
+  align-content: center;
+  justify-self: center;
+  min-height: min(56vh, 460px);
+}
+
+.auth-badge {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background: var(--app-accent-soft, #eef4ff);
+  color: var(--app-accent, #2563eb);
+  font-size: 22px;
+}
+
+.auth-card .card-header h2 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--app-text, #101828);
+}
+
+.auth-card .card-header p {
+  color: var(--app-text-soft, #667085);
+  font-size: 13.5px;
+}
+
+.auth-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-top: 22px;
+  text-align: left;
+}
+
+.auth-form label + .auth-field {
+  margin-bottom: 10px;
+}
+
+.auth-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-field i {
+  position: absolute;
+  left: 13px;
+  font-size: 15px;
+  color: var(--app-text-dim, #98a2b3);
+  pointer-events: none;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 12px 14px 12px 38px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border-strong, #d0d5dd);
+  background: var(--app-surface-soft, #f7f8fa);
+  color: var(--app-text, #101828);
+  font-size: 14.5px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: var(--app-accent, #2563eb);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent, #2563eb) 20%, transparent);
+}
+
+.auth-card .actions {
+  margin-top: 18px;
+}
+
+.auth-card .actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+body[data-page="edit"] .count-mode-field .select-menu {
+  width: 260px;
+}
+
+/*
+  ===== Layout da contagem (Editar Estoque) =====
+  Ajuste estrutural de posicionamento/tamanho dos cards.
+*/
+
+body.auth-locked[data-page="edit"] #count-panel,
+body.auth-locked[data-page="products"] #products-panel {
+  display: none !important;
+}
+
+body.auth-locked[data-page="edit"] #auth-panel,
+body.auth-locked[data-page="products"] #auth-panel {
+  display: block !important;
+}
+
+/* Antes de entrar, a pagina mostra apenas o login: nem o cabecalho da secao
+   (eyebrow, titulo e subtitulo) aparece, so a barra do app com o menu. */
+body.auth-locked .page-head {
+  display: none !important;
+}
+
+/* Sem cabecalho na tela, o card de login vai para o meio do viewport. */
+body.auth-locked .app {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+body.auth-locked .auth-card:not(.hidden) {
+  min-height: 0;
+  width: min(100%, 420px);
+}
+
+/* --- Abas Contagem / Conferencia ------------------------------------------ */
+body[data-page="edit"] .edit-tabpanel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+body[data-page="edit"] .edit-tabpanel > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Dropdown customizado tambem no Comando Manual. */
+
+body[data-page="edit"] .count-toolbar-actions .select-menu {
+  min-width: 152px;
+}
+
+@media (max-width: 640px) {
+
+  /* Select do que a tabela mostra ocupa a largura toda; na linha de baixo o
+     toggle fica na esquerda e os botoes na direita. */
+  body[data-page="edit"] .count-toolbar-actions .select-menu {
+    flex: 1 0 100%;
+    min-width: 0;
+  }
+}
+
+
+@media (max-width: 980px) {
+
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: var(--sb-bg);
+    border: 1px solid var(--sb-border);
+    margin-bottom: 16px;
+  }
+
+  /* A topbar mobile mora dentro do .app, que no login vira grid centralizado:
+     sem isso ela encolhia para a largura do conteudo e ficava no meio, com o
+     menu destoando das outras paginas. */
+  body.auth-locked .app {
+    grid-template-rows: auto 1fr;
+  }
+
+  body.auth-locked .mobile-topbar {
+    justify-self: stretch;
+  }
+
+  .mobile-topbar-logo {
+    width: 122px;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .sidebar-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-toggle i {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .sidebar {
+    width: min(82vw, 320px);
+    transform: translateX(-102%);
+    transition: transform 0.24s ease;
+    box-shadow: 0 22px 56px rgba(15, 23, 42, 0.35);
+  }
+
+  /* Gaveta: largura fixa mesmo com hover ou aberta (o desktop expande, aqui nao). */
+  .sidebar:hover,
+  body.sidebar-open .sidebar {
+    width: min(82vw, 320px);
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+
+  body.sidebar-open .sidebar-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar .sidebar-label {
+    max-width: 160px;
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .sidebar .sidebar-nav button,
+  .sidebar .sidebar-footer button {
+    justify-content: flex-start;
+  }
+
+  .sidebar-nav {
+    margin-top: 12px;
+    margin-bottom: 0;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+  }
+
+  .sidebar .sidebar-footer .user-chip {
+    max-height: 86px;
+    opacity: 1;
+    padding: 10px 12px;
+  }
+}
+
+
+@media (max-width: 560px) {
+
+  .mobile-topbar {
+    padding: 10px 12px;
+  }
+}
+
+
+@media (max-width: 980px) {
+
+  /* Cor vem dos tokens --sb-*; aqui so o raio menor da pagina de estoque. */
+  .mobile-topbar {
+    border-radius: var(--app-radius-sm);
+  }
+
+  .page-head {
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .page-head h1 {
+    font-size: 26px;
+  }
+
+  .page-head-meta {
+    width: 100%;
+  }
+}

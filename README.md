@@ -73,13 +73,17 @@ projeto-estoque/
 |- editar.html
 |- visao-geral.html
 |- produtos.html
-|- styles.css
+|  `- css/
+|     |- base.css      (tokens, botoes, cards, tabelas, icones)
+|     |- shell.css     (sidebar, topbar, modais, abas, login)
+|     |- tabelas.css   (index, editar, produtos)
+|     `- dashboard.css (visao-geral)
 |- service-worker.js
 |- manifest.webmanifest
 `- MANUTENCAO.md
 ```
 
-Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, `styles.css` e `assets/js/shell/head.js` — o resto das metatags é injetado por esse script.
+Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, os `<link>` de CSS e `assets/js/shell/head.js` — o resto das metatags é injetado por esse script.
 
 ## Banco de Dados (Supabase)
 
@@ -172,7 +176,7 @@ Offline, nos dois modos o que foi lançado fica no aparelho até haver internet.
 - Sessão: `cd_login_at`, limite de 1 hora.
 - Leituras de boot usam timeout curto (`SUPABASE_READ_TIMEOUT_MS`, 12s): passado isso, o cache local é servido em vez de deixar a tela esperando.
 - Service worker: tudo (inclusive HTML/CSS/JS do app) é servido do cache e revalidado em segundo plano — a tela pinta sem esperar a rede. Em troca, **subir a versão do cache a cada deploy deixou de ser opcional**: sem isso a mudança só aparece no carregamento seguinte.
-- Ícones não vêm mais de CDN: `assets/fonts/bootstrap-icons-subset.woff2` (4KB) tem só os 38 ícones usados, e as classes `.bi-*` ficam no fim do `styles.css`.
+- Ícones não vêm mais de CDN: `assets/fonts/bootstrap-icons-subset.woff2` (4KB) tem só os 38 ícones usados, e as classes `.bi-*` ficam no fim do `assets/css/base.css`.
 
 ## Exportação e Compartilhamento
 
@@ -211,7 +215,7 @@ Editar `CONFIG_GERAL` em `assets/js/core/config.js` (regras fixas) ou usar o cad
 
 ### Alterar estilos
 
-Toda cor, raio, sombra e padding sai dos tokens `--app-*` do `:root` em `styles.css` (tema escuro em `body[data-theme="dark"]`). Componentes como `.card`, `.ghost`, `.primary` e `.summary-table` são definidos uma única vez e valem para as quatro páginas.
+Toda cor, raio, sombra e padding sai dos tokens `--app-*` do `:root` em `assets/css/base.css` (tema escuro em `body[data-theme="dark"]`). Componentes como `.card`, `.ghost`, `.primary` e `.summary-table` são definidos uma única vez e valem para as quatro páginas.
 
 ### Atualizar versão de cache PWA
 

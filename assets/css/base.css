@@ -1,0 +1,1085 @@
+/*
+  Tokens, reset, tipografia, botoes, cards, mensagens, primitivas de tabela,
+  impressao e icones. Carregado por todas as paginas, sempre primeiro.
+
+  Uma das quatro fatias do CSS do app. A ordem entre os arquivos e a dos
+  <link> no HTML: base, shell, tabelas, dashboard.
+*/
+
+/*
+  Folha de estilos global do projeto.
+
+  Organização geral:
+  - layout base (hero, grid, cards, menu);
+  - tabelas e modais;
+  - voz / sincronização offline;
+  - dashboard;
+  - impressão;
+  - ajustes responsivos.
+*/
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Source Sans 3", system-ui, sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+  min-height: 100vh;
+  padding-left: 80px;
+  overflow-x: hidden;
+}
+
+.app {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 40px 28px 72px;
+}
+
+/*
+  Sidebar + topbar mobile.
+
+  Superficie segue o tema via tokens --sb-*. Colapsada em 80px, expande no
+  hover (desktop); no mobile vira gaveta com overlay -- ver o bloco
+  @media (max-width: 980px), que sobrescreve as larguras.
+*/
+
+body {
+  --sb-bg: #ffffff;
+  --sb-border: #e4e7ec;
+  --sb-text: #475467;
+  --sb-text-strong: #101828;
+  --sb-hover: #f4f5f7;
+  --sb-accent: #2563eb;
+  --sb-accent-soft: #eef4ff;
+  --sb-chip: #f7f8fa;
+}
+
+body[data-theme="dark"] {
+  --sb-bg: #10141d;
+  --sb-border: #212836;
+  --sb-text: #93a0b7;
+  --sb-text-strong: #e6eaf2;
+  --sb-hover: #181e2a;
+  --sb-accent: #4d8dff;
+  --sb-accent-soft: rgba(77, 141, 255, 0.14);
+  --sb-chip: #151a25;
+}
+
+.subtitle {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.logo {
+  width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes modal-slide {
+  from {
+    transform: translateY(18px);
+  }
+}
+
+.card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  padding: 20px;
+  box-shadow: var(--app-shadow);
+}
+
+.card.full {
+  grid-column: 1 / -1;
+}
+
+.card-header h2 {
+  margin: 0 0 6px;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.card-header p {
+  margin: 0;
+  color: var(--app-text-soft);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px 16px;
+  margin-top: 16px;
+}
+
+/* Contador de lancamentos esperando gravacao, no proprio botao Salvar. */
+.icon-btn[data-pending] {
+  position: relative;
+}
+
+.icon-btn[data-pending]::after {
+  content: attr(data-pending);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--app-red);
+  border: 2px solid var(--app-surface);
+  box-sizing: content-box;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.autofill-trap {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.autofill-trap input {
+  width: 0;
+  height: 0;
+  padding: 0;
+  border: 0;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+label {
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  border-radius: var(--app-radius-sm);
+  color: var(--app-text);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px var(--app-accent-soft);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--app-text-soft);
+}
+
+textarea {
+  resize: none;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.primary {
+  background: var(--app-accent);
+  color: #ffffff;
+  border-radius: var(--app-radius-sm);
+  box-shadow: none;
+}
+
+.ghost {
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text);
+  border-radius: var(--app-radius-sm);
+}
+
+.primary:hover,
+.ghost:hover {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.97);
+}
+
+.danger {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.context {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.command {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.command input {
+  flex: 1;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--app-border-strong) transparent;
+}
+
+.table-wrap::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-wrap::-webkit-scrollbar-thumb {
+  background: var(--app-border-strong);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover {
+  background: var(--app-text-dim);
+  background-clip: content-box;
+}
+
+.table-wrap::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+th {
+  background: var(--app-surface-soft);
+}
+
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.debug-card {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--app-radius-sm);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface-soft);
+  display: grid;
+  gap: 8px;
+}
+
+.debug-card h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.total {
+  font-size: 16px;
+}
+
+.summary-grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+  min-width: 0;
+}
+
+.summary-card {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  padding: 14px;
+  background: var(--app-surface);
+  min-width: 0;
+}
+
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.summary-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.summary-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.summary-table th,
+.summary-table td {
+  text-align: center;
+  padding: 6px 8px;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  border: 1px solid var(--app-border);
+}
+
+.summary-table th,
+.summary-table td {
+  border: 1px solid var(--app-border);
+}
+
+.summary-table thead th {
+  background: var(--app-surface-soft);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 8px;
+}
+
+.summary-table th:first-child,
+.summary-table td:first-child {
+  text-align: left;
+}
+
+.summary-colorized .cell-tipo,
+.summary-colorized .cell-caixas,
+.summary-colorized .cell-pallets,
+.summary-colorized .cell-sum {
+  background: #ffffff;
+  color: inherit;
+  font-weight: 600;
+}
+
+.msg-area {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.msg {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.msg.info {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.msg.success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.msg.warn {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.msg.error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+/*
+  ===== Editar Estoque e Produtos: shell =====
+  As duas paginas de operacao dividem a paleta --app-*: tem os mesmos cartoes,
+  tabelas e toolbars.
+*/
+body[data-page="edit"],
+body[data-page="products"] {
+  --app-pad: 18px;
+  /* O card de voz herda os tokens dos outros cards; so o que e proprio dele
+     (branco sobre o accent, vermelho de "ouvindo") vive aqui. */
+  --voice-action-text: #ffffff;
+  --voice-btn-border: var(--app-border-strong);
+  --voice-btn-bg: var(--app-surface);
+  --voice-btn-text: var(--app-text-soft);
+  --voice-listening-action-border: #b91c1c;
+  --voice-listening-action-bg: #b91c1c;
+  --voice-listening-action-text: #ffffff;
+  --voice-listening-dot: #ef4444;
+  --voice-listening-status-text: #dc2626;
+  --voice-listening-status-dot: #ef4444;
+}
+
+body[data-theme="dark"][data-page="edit"],
+body[data-theme="dark"][data-page="products"] {
+  --voice-action-text: #0a0d14;
+  --voice-btn-border: #2a3a57;
+  --voice-btn-bg: transparent;
+  --voice-btn-text: #cdd9ef;
+  --voice-listening-status-text: #fca5a5;
+}
+
+body[data-page="edit"] #save-new-count {
+  background: var(--app-accent);
+  border: 1px solid var(--app-accent);
+  color: #ffffff;
+}
+
+body[data-page="edit"] #save-new-count:hover {
+  background: color-mix(in srgb, var(--app-accent) 88%, #000);
+  border-color: color-mix(in srgb, var(--app-accent) 88%, #000);
+  box-shadow: none;
+}
+
+body[data-page="edit"] #discard-new-count {
+  background: #dc2626;
+  border: 1px solid #dc2626;
+  color: #ffffff;
+}
+
+body[data-page="edit"] #discard-new-count:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+body[data-page="edit"] #edit-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}.table-wrap table {
+  font-size: 14px;
+}
+
+.table-wrap th {
+  background: var(--app-surface-soft);
+  color: var(--app-text-soft);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px;
+  border-bottom: 1px solid var(--app-border);
+  white-space: nowrap;
+}
+
+.table-wrap td {
+  padding: 12px;
+  border-bottom: 1px solid var(--app-border);
+  color: var(--app-text);
+}
+
+/* :not(.summary-table) mantem o comportamento anterior: o realce de linha era
+   so das tabelas detalhadas, nunca do resumo. */
+.table-wrap table:not(.summary-table) tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table-wrap table:not(.summary-table) tbody tr:hover td {
+  background: var(--app-accent-soft);
+}
+
+/* Utilitario de estado: precisa vencer o display dos componentes
+   (ex.: os botoes da sidebar declaram display: flex com mais especificidade). */
+.hidden {
+  display: none !important;
+}
+
+body[data-theme="dark"] .summary-colorized .cell-tipo,
+body[data-theme="dark"] .summary-colorized .cell-caixas,
+body[data-theme="dark"] .summary-colorized .cell-pallets,
+body[data-theme="dark"] .summary-colorized .cell-sum {
+  background: transparent;
+}
+
+body[data-theme="dark"] .msg.info {
+  background: rgba(29, 78, 216, 0.2);
+  color: #93c5fd;
+}
+
+body[data-theme="dark"] .msg.success {
+  background: rgba(4, 120, 87, 0.2);
+  color: #6ee7b7;
+}
+
+body[data-theme="dark"] .msg.warn {
+  background: rgba(194, 65, 12, 0.2);
+  color: #fdba74;
+}
+
+body[data-theme="dark"] .msg.error {
+  background: rgba(185, 28, 28, 0.2);
+  color: #fda4af;
+}
+
+@media (max-width: 980px) {
+  body {
+    padding-left: 0;
+  }
+
+  .app {
+    padding: 14px 14px 40px;
+  }
+}
+
+
+@media (max-width: 720px) {
+  .card {
+    padding: 16px;
+  }
+
+  th,
+  td {
+    padding: 8px 7px;
+    font-size: 12px;
+  }
+
+  .summary-card {
+    padding: 10px;
+  }
+
+  .summary-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}
+
+
+@media (max-width: 560px) {
+  .app {
+    padding: 10px 10px 28px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+}
+
+@media print {
+  /* Esconder o app com visibility deixava paginas em branco (os blocos
+     continuavam ocupando espaco): fora da folha nada entra no layout. */
+  body > *:not(#print-area) {
+    display: none !important;
+  }
+  #print-area {
+    display: block !important;
+    position: static;
+    width: 100%;
+    padding: 24px;
+    color: #111827;
+    background: #ffffff;
+  }
+  #print-area h1 {
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 18px;
+    margin: 0 0 12px;
+  }
+  #print-area table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  #print-area th,
+  #print-area td {
+    border: 1px solid #111827;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  #print-area th:first-child,
+  #print-area td:first-child {
+    text-align: left;
+  }
+  #print-area .summary-grid {
+    display: grid;
+    gap: 16px;
+  }
+  #print-area .summary-card {
+    border: 1px solid #111827;
+    padding: 8px;
+    page-break-inside: avoid;
+  }
+  #print-area .summary-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  #print-area .summary-header h3 {
+    margin: 0;
+    font-size: 14px;
+  }
+  #print-area .table-wrap {
+    overflow: visible;
+  }
+  #print-area .table-footer,
+  #print-area .table-modes,
+  #print-area .view-toggle,
+  #print-area .actions {
+    display: none !important;
+  }
+}
+
+
+@media (max-width: 720px) {
+  .command {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/*
+  ===== Paleta do app =====
+  Fonte unica de cor, raio e sombra para as quatro paginas. Cada pagina teve um
+  dia o seu proprio prefixo de token apontando para daqui; as camadas de alias
+  sairam e todo o CSS le --app-* direto. So --app-pad varia por pagina.
+*/
+:root {
+  --app-bg: #f5f6f8;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f7f8fa;
+  --app-border: #e4e7ec;
+  --app-border-strong: #d2d7e0;
+  --app-text: #101828;
+  --app-text-soft: #667085;
+  --app-text-dim: #8a94a6;
+  --app-accent: #2563eb;
+  --app-accent-soft: #eef4ff;
+  --app-radius: 14px;
+  --app-radius-sm: 10px;
+  --app-pad: 18px;
+  --app-shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 10px 28px -22px rgba(16, 24, 40, 0.35);
+  --app-surface-solid: #ffffff;
+  --app-track: #eef0f4;
+  --app-shadow-hover: 0 1px 2px rgba(16, 24, 40, 0.06), 0 14px 32px -20px rgba(16, 24, 40, 0.4);
+  --app-green: #16a34a;
+  --app-amber: #b45309;
+  --app-blue: #2563eb;
+  --app-red: #dc2626;
+}
+
+body[data-theme="dark"] {
+  --app-bg: #0a0d14;
+  --app-surface: #10141d;
+  --app-surface-soft: #151a25;
+  --app-border: #212836;
+  --app-border-strong: #2d3648;
+  --app-text: #e6eaf2;
+  --app-text-soft: #93a0b7;
+  --app-text-dim: #6f7d94;
+  --app-accent: #4d8dff;
+  --app-accent-soft: rgba(77, 141, 255, 0.14);
+  --app-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --app-surface-solid: #10141d;
+  --app-track: #1b2130;
+  --app-shadow-hover: 0 1px 2px rgba(0, 0, 0, 0.5), 0 14px 32px -20px rgba(0, 0, 0, 0.6);
+  --app-green: #34d399;
+  --app-amber: #fbbf24;
+  --app-blue: #4d8dff;
+  --app-red: #f87171;
+}
+
+/* Rodape com total */
+.table-footer {
+  margin-top: 14px;
+}
+
+.table-footer .total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.table-footer .total strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+}
+
+@media (max-width: 980px) {
+  .app {
+    padding: 14px 14px 48px;
+  }
+}
+
+
+/* ==========================================================================
+   Modal de pre-visualizacao de impressao (index.html e editar.html).
+   O conteudo fica em #print-area para o @media print imprimir so a folha.
+   ========================================================================== */
+
+/* Folha A4 (794 x 1123 px @96dpi) */
+.print-sheet {
+  width: 794px;
+  max-width: 100%;
+  min-height: 400px;
+  margin: 0 auto;
+  padding: 40px 44px;
+  background: #ffffff;
+  color: #111827;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.14), 0 18px 40px -24px rgba(16, 24, 40, 0.4);
+}
+
+.print-sheet h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 20px;
+  margin: 0 0 4px;
+  color: #101828;
+}
+
+.print-sheet .print-meta {
+  margin: 0 0 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #d0d5dd;
+  font-size: 12px;
+  color: #667085;
+}
+
+.print-sheet table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  table-layout: fixed;
+}
+
+.print-sheet th,
+.print-sheet td {
+  border: 1px solid #111827;
+  padding: 5px 6px;
+  text-align: center;
+  color: #111827;
+  background: #ffffff;
+  word-break: break-word;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 11px;
+  white-space: normal;
+}
+
+.print-sheet th {
+  font-weight: 700;
+  background: #f2f4f7;
+}
+
+.print-sheet th:first-child,
+.print-sheet td:first-child {
+  text-align: left;
+}
+
+.print-sheet .table-wrap {
+  overflow: visible;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+}
+
+.print-sheet .summary-grid {
+  display: block;
+  margin: 0;
+}
+
+.print-sheet .summary-card {
+  display: block;
+  width: 100%;
+  border: 1px solid #111827;
+  border-radius: 0;
+  padding: 8px;
+  margin-bottom: 12px;
+  background: #ffffff;
+}
+
+.print-sheet .summary-header h3,
+.print-sheet .summary-header p {
+  color: #111827;
+}
+
+.print-sheet .summary-header h3 {
+  font-size: 14px;
+}
+
+.print-sheet .msg-area {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .print-sheet {
+    padding: 20px 18px;
+  }
+}
+
+
+@media print {
+  /* Na tela a folha esta fora do layout; na impressao ela volta a existir. */
+  #print-area.print-offscreen {
+    display: block !important;
+    position: static;
+  }
+
+  #print-area.print-sheet {
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  #print-area .print-meta {
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    font-size: 11px;
+    text-align: left;
+  }
+
+  #print-area thead {
+    display: table-header-group;
+  }
+
+  #print-area tr,
+  #print-area .summary-card,
+  #print-area table {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+
+/* A folha vive fora da tela: existe so para o @media print, que reposiciona o
+   #print-area em cima da pagina. O id vence body[data-theme="dark"] X na cascata
+   (que nao tem id), entao o papel sai claro mesmo com o app no escuro. */
+/* Fora da impressao a folha nem entra no layout; o @media print a devolve.
+   (Tirar da tela com left negativo fazia o Chrome imprimir a pagina em branco.) */
+#print-area.print-offscreen {
+  display: none;
+  color-scheme: light;
+}
+
+#print-area.print-sheet,
+#print-area .summary-card,
+#print-area .summary-table,
+#print-area th,
+#print-area td {
+  background: #ffffff;
+  color: #111827;
+  border-color: #111827;
+}
+
+#print-area th,
+#print-area .summary-table thead th {
+  background: #f2f4f7;
+  color: #111827;
+}
+
+#print-area .summary-table tfoot td {
+  background: #f8fafc;
+}
+
+#print-area .summary-header h3,
+#print-area .summary-header p {
+  color: #111827;
+}
+
+#print-area h1 {
+  color: #101828;
+}
+
+#print-area .print-meta {
+  color: #667085;
+  border-bottom-color: #d0d5dd;
+}
+
+/* Botao em carregamento: icone girando e clique bloqueado. */
+button.is-loading {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+button.is-loading i {
+  animation: btn-spin 0.8s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Icones: subset local do bootstrap-icons 1.11.3.
+   O CDN entregava ~2000 glifos (130KB de woff2 + 98KB de CSS) e uma conexao
+   externa no caminho critico para os 38 icones que o app usa. Este arquivo tem
+   so esses 38. Para adicionar um icone novo, gere o subset de novo (as
+   instrucoes estao em MANUTENCAO.md) - usar uma classe .bi- que nao esteja
+   aqui nao desenha nada. */
+@font-face {
+  font-family: "bootstrap-icons";
+  font-display: block;
+  src: url("../fonts/bootstrap-icons-subset.woff2") format("woff2");
+}
+
+.bi::before,
+[class^="bi-"]::before,
+[class*=" bi-"]::before {
+  display: inline-block;
+  font-family: "bootstrap-icons" !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -0.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bi-arrow-clockwise::before { content: "\f116"; }
+.bi-bar-chart-line::before { content: "\f17c"; }
+.bi-box-arrow-in-right::before { content: "\f1be"; }
+.bi-box-arrow-right::before { content: "\f1c3"; }
+.bi-box-seam::before { content: "\f1c7"; }
+.bi-boxes::before { content: "\f685"; }
+.bi-check-circle::before { content: "\f26b"; }
+.bi-chevron-down::before { content: "\f282"; }
+.bi-clock-history::before { content: "\f292"; }
+.bi-diagram-3::before { content: "\f2ee"; }
+.bi-exclamation-triangle::before { content: "\f33b"; }
+.bi-floppy-fill::before { content: "\f7c5"; }
+.bi-funnel::before { content: "\f3e1"; }
+.bi-graph-up::before { content: "\f3f2"; }
+.bi-grid-1x2::before { content: "\f3f4"; }
+.bi-key::before { content: "\f44f"; }
+.bi-list::before { content: "\f479"; }
+.bi-list-check::before { content: "\f473"; }
+.bi-list-ul::before { content: "\f478"; }
+.bi-mic::before { content: "\f490"; }
+.bi-mic-fill::before { content: "\f48d"; }
+.bi-moon-stars::before { content: "\f496"; }
+.bi-pencil::before { content: "\f4cb"; }
+.bi-pencil-square::before { content: "\f4ca"; }
+.bi-person::before { content: "\f4e1"; }
+.bi-pie-chart::before { content: "\f4e9"; }
+.bi-plus-lg::before { content: "\f64d"; }
+.bi-printer::before { content: "\f501"; }
+.bi-question-circle::before { content: "\f505"; }
+.bi-search::before { content: "\f52a"; }
+.bi-shield-lock::before { content: "\f538"; }
+.bi-stack::before { content: "\f585"; }
+.bi-sun::before { content: "\f5a2"; }
+.bi-table::before { content: "\f5aa"; }
+.bi-trash3::before { content: "\f78b"; }
+.bi-trophy::before { content: "\f5e7"; }
+.bi-whatsapp::before { content: "\f618"; }
+.bi-x-lg::before { content: "\f659"; }

@@ -35,7 +35,18 @@ Este projeto foi documentado em duas camadas:
   | `features/` | tabelas, voz, formulário manual, dashboard, catálogo, comparação, PDF |
   | `pages/` | os quatro entry points |
 
-- `styles.css`
+- `assets/css/`
+  O CSS em quatro fatias, carregadas por `<link>` na ordem `base`, `shell` e
+  depois `tabelas` **ou** `dashboard` — a Visão Geral não baixa o CSS das
+  tabelas de estoque e as outras três não baixam o do dashboard.
+
+  | Arquivo | O que tem | Páginas |
+  | --- | --- | --- |
+  | `base.css` | tokens `--app-*`, reset, botões, cards, mensagens, primitivas de tabela, impressão, ícones `.bi-*` | todas |
+  | `shell.css` | sidebar, topbar mobile, `page-head`, modais, abas, dropdown, login | todas |
+  | `tabelas.css` | tabelas do estoque, toolbars, contagem, formulário manual, catálogo, voz | index, editar, produtos |
+  | `dashboard.css` | KPIs, gráficos, setor, top produtos, marcas, sazonalidade | visao-geral |
+
   Estilos compartilhados entre as quatro páginas. Toda cor, raio, sombra e padding
   sai dos tokens `--app-*` do bloco `:root` (tema escuro em
   `body[data-theme="dark"]`) — não existe mais paleta por página.
@@ -166,7 +177,7 @@ Essas funções permitem continuar a nova contagem sem internet.
 ### 11. Bootstrap
 
 - `head.js`: metatags, manifest e fontes do `<head>`. Cada HTML traz só charset,
-  `<title>`, `styles.css` e este script — o resto era idêntico nas quatro páginas.
+  `<title>`, os `<link>` de CSS e este script — o resto era idêntico nas quatro páginas.
   Script clássico e síncrono de propósito (o `theme-color` precisa valer antes da
   primeira pintura).
 - `app-shell.js`: sidebar, topbar mobile e o conteúdo do `<header class="page-head">`
@@ -243,7 +254,7 @@ Quando precisar alterar alguma regra de negócio, siga esta ordem:
 5. se houver persistência nova, revise as funções do Supabase (`supabase-api.js`,
    `catalog-overrides.js`).
 
-Depois de qualquer mudança em `assets/js/*.js`, `styles.css` ou nos HTML,
+Depois de qualquer mudança em `assets/js/`, `assets/css/` ou nos HTML,
 incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js`. Não existe
 mais `?v=...` nos `<link>`/`<script>`: a versão do app vive só nessas duas
 constantes. Como o fetch é stale-while-revalidate, esquecer de subir a versão
@@ -254,7 +265,7 @@ seguinte.
 
 `assets/fonts/bootstrap-icons-subset.woff2` (4KB) é um subset do bootstrap-icons
 1.11.3 com **apenas os ícones que o projeto usa**; o `@font-face` e as classes
-`.bi-*` ficam no fim do `styles.css`. Uma classe `.bi-` que não esteja lá não
+`.bi-*` ficam no fim do `assets/css/base.css`. Uma classe `.bi-` que não esteja lá não
 desenha nada.
 
 Para usar um ícone novo:
@@ -269,4 +280,4 @@ Para usar um ícone novo:
    (`.../font/fonts/bootstrap-icons.woff2`) com
    `fonttools subset ... --unicodes=U+f5aa,... --flavor=woff2`;
 5. acrescente a regra `.bi-nome::before { content: "5aa"; }` no fim do
-   `styles.css` e suba a versão do cache.
+   `assets/css/base.css` e suba a versão do cache.

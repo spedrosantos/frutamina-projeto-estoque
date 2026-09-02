@@ -1,13 +1,13 @@
 // Metatags, manifest e fontes: iguais nas quatro paginas.
 //
 // O <head> era 30 linhas identicas repetidas quatro vezes - so o <title> mudava.
-// Cada pagina agora carrega charset, title, styles.css (bloqueante, tem que ser
+// Cada pagina agora carrega charset, title, os <link> de CSS (bloqueantes, tem que ser
 // tag) e este script; o resto sai daqui.
 //
 // Script classico e sincrono de proposito: roda durante o parse do <head>, antes
 // da primeira pintura, para o theme-color valer ja na abertura. A folha de fonte
 // do Google continua preguicosa (media="print" trocado no onload); os icones
-// deixaram de vir de CDN - o subset local mora no fim do styles.css.
+// deixaram de vir de CDN - o subset local mora no fim do assets/css/base.css.
 document.head.insertAdjacentHTML(
   "beforeend",
   `
