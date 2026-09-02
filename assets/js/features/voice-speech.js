@@ -13,8 +13,7 @@ export function setupVoice() {
     if (label) label.textContent = text;
     else elements.voiceBtn.textContent = text;
   };
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     if (elements.voiceStatus) {
       elements.voiceStatus.textContent =
@@ -161,9 +160,7 @@ export function setupVoice() {
 
     const normalizedFinalTranscript = normalizeText(finalTranscript);
     const normalizedInterimTranscript = normalizeText(interimTranscript);
-    const displayText = (
-      normalizedFinalTranscript || normalizedInterimTranscript
-    ).trim();
+    const displayText = (normalizedFinalTranscript || normalizedInterimTranscript).trim();
 
     if (elements.voiceLast) {
       elements.voiceLast.value = displayText;
@@ -172,9 +169,7 @@ export function setupVoice() {
     if (normalizedFinalTranscript) {
       // voice-actions.js tem ~1200 linhas de parser e so serve a quem fala com o
       // app: entra na primeira frase reconhecida, nao no boot.
-      import("./voice-actions.js").then((m) =>
-        m.processCommand(normalizedFinalTranscript)
-      );
+      import("./voice-actions.js").then((m) => m.processCommand(normalizedFinalTranscript));
     }
   };
 }

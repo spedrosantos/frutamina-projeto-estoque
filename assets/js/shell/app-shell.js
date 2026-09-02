@@ -52,7 +52,13 @@ const NAV_ITEMS = [
     icon: "bi-pencil-square",
     label: "Editar estoque",
   },
-  { id: "menu-products", page: "products", href: "produtos.html", icon: "bi-boxes", label: "Produtos" },
+  {
+    id: "menu-products",
+    page: "products",
+    href: "produtos.html",
+    icon: "bi-boxes",
+    label: "Produtos",
+  },
 ];
 
 function buildNav(currentPage) {

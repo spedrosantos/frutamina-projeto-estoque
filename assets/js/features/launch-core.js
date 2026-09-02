@@ -37,8 +37,7 @@ function buildLaunchItem({
     palletsDelta: normalizedPalletsDelta,
     caixasAvulsasDelta: normalizedCaixasAvulsasDelta,
     totalCaixasDelta:
-      normalizedPalletsDelta * normalizedCaixasPallet +
-      normalizedCaixasAvulsasDelta,
+      normalizedPalletsDelta * normalizedCaixasPallet + normalizedCaixasAvulsasDelta,
   };
 }
 
@@ -90,7 +89,7 @@ function buildInventoryPreview({
     },
     {
       caixas_pallet: caixasPallet,
-    }
+    },
   );
   const after = hydrateInventoryRow(before, {
     caixas_pallet: caixasPallet,
@@ -110,10 +109,11 @@ function buildInventoryResultMessage({
   after,
   isNewCount = false,
 }) {
-  const base = `${successPrefix}${isNewCount ? " (nova contagem)" : ""}: ${successSubject} ${formatInventoryMessage(
-    palletsDelta,
-    caixasAvulsasDelta
-  )}`.trim();
+  const base =
+    `${successPrefix}${isNewCount ? " (nova contagem)" : ""}: ${successSubject} ${formatInventoryMessage(
+      palletsDelta,
+      caixasAvulsasDelta,
+    )}`.trim();
   const parts = [base];
 
   if (after) {
@@ -127,9 +127,7 @@ function buildInventoryResultMessage({
 
   if (convertedPallets > 0) {
     const convertedLabel = convertedPallets === 1 ? "pallet" : "pallets";
-    parts.push(
-      `${convertedPallets} ${convertedLabel} vieram das caixas avulsas acumuladas.`
-    );
+    parts.push(`${convertedPallets} ${convertedLabel} vieram das caixas avulsas acumuladas.`);
   }
 
   return parts.join(" ");
@@ -152,8 +150,7 @@ export async function registerInventoryChange({
     return null;
   }
 
-  const sourceRows =
-    state.countMode === "new" ? state.sessionRows : state.userRows;
+  const sourceRows = state.countMode === "new" ? state.sessionRows : state.userRows;
   const currentRow = getInventoryRowByIdentity(sourceRows, {
     setor,
     produto,

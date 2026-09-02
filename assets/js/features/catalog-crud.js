@@ -1,10 +1,23 @@
 // Cadastro de produtos (CRUD do catalogo) — so produtos.html.
 import { state, elements } from "../core/state.js";
 import { CONFIG_GERAL, BASE_CONFIG_GERAL, TIPO_MIN, TIPO_MAX } from "../core/config.js";
-import { toNonNegativeInt, isNoTipoProduct, getTipoRuleValue, buildTipoOptionList, normalizeKey, setSelectOptions, setSelectOptionsWithPlaceholder } from "../core/utils.js";
+import {
+  toNonNegativeInt,
+  isNoTipoProduct,
+  getTipoRuleValue,
+  buildTipoOptionList,
+  normalizeKey,
+  setSelectOptions,
+  setSelectOptionsWithPlaceholder,
+} from "../core/utils.js";
 import { requireAuthenticatedUser, initSetorSelects } from "../shell/auth-ui.js";
 import { confirmAction } from "../shell/confirm-modal.js";
-import { renderContext, renderPublicTable, renderCountTable, buildFilterOptions } from "./tables.js";
+import {
+  renderContext,
+  renderPublicTable,
+  renderCountTable,
+  buildFilterOptions,
+} from "./tables.js";
 import {
   buildCatalogEntryKey,
   parseCatalogEntryKey,
@@ -102,7 +115,7 @@ function openCatalogModal(entryKey = "") {
   fillCatalogForm(
     parsed
       ? { ...parsed, ...(readCatalogRule(parsed.setor, parsed.produto, parsed.marca) || {}) }
-      : null
+      : null,
   );
   if (elements.catalogModalTitle) {
     elements.catalogModalTitle.textContent = parsed ? "Editar produto" : "Novo produto";
@@ -140,7 +153,7 @@ function describeCatalogCaixas(rule, produto, marca) {
   }
 
   const caixasValues = buildTipoOptionList(produto).map((tipoOption) =>
-    toNonNegativeInt(rule(getTipoRuleValue(produto, tipoOption.value)), 0)
+    toNonNegativeInt(rule(getTipoRuleValue(produto, tipoOption.value)), 0),
   );
   if (!caixasValues.length) {
     return "--";
@@ -155,7 +168,7 @@ function describeCatalogCaixas(rule, produto, marca) {
 function listCatalogRows() {
   const rows = [];
   const additionsKeySet = new Set(
-    state.catalogAdditions.map((entry) => buildCatalogEntryKey(entry))
+    state.catalogAdditions.map((entry) => buildCatalogEntryKey(entry)),
   );
 
   Object.entries(CONFIG_GERAL).forEach(([setor, produtos]) => {
@@ -249,7 +262,7 @@ function renderCatalogTable() {
           </button>
         </td>
       </tr>
-    `
+    `,
     )
     .join("");
 }
@@ -265,7 +278,7 @@ export function refreshCatalogDependentUI() {
       elements.manualSetor,
       Object.keys(CONFIG_GERAL).sort(),
       previousManualSetor || state.setor,
-      "Selecione"
+      "Selecione",
     );
   }
 
@@ -277,7 +290,7 @@ export function refreshCatalogDependentUI() {
     setSelectOptions(
       elements.catalogSetor,
       Object.keys(CONFIG_GERAL).sort(),
-      previousCatalogSetor || state.setor
+      previousCatalogSetor || state.setor,
     );
   }
 
@@ -320,10 +333,10 @@ async function removeCatalogEntryByKey(entryKey) {
   }
 
   state.catalogAdditions = state.catalogAdditions.filter(
-    (entry) => buildCatalogEntryKey(entry) !== key
+    (entry) => buildCatalogEntryKey(entry) !== key,
   );
   state.catalogRemovals = state.catalogRemovals.filter(
-    (entry) => buildCatalogEntryKey(entry) !== key
+    (entry) => buildCatalogEntryKey(entry) !== key,
   );
 
   if (existedInBase) {
@@ -333,7 +346,10 @@ async function removeCatalogEntryByKey(entryKey) {
   applyCatalogOverridesFromState();
   writeCatalogCache(state.catalogAdditions, state.catalogRemovals);
   refreshCatalogDependentUI();
-  setCatalogListMessage("success", `${parsed.produto} ${parsed.marca} removido do catalogo para todos os usuarios.`);
+  setCatalogListMessage(
+    "success",
+    `${parsed.produto} ${parsed.marca} removido do catalogo para todos os usuarios.`,
+  );
 }
 
 async function addCatalogEntryFromForm() {
@@ -368,7 +384,7 @@ async function addCatalogEntryFromForm() {
       "warn",
       hasRange
         ? "Preencha setor, produto, marca, caixas por pallet e a faixa de tipo com valores validos."
-        : "Preencha setor, produto, marca e caixas por pallet com valor valido."
+        : "Preencha setor, produto, marca e caixas por pallet com valor valido.",
     );
     return;
   }
@@ -390,16 +406,16 @@ async function addCatalogEntryFromForm() {
       const previousInBase = configHasCatalogEntry(BASE_CONFIG_GERAL, previous);
       await removeCatalogEntry(previous, { markRemoved: previousInBase });
       state.catalogAdditions = state.catalogAdditions.filter(
-        (entry) => buildCatalogEntryKey(entry) !== editKey
+        (entry) => buildCatalogEntryKey(entry) !== editKey,
       );
       if (previousInBase) state.catalogRemovals.push(previous);
     }
   }
   state.catalogRemovals = state.catalogRemovals.filter(
-    (entry) => buildCatalogEntryKey(entry) !== key
+    (entry) => buildCatalogEntryKey(entry) !== key,
   );
   state.catalogAdditions = state.catalogAdditions.filter(
-    (entry) => buildCatalogEntryKey(entry) !== key
+    (entry) => buildCatalogEntryKey(entry) !== key,
   );
   state.catalogAdditions.push(addition);
 
@@ -424,12 +440,12 @@ async function addCatalogEntryFromForm() {
   if (wasEditing) {
     setCatalogListMessage(
       "success",
-      `${addition.produto} ${addition.marca} atualizado no catalogo (${addition.setor}).`
+      `${addition.produto} ${addition.marca} atualizado no catalogo (${addition.setor}).`,
     );
     return;
   }
   openCatalogAddedModal(
-    `${addition.produto} ${addition.marca} salvo no catalogo (${addition.setor}) para todos os usuarios.`
+    `${addition.produto} ${addition.marca} salvo no catalogo (${addition.setor}) para todos os usuarios.`,
   );
 }
 
@@ -457,8 +473,10 @@ function renderCatalogRulePreview() {
     return;
   }
   const restantes = [];
-  if (min > TIPO_MIN) restantes.push(min - 1 === TIPO_MIN ? `${TIPO_MIN}` : `${TIPO_MIN} a ${min - 1}`);
-  if (max < TIPO_MAX) restantes.push(max + 1 === TIPO_MAX ? `${TIPO_MAX}` : `${max + 1} a ${TIPO_MAX}`);
+  if (min > TIPO_MIN)
+    restantes.push(min - 1 === TIPO_MIN ? `${TIPO_MIN}` : `${TIPO_MIN} a ${min - 1}`);
+  if (max < TIPO_MAX)
+    restantes.push(max + 1 === TIPO_MAX ? `${TIPO_MAX}` : `${max + 1} a ${TIPO_MAX}`);
   const faixa = min === max ? `Tipo ${min}` : `Tipos ${min} a ${max}`;
   const resto = restantes.length ? `Tipos ${restantes.join(" e ")}: ${fora} caixas` : "";
   preview.textContent = [`${faixa}: ${dentro} caixas`, resto].filter(Boolean).join("  |  ");

@@ -90,9 +90,15 @@ setupPendingActions();
 renderPendingChanges();
 // Os selects do Comando Manual usam o mesmo dropdown da aba Tendencia; o
 // <select> original segue como fonte da verdade, entao manual-form.js nao muda.
-["count-mode-select", "count-source-select", "manual-setor", "manual-produto", "manual-marca", "manual-tipo", "manual-pallets"].forEach(
-  (id) => enhanceSelect(document.getElementById(id))
-);
+[
+  "count-mode-select",
+  "count-source-select",
+  "manual-setor",
+  "manual-produto",
+  "manual-marca",
+  "manual-tipo",
+  "manual-pallets",
+].forEach((id) => enhanceSelect(document.getElementById(id)));
 setupVoice();
 setupCountTableEvents();
 setupManualFormEvents();

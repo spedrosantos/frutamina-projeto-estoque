@@ -2,7 +2,12 @@
 import { state } from "../core/state.js";
 import { COUNT_DRAFT_KEY_PREFIX } from "../core/config.js";
 import { pushMessage, normalizeSetorValue } from "../core/utils.js";
-import { aggregateRows, hydrateInventoryRow, cloneInventoryRows, getCurrentPublicAggregateRows } from "../core/inventory-core.js";
+import {
+  aggregateRows,
+  hydrateInventoryRow,
+  cloneInventoryRows,
+  getCurrentPublicAggregateRows,
+} from "../core/inventory-core.js";
 
 let countDraftPersistTimer = null;
 
@@ -17,19 +22,15 @@ function normalizeDraftRows(rows, prefix = "draft") {
       hydrateInventoryRow({
         ...(row || {}),
         _localId:
-          row?._localId ||
-          row?.id ||
-          `${prefix}_${index}_${Math.random().toString(16).slice(2)}`,
-      })
-    )
+          row?._localId || row?.id || `${prefix}_${index}_${Math.random().toString(16).slice(2)}`,
+      }),
+    ),
   );
 }
 
 export function hasCountDraftData() {
   return Boolean(
-    state.sessionRows.length ||
-    state.previousCountRows.length ||
-    state.previousPublicRows.length
+    state.sessionRows.length || state.previousCountRows.length || state.previousPublicRows.length,
   );
 }
 
@@ -77,10 +78,7 @@ export function saveCountDraftLocally() {
     return true;
   } catch (error) {
     console.warn("Nao foi possivel salvar rascunho local da contagem.", error);
-    pushMessage(
-      "warn",
-      "Nao foi possivel salvar o rascunho offline neste aparelho."
-    );
+    pushMessage("warn", "Nao foi possivel salvar o rascunho offline neste aparelho.");
     import("../features/tables.js").then((m) => m.renderCountSyncStatus());
     return false;
   }
@@ -115,7 +113,8 @@ export async function restoreCountDraftForCurrentUser() {
   const storageKey = getCountDraftStorageKey();
   if (!storageKey) return false;
 
-  const { renderContext, renderCountTable, renderCountSyncStatus } = await import("../features/tables.js");
+  const { renderContext, renderCountTable, renderCountSyncStatus } =
+    await import("../features/tables.js");
   const { updateCountModeUI } = await import("../features/count-mode.js");
 
   const raw = localStorage.getItem(storageKey);
@@ -135,16 +134,9 @@ export async function restoreCountDraftForCurrentUser() {
   try {
     const payload = JSON.parse(raw);
     const sessionRows = normalizeDraftRows(payload?.session_rows, "session");
-    const previousCountRows = normalizeDraftRows(
-      payload?.previous_count_rows,
-      "previous_count"
-    );
-    const previousPublicRows = normalizeDraftRows(
-      payload?.previous_public_rows,
-      "previous_public"
-    );
-    const hasDraft =
-      sessionRows.length || previousCountRows.length || previousPublicRows.length;
+    const previousCountRows = normalizeDraftRows(payload?.previous_count_rows, "previous_count");
+    const previousPublicRows = normalizeDraftRows(payload?.previous_public_rows, "previous_public");
+    const hasDraft = sessionRows.length || previousCountRows.length || previousPublicRows.length;
 
     if (!hasDraft) {
       clearCountDraft();
@@ -171,10 +163,7 @@ export async function restoreCountDraftForCurrentUser() {
     state.setor = normalizeSetorValue(payload?.setor) || state.setor;
     state.produto = payload?.produto || null;
     state.marca = payload?.marca || null;
-    state.tipo =
-      payload?.tipo === 0 || Number.isFinite(payload?.tipo)
-        ? payload.tipo
-        : null;
+    state.tipo = payload?.tipo === 0 || Number.isFinite(payload?.tipo) ? payload.tipo : null;
     state.countDraftSavedAt = payload?.saved_at || null;
     const restoredHash = JSON.stringify({
       version: payload?.version ?? 1,
@@ -197,10 +186,7 @@ export async function restoreCountDraftForCurrentUser() {
     updateCountModeUI();
     renderCountTable();
     if (shouldAnnounceRestore) {
-      pushMessage(
-        "info",
-        "Rascunho local da nova contagem recuperado neste aparelho."
-      );
+      pushMessage("info", "Rascunho local da nova contagem recuperado neste aparelho.");
     }
     renderCountSyncStatus();
     return true;

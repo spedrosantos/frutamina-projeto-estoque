@@ -29,10 +29,7 @@ import {
   setNumberOptions,
   getRowKey,
 } from "../core/utils.js";
-import {
-  normalizeInventoryMetrics,
-  buildInventoryIdentityKey,
-} from "../core/inventory-core.js";
+import { normalizeInventoryMetrics, buildInventoryIdentityKey } from "../core/inventory-core.js";
 import { requireAuthenticatedUser } from "../shell/auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
 import { probeSupabase, loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
@@ -134,9 +131,7 @@ export function openEditModal(row = null) {
   }
   if (elements.editTipo) {
     elements.editTipo.value =
-      row?.tipo === 0 || row?.tipo
-        ? formatTipoLabelValue(row?.produto, row?.tipo, row?.marca)
-        : "";
+      row?.tipo === 0 || row?.tipo ? formatTipoLabelValue(row?.produto, row?.tipo, row?.marca) : "";
   }
   if (elements.editCaixas) {
     elements.editCaixas.value = row?.caixas_pallet ?? "";
@@ -231,7 +226,7 @@ async function saveEditItem() {
       } else {
         setEditMessage(
           "error",
-          `Produto e marca cadastrados nos setores: ${info.setores.join(", ")}.`
+          `Produto e marca cadastrados nos setores: ${info.setores.join(", ")}.`,
         );
         return;
       }
@@ -246,10 +241,7 @@ async function saveEditItem() {
       Number.isNaN(pallets) ||
       (!noTipo && !Number.isFinite(tipo))
     ) {
-      setEditMessage(
-        "error",
-        "Preencha tipo, caixas/pallet e pallets com valores validos."
-      );
+      setEditMessage("error", "Preencha tipo, caixas/pallet e pallets com valores validos.");
       return;
     }
     if (pallets < 0 || caixasAvulsas < 0) {
@@ -356,9 +348,7 @@ async function saveEditItem() {
     // andamento nao passa por aqui - ela se corrige na propria visao Contagem.
     const finalPayload = {
       ...payload,
-      ...(hasLooseBoxesColumn
-        ? { caixas_avulsas: normalizedMetrics.caixas_avulsas }
-        : {}),
+      ...(hasLooseBoxesColumn ? { caixas_avulsas: normalizedMetrics.caixas_avulsas } : {}),
     };
     const ownId = state.editTarget.ownId;
     const sourceIds = (state.editTarget.sourceIds || []).filter((id) => id !== ownId);
@@ -410,10 +400,7 @@ async function saveEditItem() {
     return;
   } catch (error) {
     console.error("Erro ao salvar item:", error);
-    setEditMessage(
-      "error",
-      `Erro inesperado ao salvar. ${error?.message || "Tente novamente."}`
-    );
+    setEditMessage("error", `Erro inesperado ao salvar. ${error?.message || "Tente novamente."}`);
     const probe = await probeSupabase();
     showDebugPanel({
       error: error?.message || error,
@@ -432,9 +419,8 @@ export async function removeRow(row) {
   // Na visao Estoque atual a linha e o agregado do item: remover apaga TODOS os
   // registros que a compoem, inclusive de outros operadores (a policy de delete
   // do Supabase permite). Por isso o aviso extra quando ha mais de um.
-  const sourceIds = Array.isArray(row?._sourceIds) && row._sourceIds.length
-    ? row._sourceIds
-    : [rowKey];
+  const sourceIds =
+    Array.isArray(row?._sourceIds) && row._sourceIds.length ? row._sourceIds : [rowKey];
   const nome = isNoTipoContext(row?.produto, row?.marca)
     ? `${row.produto} ${row.marca}`
     : `${row.produto} ${row.marca} Tipo ${tipoLabel}`;
@@ -450,9 +436,7 @@ export async function removeRow(row) {
   if (!confirmDelete) return;
 
   if (state.countMode === "new") {
-    state.sessionRows = state.sessionRows.filter(
-      (item) => getRowKey(item) !== rowKey
-    );
+    state.sessionRows = state.sessionRows.filter((item) => getRowKey(item) !== rowKey);
     clearVoiceActionState();
     if (state.selectedRowKey === rowKey) {
       state.selectedRowKey = null;
@@ -464,10 +448,7 @@ export async function removeRow(row) {
   if (!state.user) return;
 
   // Visao "Estoque atual": remove do banco na hora.
-  const { error } = await supabaseClient
-    .from(TABLE_NAME)
-    .delete()
-    .in("id", sourceIds);
+  const { error } = await supabaseClient.from(TABLE_NAME).delete().in("id", sourceIds);
   if (error) {
     pushMessage("error", `Erro ao remover item: ${error.message}`);
     return;
@@ -534,13 +515,7 @@ function updateManualTipoOptions() {
     updateManualBoxesOptions();
     return;
   }
-  setNumberOptions(
-    elements.manualTipo,
-    TIPO_MIN,
-    TIPO_MAX,
-    currentTipoValue,
-    "Selecione"
-  );
+  setNumberOptions(elements.manualTipo, TIPO_MIN, TIPO_MAX, currentTipoValue, "Selecione");
   updateManualBoxesOptions();
 }
 
@@ -552,9 +527,7 @@ function getManualCaixasPallet() {
   const regra = CONFIG_GERAL[setor]?.[produto]?.[marca];
   if (!regra) return 0;
   const noTipo = isNoTipoContext(produto, marca);
-  const tipo = noTipo
-    ? NO_TIPO_VALUE
-    : parseTipoInputValue(elements.manualTipo?.value, produto);
+  const tipo = noTipo ? NO_TIPO_VALUE : parseTipoInputValue(elements.manualTipo?.value, produto);
   if (!noTipo && !isTipoValidForContext(produto, tipo)) return 0;
   return toNonNegativeInt(regra(getTipoRuleValue(produto, tipo)), 0);
 }
@@ -572,23 +545,18 @@ export function initManualForm() {
   }
 
   const setores = Object.keys(CONFIG_GERAL).sort();
-  setSelectOptionsWithPlaceholder(
-    elements.manualSetor,
-    setores,
-    state.setor || "",
-    "Selecione"
-  );
+  setSelectOptionsWithPlaceholder(elements.manualSetor, setores, state.setor || "", "Selecione");
   setSelectOptionsWithPlaceholder(
     elements.manualProduto,
     listProductsBySetor(elements.manualSetor.value),
     "",
-    "Selecione"
+    "Selecione",
   );
   setSelectOptionsWithPlaceholder(
     elements.manualMarca,
     listBrands(elements.manualSetor.value, elements.manualProduto.value),
     "",
-    "Selecione"
+    "Selecione",
   );
   updateManualTipoOptions();
   setNumberOptions(elements.manualPallets, 0, 50, 0);
@@ -607,13 +575,13 @@ export function updateManualDependencies() {
     elements.manualProduto,
     listProductsBySetor(setor),
     produtoAtual,
-    "Selecione"
+    "Selecione",
   );
   setSelectOptionsWithPlaceholder(
     elements.manualMarca,
     listBrands(setor, elements.manualProduto.value),
     marcaAtual,
-    "Selecione"
+    "Selecione",
   );
   updateManualTipoOptions();
   updateManualBoxesOptions();
@@ -685,12 +653,9 @@ async function addManualItem() {
     palletsDelta,
     caixasAvulsasDelta: caixasAvulsas,
     successPrefix: "Registrado",
-    successSubject: noTipo
-      ? `${produto} ${marca}`
-      : `${produto} ${marca} Tipo ${tipoLabel}`,
+    successSubject: noTipo ? `${produto} ${marca}` : `${produto} ${marca} Tipo ${tipoLabel}`,
     actionKind: caixasAvulsas > 0 ? "boxes" : "pallets",
-    correctionMode:
-      caixasAvulsas > 0 || pallets > 1 || noTipo ? "quantity" : "type",
+    correctionMode: caixasAvulsas > 0 || pallets > 1 || noTipo ? "quantity" : "type",
   });
 
   if (elements.manualPallets) {

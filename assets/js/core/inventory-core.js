@@ -45,10 +45,7 @@ export function normalizeInventoryMetrics({
     }
     totalBoxes = palletsCount * caixasPorPallet + looseBoxes;
   } else {
-    totalBoxes = toNonNegativeInt(
-      totalCaixas,
-      palletsCount * caixasPorPallet
-    );
+    totalBoxes = toNonNegativeInt(totalCaixas, palletsCount * caixasPorPallet);
     palletsCount = Math.floor(totalBoxes / caixasPorPallet);
     looseBoxes = totalBoxes % caixasPorPallet;
   }
@@ -77,14 +74,16 @@ export function hydrateInventoryRow(row, overrides = {}) {
   };
 }
 
-export function applyInventoryDeltas(target, { caixas_pallet, palletsDelta = 0, caixasAvulsasDelta = 0 }) {
+export function applyInventoryDeltas(
+  target,
+  { caixas_pallet, palletsDelta = 0, caixasAvulsasDelta = 0 },
+) {
   if (!target) return;
   const metrics = normalizeInventoryMetrics({
     caixasPallet: caixas_pallet ?? target.caixas_pallet,
     // toInt, nao toNonNegativeInt: delta negativo e retirada de pallet/caixa.
     pallets: toNonNegativeInt(target.pallets, 0) + toInt(palletsDelta, 0),
-    caixasAvulsas:
-      toNonNegativeInt(target.caixas_avulsas, 0) + toInt(caixasAvulsasDelta, 0),
+    caixasAvulsas: toNonNegativeInt(target.caixas_avulsas, 0) + toInt(caixasAvulsasDelta, 0),
   });
   target.caixas_pallet = metrics.caixas_pallet;
   target.pallets = metrics.pallets;
@@ -175,12 +174,9 @@ export function cloneInventoryRows(rows) {
 
 export function buildInventoryIdentityKey(row) {
   const normalizedRow = hydrateInventoryRow(row);
-  return [
-    normalizedRow.setor,
-    normalizedRow.produto,
-    normalizedRow.marca,
-    normalizedRow.tipo,
-  ].join("|||");
+  return [normalizedRow.setor, normalizedRow.produto, normalizedRow.marca, normalizedRow.tipo].join(
+    "|||",
+  );
 }
 
 export function buildInventoryTotalsMap(rows) {
@@ -204,13 +200,11 @@ export function getInventoryRowByIdentity(rows, { setor, produto, marca, tipo })
       row?.setor === setor &&
       row?.produto === produto &&
       row?.marca === marca &&
-      row?.tipo === normalizedTipo
+      row?.tipo === normalizedTipo,
   );
 }
 
 export function getCurrentPublicAggregateRows() {
-  const sourceRows = state.rawPublicRows?.length
-    ? state.rawPublicRows
-    : state.publicRows;
+  const sourceRows = state.rawPublicRows?.length ? state.rawPublicRows : state.publicRows;
   return aggregateRows(cloneInventoryRows(sourceRows));
 }

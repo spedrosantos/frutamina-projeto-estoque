@@ -104,7 +104,7 @@ export async function shareRowsAsPdf({ title, meta, rows, filename }) {
     window.open(
       `https://wa.me/?text=${encodeURIComponent(`${title}\n${meta}\n\n(PDF baixado neste aparelho - anexe na conversa)`)}`,
       "_blank",
-      "noopener"
+      "noopener",
     );
     pushMessage("info", "PDF baixado. Anexe o arquivo na conversa do WhatsApp.");
   } catch (error) {

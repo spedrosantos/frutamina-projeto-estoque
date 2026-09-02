@@ -9,7 +9,12 @@ import {
   SUPABASE_TIMEOUT_MS,
 } from "../core/config.js";
 import { pushMessage, toAuthEmail, displayUserFromEmail } from "../core/utils.js";
-import { renderContext, renderCountTable, renderCountSyncStatus, storeUserLabel } from "../features/tables.js";
+import {
+  renderContext,
+  renderCountTable,
+  renderCountSyncStatus,
+  storeUserLabel,
+} from "../features/tables.js";
 import { restoreCountDraftForCurrentUser } from "../data/draft.js";
 import { restorePendingChanges, forgetPendingChangesInMemory } from "../data/pending-changes.js";
 import { loadUserRecords } from "../data/supabase-api.js";
@@ -104,10 +109,7 @@ export function setSidebarOpen(open) {
   document.body.classList.toggle("sidebar-open", shouldOpen);
   if (elements.sidebarToggle) {
     elements.sidebarToggle.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
-    elements.sidebarToggle.setAttribute(
-      "aria-label",
-      shouldOpen ? "Fechar menu" : "Abrir menu"
-    );
+    elements.sidebarToggle.setAttribute("aria-label", shouldOpen ? "Fechar menu" : "Abrir menu");
   }
 }
 
@@ -164,7 +166,7 @@ function applyTheme(theme, options = {}) {
   if (elements.themeColorMeta) {
     elements.themeColorMeta.setAttribute(
       "content",
-      normalizedTheme === "dark" ? "#020617" : "#f1f5ff"
+      normalizedTheme === "dark" ? "#020617" : "#f1f5ff",
     );
   }
 
@@ -255,9 +257,7 @@ async function handleAuthState(event, session) {
     }
     unlockRestrictedAccess();
     if (elements.menuUserEmail) {
-      elements.menuUserEmail.textContent = displayUserFromEmail(
-        state.user.email
-      );
+      elements.menuUserEmail.textContent = displayUserFromEmail(state.user.email);
     }
     if (elements.menuUser) elements.menuUser.classList.remove("hidden");
     if (elements.menuLogout) elements.menuLogout.classList.remove("hidden");

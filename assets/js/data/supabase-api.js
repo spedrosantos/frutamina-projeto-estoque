@@ -31,7 +31,13 @@ import {
   buildDbRowPayload,
   isLooseBoxesSchemaError,
 } from "../core/inventory-core.js";
-import { updateLastUpdateFromRows, setPublicMessage, renderPublicTable, renderCountTable, getTotalCaixas } from "../features/tables.js";
+import {
+  updateLastUpdateFromRows,
+  setPublicMessage,
+  renderPublicTable,
+  renderCountTable,
+  getTotalCaixas,
+} from "../features/tables.js";
 
 function renderDashboardIfLoaded() {
   import("../features/dashboard.js").then((m) => m.renderDashboard());
@@ -51,7 +57,7 @@ export async function loadSnapshotRecords(options = {}) {
         .order("created_at", { ascending: false })
         .limit(SNAPSHOT_FETCH_LIMIT),
       SUPABASE_READ_TIMEOUT_MS,
-      "Tempo limite ao carregar o historico."
+      "Tempo limite ao carregar o historico.",
     ));
   } catch (timeoutError) {
     error = timeoutError;
@@ -85,7 +91,7 @@ export async function loadHistoricoDiario(produto, marca) {
         .eq("marca", marca)
         .order("data", { ascending: true }),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao carregar o historico do produto."
+      "Tempo limite ao carregar o historico do produto.",
     );
     if (error) {
       pushMessage("error", `Erro ao carregar historico do produto: ${error.message}`);
@@ -110,7 +116,7 @@ export async function loadHistoricoDiarioTotal() {
         .select("data,total_caixas")
         .order("data", { ascending: true }),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao carregar o historico do CD."
+      "Tempo limite ao carregar o historico do CD.",
     );
     if (error) {
       console.warn("Erro ao carregar historico total:", error.message);
@@ -130,7 +136,7 @@ export async function loadUserLabels() {
     const { data, error } = await withTimeout(
       supabaseClient.from(USER_LABELS_TABLE).select("user_id,label"),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao carregar nomes de usuarios."
+      "Tempo limite ao carregar nomes de usuarios.",
     );
     if (error) {
       console.warn("Erro ao carregar nomes de usuarios:", error.message);
@@ -178,7 +184,7 @@ export async function saveSnapshotRecord({ rows, outflowCaixas = 0, showSuccess 
 
   const { error } = await runWrite(
     supabaseClient.from(SNAPSHOT_TABLE).insert(payload),
-    "Tempo limite ao salvar o historico."
+    "Tempo limite ao salvar o historico.",
   );
   if (error) {
     const message = isSnapshotOutflowSchemaError(error)
@@ -200,7 +206,7 @@ function savePublicCache(rows) {
       [PUBLIC_CACHE_KEY, rows || []],
       [PUBLIC_CACHE_AT_KEY, new Date().toISOString()],
     ],
-    "Nao foi possivel salvar cache publico."
+    "Nao foi possivel salvar cache publico.",
   );
 }
 
@@ -215,7 +221,7 @@ export async function loadPublicRecords() {
     ({ data, error } = await withTimeout(
       supabaseClient.from(TABLE_NAME).select("*"),
       SUPABASE_READ_TIMEOUT_MS,
-      "Tempo limite ao carregar o estoque."
+      "Tempo limite ao carregar o estoque.",
     ));
   } catch (timeoutError) {
     error = timeoutError;
@@ -230,10 +236,7 @@ export async function loadPublicRecords() {
       renderPublicTable();
       renderCountTable();
       renderDashboardIfLoaded();
-      setPublicMessage(
-        "warn",
-        "Sem acesso ao servidor. Exibindo o ultimo estoque salvo."
-      );
+      setPublicMessage("warn", "Sem acesso ao servidor. Exibindo o ultimo estoque salvo.");
       return;
     }
     setPublicMessage("error", `Erro ao carregar dados: ${error.message}`);
@@ -263,7 +266,7 @@ export async function loadUserRecords(options = {}) {
     ({ data, error } = await withTimeout(
       supabaseClient.from(TABLE_NAME).select("*").eq("user_id", state.user.id),
       SUPABASE_READ_TIMEOUT_MS,
-      "Tempo limite ao carregar itens do usuario."
+      "Tempo limite ao carregar itens do usuario.",
     ));
   } catch (timeoutError) {
     error = timeoutError;
@@ -311,7 +314,7 @@ export async function upsertRecord({
       .eq("marca", marca)
       .in("tipo", buildTipoSearchValues(produto, tipo))
       .maybeSingle(),
-    "Tempo limite ao consultar o registro."
+    "Tempo limite ao consultar o registro.",
   );
 
   if (selectError) {
@@ -330,12 +333,12 @@ export async function upsertRecord({
       updated,
       false,
       Object.prototype.hasOwnProperty.call(existing || {}, "caixas_avulsas") ||
-      updated.caixas_avulsas > 0 ||
-      toInt(caixasAvulsasDelta, 0) !== 0
+        updated.caixas_avulsas > 0 ||
+        toInt(caixasAvulsasDelta, 0) !== 0,
     );
     const { error } = await runWrite(
       supabaseClient.from(TABLE_NAME).update(payload).eq("id", existing.id),
-      "Tempo limite ao atualizar o registro."
+      "Tempo limite ao atualizar o registro.",
     );
 
     if (error) {
@@ -358,7 +361,7 @@ export async function upsertRecord({
     });
     const { error } = await runWrite(
       supabaseClient.from(TABLE_NAME).insert(buildDbRowPayload(newRow, true)),
-      "Tempo limite ao salvar o registro."
+      "Tempo limite ao salvar o registro.",
     );
 
     if (error) {
@@ -399,9 +402,7 @@ async function applyLaunchBatchLegacy(ops) {
     }
     // Sem transacao aqui: o item gravado sai da fila na hora, senao uma segunda
     // tentativa depois de queda de rede somaria ele duas vezes.
-    state.pendingChanges = (state.pendingChanges || []).filter(
-      (item) => item !== op
-    );
+    state.pendingChanges = (state.pendingChanges || []).filter((item) => item !== op);
   }
   const { data, error } = await loadUserRecords({ showError: false });
   return { rows: data || [], error };
@@ -429,7 +430,7 @@ export async function applyLaunchBatch(ops) {
 
   const { data, error } = await runWrite(
     supabaseClient.rpc("aplicar_lancamentos", { ops: payload }),
-    "Tempo limite ao salvar a contagem."
+    "Tempo limite ao salvar a contagem.",
   );
   // Banco ainda sem a migracao: grava pelo caminho antigo em vez de deixar o
   // operador sem conseguir salvar. Some quando o SQL estiver aplicado em todos
@@ -454,7 +455,7 @@ export async function probeSupabase() {
           Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         },
       },
-      8000
+      8000,
     );
     return {
       ok: response.ok,

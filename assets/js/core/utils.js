@@ -41,9 +41,7 @@ export function normalizeText(text) {
 
   if (!base) return "";
 
-  const spaced = base
-    .replace(/([A-Z])([0-9])/g, "$1 $2")
-    .replace(/([0-9])([A-Z])/g, "$1 $2");
+  const spaced = base.replace(/([A-Z])([0-9])/g, "$1 $2").replace(/([0-9])([A-Z])/g, "$1 $2");
 
   const tokens = spaced.split(" ").filter(Boolean);
   if (!tokens.length) return "";
@@ -66,7 +64,10 @@ export function normalizeText(text) {
     MAGALY: "MAGALI",
   };
 
-  return tokens.map((token) => tokenMap[token] || token).join(" ").trim();
+  return tokens
+    .map((token) => tokenMap[token] || token)
+    .join(" ")
+    .trim();
 }
 
 export function tokenizeText(text) {
@@ -105,7 +106,7 @@ export function matchSpecialTipoAtTokens(produto, tokens, index) {
   if (!variants.length) return null;
   for (const variant of variants) {
     const sequence = variant.matchSequences.find((candidate) =>
-      candidate.every((token, offset) => tokens[index + offset] === token)
+      candidate.every((token, offset) => tokens[index + offset] === token),
     );
     if (sequence) {
       return { value: variant.value, length: sequence.length };
@@ -132,9 +133,7 @@ export function toAuthEmail(value) {
   if (!raw) return "";
   if (raw.includes("@")) return raw;
   const normalized = raw.normalize("NFD").replace(/[̀-ͯ]/g, "");
-  const sanitized = normalized
-    .replace(/\s+/g, "")
-    .replace(/[^a-z0-9._-]/g, "");
+  const sanitized = normalized.replace(/\s+/g, "").replace(/[^a-z0-9._-]/g, "");
   if (!sanitized) return "";
   return `${sanitized}@cd.local`;
 }
@@ -168,10 +167,8 @@ export function getSpecialTipoVariantByValue(produto, tipo) {
   return (
     getSpecialTipoVariants(produto).find(
       (variant) =>
-        variant.value === numericTipo ||
-        (variant.legacyValues || []).includes(numericTipo)
-    ) ||
-    null
+        variant.value === numericTipo || (variant.legacyValues || []).includes(numericTipo),
+    ) || null
   );
 }
 
@@ -191,9 +188,7 @@ export function isSpecialTipoVariantValue(produto, tipo) {
 function isSplitTipoBase(produto, tipo) {
   const numericTipo = Number.parseInt(tipo, 10);
   if (!Number.isFinite(numericTipo)) return false;
-  return getSpecialTipoVariants(produto).some(
-    (variant) => variant.baseValue === numericTipo
-  );
+  return getSpecialTipoVariants(produto).some((variant) => variant.baseValue === numericTipo);
 }
 
 export function getTipoRuleValue(produto, tipo) {
@@ -224,11 +219,11 @@ export function getTipoExampleHint(produto) {
 export function buildTipoOptionList(produto) {
   const options = [];
   const reservedValues = new Set(
-    getSpecialTipoVariants(produto).map((variant) => Number.parseInt(variant.value, 10))
+    getSpecialTipoVariants(produto).map((variant) => Number.parseInt(variant.value, 10)),
   );
   for (let tipo = TIPO_MIN; tipo <= TIPO_MAX; tipo += 1) {
     const variants = getSpecialTipoVariants(produto).filter(
-      (variant) => variant.baseValue === tipo
+      (variant) => variant.baseValue === tipo,
     );
     if (variants.length) {
       variants.forEach((variant) => {
@@ -285,9 +280,10 @@ export function parseTipoInputValue(value, produto) {
   const normalizedValue = normalizeText(value);
   if (!normalizedValue) return null;
 
-  const specialMatch = getSpecialTipoVariants(produto).find((variant) =>
-    variant.label === normalizedValue ||
-    variant.matchSequences.some((sequence) => sequence.join(" ") === normalizedValue)
+  const specialMatch = getSpecialTipoVariants(produto).find(
+    (variant) =>
+      variant.label === normalizedValue ||
+      variant.matchSequences.some((sequence) => sequence.join(" ") === normalizedValue),
   );
   if (specialMatch) {
     return specialMatch.value;
@@ -341,12 +337,7 @@ export function setSelectOptions(select, options, currentValue) {
   select.value = currentValue || "";
 }
 
-export function setSelectOptionsWithPlaceholder(
-  select,
-  options,
-  currentValue,
-  placeholder
-) {
+export function setSelectOptionsWithPlaceholder(select, options, currentValue, placeholder) {
   if (!select) return;
   select.innerHTML = "";
   const empty = document.createElement("option");
@@ -406,9 +397,7 @@ export function normalizeKey(value) {
 export function normalizeSetorValue(rawSetor) {
   if (!rawSetor) return rawSetor;
   const targetKey = normalizeKey(rawSetor);
-  const match = Object.keys(CONFIG_GERAL).find(
-    (setor) => normalizeKey(setor) === targetKey
-  );
+  const match = Object.keys(CONFIG_GERAL).find((setor) => normalizeKey(setor) === targetKey);
   return match || rawSetor;
 }
 

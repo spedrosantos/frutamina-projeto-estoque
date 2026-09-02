@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v131";
-const RUNTIME_CACHE = "frutamina-runtime-v131";
+const STATIC_CACHE = "frutamina-static-v132";
+const RUNTIME_CACHE = "frutamina-runtime-v132";
 
 const APP_SHELL = [
   "./",
@@ -43,7 +43,7 @@ const APP_SHELL = [
   "./assets/img/apple-touch-icon.png",
   "./assets/fonts/bootstrap-icons-subset.woff2",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-  "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
+  "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap",
 ];
 
 // Chamadas do Supabase devem priorizar rede; cache serve apenas como fallback.
@@ -60,7 +60,7 @@ async function cacheAppShell() {
       } catch (error) {
         console.warn("Falha ao adicionar asset no cache:", asset, error);
       }
-    })
+    }),
   );
 }
 
@@ -106,13 +106,16 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key))
-          .map((key) => caches.delete(key))
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key))
+            .map((key) => caches.delete(key)),
+        ),
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 

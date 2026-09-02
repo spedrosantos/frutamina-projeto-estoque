@@ -1,32 +1,19 @@
-// Nucleo do lancamento de estoque: desfazer/corrigir ultimo lancamento, parser de
-// comando (voz e texto) e registro do item no modo atual ou na nova contagem.
+// Nucleo do lancamento de estoque: desfazer/corrigir ultimo lancamento e registro
+// do item no modo atual ou na nova contagem. Quem le a frase e voice-parser.js
+// (puro, testado em tests/voice-parser.test.js); aqui fica o que age sobre o
+// estado e a tela a partir do que ele devolve.
 // Import dinamico para saveNewCount/discardNewCount (count-mode.js): esse modulo so
 // existe em editar.html, mas processCommand tambem roda em index.html (comando por
 // texto). Os comandos "salvar"/"descartar" so sao alcancados quando countMode==="new",
 // o que nunca acontece em index.html (nao ha modo "nova contagem" fora de editar.html).
-import { state, elements, supabaseClient } from "../core/state.js";
+import { state, supabaseClient } from "../core/state.js";
 // Trava para evitar que um novo comando (voz/texto) rode enquanto um
 // registro/remocao/correcao anterior ainda esta salvando no servidor: sem
 // isso, um comando falado logo apos outro pode agir sobre o lancamento
 // errado, pois state.lastLaunch so atualiza apos o round-trip de rede
 // terminar.
 let isSavingLaunch = false;
-import {
-  CONFIG_GERAL,
-  NO_TIPO_VALUE,
-  NUMBER_WORDS,
-  ADD_KEYWORDS,
-  BOX_KEYWORDS,
-  REMOVE_KEYWORDS,
-  CORRECT_KEYWORDS,
-  LAUNCH_KEYWORDS,
-  SAVE_KEYWORDS,
-  DISCARD_KEYWORDS,
-  TABLE_NAME,
-  SUPABASE_TIMEOUT_MS,
-  TIPO_MIN,
-  TIPO_MAX,
-} from "../core/config.js";
+import { CONFIG_GERAL, NO_TIPO_VALUE, TABLE_NAME, SUPABASE_TIMEOUT_MS } from "../core/config.js";
 import {
   toNonNegativeInt,
   normalizeText,
@@ -40,10 +27,8 @@ import {
   getTipoExampleHint,
   getTipoValidationMessage,
   isSpecialTipoVariantValue,
-  getTipoSortOrder,
   buildNormalizedMap,
   findExactMatch,
-  matchSpecialTipoAtTokens,
   pushMessage,
   withTimeout,
   getRowKey,
@@ -61,13 +46,27 @@ import { renderContext, renderCountTable, updateSessionAggregateRecord } from ".
 import { loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
 import { queuePendingDelta, undoLastPending } from "../data/pending-changes.js";
 import {
+  buildAllBrandMap,
+  buildBrandMap,
+  buildMaps,
+  extractCommandNumbers,
+  extractCommandTipoValues,
+  formatTipoCounts,
+  hasBoxKeyword,
+  isAddCommand,
+  isCorrectCommand,
+  isDiscardCommand,
+  isLaunchCommand,
+  isRemoveCommand,
+  isSaveCommand,
+  splitOversizedTipoNumbers,
+} from "./voice-parser.js";
+import {
   registerInventoryChange,
   clearVoiceActionState,
   buildLaunchRecord,
   setLastLaunch,
 } from "./launch-core.js";
-
-
 
 // ===== Estruturas auxiliares para desfazer/remover/corrigir o ultimo lancamento =====
 
@@ -86,7 +85,7 @@ function describeLaunchRecord(record) {
     const item = record.items[0];
     return `${getLaunchItemLabel(item)} (${formatInventoryMessage(
       item.palletsDelta,
-      item.caixasAvulsasDelta
+      item.caixasAvulsasDelta,
     )})`;
   }
   return `${record.items.length} itens do ultimo lancamento`;
@@ -135,7 +134,7 @@ function revertLaunchInSession(record) {
     const nextRow = buildRowFromTotal(row, row.total_caixas - item.totalCaixasDelta);
     if (!nextRow) {
       state.sessionRows = state.sessionRows.filter(
-        (current) => getRowKey(current) !== getRowKey(row)
+        (current) => getRowKey(current) !== getRowKey(row),
       );
     } else {
       row.caixas_pallet = nextRow.caixas_pallet;
@@ -168,10 +167,7 @@ async function revertLaunchInCurrentCount(record) {
       return false;
     }
 
-    const nextRow = buildRowFromTotal(
-      currentRow,
-      currentRow.total_caixas - item.totalCaixasDelta
-    );
+    const nextRow = buildRowFromTotal(currentRow, currentRow.total_caixas - item.totalCaixasDelta);
 
     if (!nextRow) {
       const deleteResult = await withTimeout(
@@ -181,14 +177,11 @@ async function revertLaunchInCurrentCount(record) {
           .eq("id", currentRow.id)
           .eq("user_id", state.user.id),
         SUPABASE_TIMEOUT_MS,
-        "Tempo limite ao remover o ultimo lancamento."
+        "Tempo limite ao remover o ultimo lancamento.",
       );
 
       if (deleteResult?.error) {
-        pushMessage(
-          "error",
-          `Erro ao remover o ultimo lancamento: ${deleteResult.error.message}`
-        );
+        pushMessage("error", `Erro ao remover o ultimo lancamento: ${deleteResult.error.message}`);
         return false;
       }
     } else {
@@ -198,7 +191,7 @@ async function revertLaunchInCurrentCount(record) {
           user_id: state.user.id,
         },
         false,
-        currentRow.caixas_avulsas > 0 || nextRow.caixas_avulsas > 0
+        currentRow.caixas_avulsas > 0 || nextRow.caixas_avulsas > 0,
       );
 
       const updateResult = await withTimeout(
@@ -208,7 +201,7 @@ async function revertLaunchInCurrentCount(record) {
           .eq("id", currentRow.id)
           .eq("user_id", state.user.id),
         SUPABASE_TIMEOUT_MS,
-        "Tempo limite ao atualizar o ultimo lancamento."
+        "Tempo limite ao atualizar o ultimo lancamento.",
       );
 
       if (updateResult?.error) {
@@ -237,7 +230,7 @@ async function revertLaunchRecord(record) {
       "warn",
       record.mode === "new"
         ? "Volte para a nova contagem para remover esse ultimo lancamento."
-        : "Volte para a contagem atual para remover esse ultimo lancamento."
+        : "Volte para a contagem atual para remover esse ultimo lancamento.",
     );
     return false;
   }
@@ -260,18 +253,16 @@ async function removeLastLaunchCommand() {
     const removed = await revertLaunchRecord(state.lastLaunch);
     if (!removed) return false;
 
-    pushMessage("success", `Ultimo lancamento removido: ${describeLaunchRecord(state.lastLaunch)}.`);
+    pushMessage(
+      "success",
+      `Ultimo lancamento removido: ${describeLaunchRecord(state.lastLaunch)}.`,
+    );
     clearVoiceActionState();
     return true;
   } finally {
     isSavingLaunch = false;
   }
 }
-
-function hasBoxKeyword(text) {
-  return tokenizeText(text).some((token) => BOX_KEYWORDS.has(token));
-}
-
 
 function beginVoiceCorrection() {
   if (!state.lastLaunch) {
@@ -284,7 +275,7 @@ function beginVoiceCorrection() {
       "warn",
       state.lastLaunch.mode === "new"
         ? "Volte para a nova contagem para corrigir esse ultimo lancamento."
-        : "Volte para a contagem atual para corrigir esse ultimo lancamento."
+        : "Volte para a contagem atual para corrigir esse ultimo lancamento.",
     );
     return false;
   }
@@ -307,204 +298,23 @@ function beginVoiceCorrection() {
 
 // ===== Parser de comando (voz e texto) =====
 
-function buildIgnoredTokenIndexes(tokens, ignoredValues = []) {
-  const ignoredIndexes = new Set();
-
-  (ignoredValues || []).forEach((value) => {
-    const sequence = tokenizeText(value);
-    if (!sequence.length || sequence.length > tokens.length) return;
-
-    for (let i = 0; i <= tokens.length - sequence.length; i += 1) {
-      let match = true;
-      for (let j = 0; j < sequence.length; j += 1) {
-        if (tokens[i + j] !== sequence[j]) {
-          match = false;
-          break;
-        }
-      }
-      if (match) {
-        for (let j = 0; j < sequence.length; j += 1) {
-          ignoredIndexes.add(i + j);
-        }
-        break;
-      }
-    }
-  });
-
-  return ignoredIndexes;
-}
-
-function extractCommandTokens(text, ignoredValues = []) {
-  const tokens = tokenizeText(text);
-  if (!tokens.length) return [];
-
-  const ignoredIndexes = buildIgnoredTokenIndexes(tokens, ignoredValues);
-
-  return tokens.filter((token, index) => !ignoredIndexes.has(index));
-}
-
-function extractCommandNumbers(text, ignoredValues = [], produto = "") {
-  const tokens = extractCommandTokens(text, ignoredValues);
-  if (!tokens.length) return [];
-
-  return tokens.reduce((results, token, index) => {
-    const specialMatch = matchSpecialTipoAtTokens(produto, tokens, index);
-    if (specialMatch) {
-      return results;
-    }
-    if (/^\d+$/.test(token)) {
-      results.push(Number.parseInt(token, 10));
-      return results;
-    }
-    if (Object.prototype.hasOwnProperty.call(NUMBER_WORDS, token)) {
-      results.push(NUMBER_WORDS[token]);
-    }
-    return results;
-  }, []);
-}
-
-function extractCommandTipoValues(text, produto, ignoredValues = []) {
-  if (!produto) return [];
-  const tokens = extractCommandTokens(text, ignoredValues);
-  if (!tokens.length) return [];
-
-  const results = [];
-  for (let index = 0; index < tokens.length; index += 1) {
-    const specialMatch = matchSpecialTipoAtTokens(produto, tokens, index);
-    if (specialMatch) {
-      results.push(specialMatch.value);
-      index += specialMatch.length - 1;
-      continue;
-    }
-
-    const token = tokens[index];
-    if (/^\d+$/.test(token)) {
-      results.push(Number.parseInt(token, 10));
-      continue;
-    }
-    if (Object.prototype.hasOwnProperty.call(NUMBER_WORDS, token)) {
-      results.push(NUMBER_WORDS[token]);
-    }
-  }
-
-  return results;
-}
-
-function isAddCommand(text) {
-  const tokens = normalizeText(text).split(" ").filter(Boolean);
-  return tokens.some((token) => ADD_KEYWORDS.has(token));
-}
-
-function isRemoveCommand(text) {
-  const tokens = tokenizeText(text);
-  return tokens.some((token) => REMOVE_KEYWORDS.has(token));
-}
-
-function isCorrectCommand(text) {
-  const tokens = tokenizeText(text);
-  return tokens.some((token) => CORRECT_KEYWORDS.has(token));
-}
-
-function isLaunchCommand(text) {
-  const tokens = tokenizeText(text);
-  return tokens.some((token) => LAUNCH_KEYWORDS.has(token));
-}
-
-function isSaveCommand(text) {
-  const tokens = tokenizeText(text);
-  return tokens.some((token) => SAVE_KEYWORDS.has(token));
-}
-
-function isDiscardCommand(text) {
-  const tokens = tokenizeText(text);
-  return tokens.some((token) => DISCARD_KEYWORDS.has(token));
-}
-
-/**
- * Quando o reconhecedor de voz une dois números falados rapidamente
- * (ex: "5" + "6" -> "56"), este utilitário decompõe o número resultante
- * de volta em tipos válidos. Tenta primeiro pares de 2 dígitos (para
- * recuperar tipos de 2 casas, ex: "12" + "12" -> "1212"), e só cai para
- * 1 dígito quando o par não forma um tipo válido para o produto.
- */
-function splitOversizedTipoNumbers(values, produto) {
-  const result = [];
-  for (const value of values) {
-    if (value >= TIPO_MIN && value <= TIPO_MAX) {
-      result.push(value);
-      continue;
-    }
-    if (value <= TIPO_MAX) continue;
-    const digits = String(value).split("").map(Number);
-    let i = 0;
-    while (i < digits.length) {
-      const twoDigit = digits[i] * 10 + digits[i + 1];
-      if (
-        i + 1 < digits.length &&
-        twoDigit >= TIPO_MIN &&
-        twoDigit <= TIPO_MAX &&
-        isTipoValidForContext(produto, twoDigit)
-      ) {
-        result.push(twoDigit);
-        i += 2;
-        continue;
-      }
-      if (digits[i] >= TIPO_MIN && digits[i] <= TIPO_MAX) {
-        result.push(digits[i]);
-      }
-      i += 1;
-    }
-  }
-  return result;
-}
-
-function buildMaps(setor) {
-  const products = CONFIG_GERAL[setor] || {};
-  const productMap = buildNormalizedMap(Object.keys(products));
-  return { products, productMap };
-}
-
-function buildBrandMap(products, product) {
-  return buildNormalizedMap(Object.keys(products?.[product] || {}));
-}
-
-function buildAllBrandMap(products) {
-  const allBrands = [];
-  Object.keys(products || {}).forEach((product) => {
-    allBrands.push(...Object.keys(products[product] || {}));
-  });
-  return buildNormalizedMap(allBrands);
-}
-
-function formatTipoCounts(tipoCounts, produto, marca = "") {
-  return Array.from(tipoCounts.entries())
-    .sort(
-      (a, b) => getTipoSortOrder(produto, a[0]) - getTipoSortOrder(produto, b[0])
-    )
-    .map(([tipo, count]) => {
-      const tipoLabel = formatTipoLabelValue(produto, tipo, marca);
-      return count > 1 ? `${tipoLabel}x${count}` : String(tipoLabel);
-    })
-    .join(", ");
-}
-
 async function handlePendingCorrection(rawText) {
   const correction = state.pendingCorrection;
   if (!correction?.items?.length) return false;
 
   const item = correction.items[0];
-  const numericValues = extractCommandNumbers(rawText, [
+  const numericValues = extractCommandNumbers(
+    rawText,
+    [item.setor, item.produto, item.marca],
+    item.produto,
+  )
+    .map((value) => Number.parseInt(value, 10))
+    .filter((value) => Number.isFinite(value) && value > 0);
+  const tipoValues = extractCommandTipoValues(rawText, item.produto, [
     item.setor,
     item.produto,
     item.marca,
-  ], item.produto)
-    .map((value) => Number.parseInt(value, 10))
-    .filter((value) => Number.isFinite(value) && value > 0);
-  const tipoValues = extractCommandTipoValues(
-    rawText,
-    item.produto,
-    [item.setor, item.produto, item.marca]
-  ).filter((value) => Number.isFinite(value) && value > 0);
+  ]).filter((value) => Number.isFinite(value) && value > 0);
   const setor = item.setor;
   const produto = item.produto;
   const marca = item.marca;
@@ -520,15 +330,13 @@ async function handlePendingCorrection(rawText) {
   let nextParams = null;
 
   if (correction.correctionMode === "type") {
-    const tipoCorrigido = tipoValues.find((value) =>
-      isTipoValidForContext(produto, value)
-    );
+    const tipoCorrigido = tipoValues.find((value) => isTipoValidForContext(produto, value));
     if (!Number.isFinite(tipoCorrigido)) {
       pushMessage(
         "warn",
         hasSpecialTipoVariants(produto)
           ? `Diga o tipo correto para corrigir o ultimo lancamento (ex: ${getTipoExampleHint(produto)}).`
-          : "Diga o tipo correto para corrigir o ultimo lancamento."
+          : "Diga o tipo correto para corrigir o ultimo lancamento.",
       );
       return true;
     }
@@ -545,15 +353,8 @@ async function handlePendingCorrection(rawText) {
       successPrefix: "Corrigido",
       successSubject: `${produto} ${marca} Tipo ${tipoLabel}`,
       actionKind:
-        item.caixasAvulsasDelta > 0
-          ? "boxes"
-          : item.palletsDelta > 1
-            ? "pallets"
-            : "pallets",
-      correctionMode:
-        item.caixasAvulsasDelta > 0 || item.palletsDelta > 1
-          ? "quantity"
-          : "type",
+        item.caixasAvulsasDelta > 0 ? "boxes" : item.palletsDelta > 1 ? "pallets" : "pallets",
+      correctionMode: item.caixasAvulsasDelta > 0 || item.palletsDelta > 1 ? "quantity" : "type",
     };
   } else if (correction.correctionMode === "quantity") {
     if (!numericValues.length) {
@@ -561,7 +362,7 @@ async function handlePendingCorrection(rawText) {
         "warn",
         correction.actionKind === "boxes"
           ? "Diga a quantidade correta de caixas avulsas."
-          : "Diga a quantidade correta para substituir o ultimo lancamento."
+          : "Diga a quantidade correta para substituir o ultimo lancamento.",
       );
       return true;
     }
@@ -574,15 +375,11 @@ async function handlePendingCorrection(rawText) {
         produto,
         marca,
         tipo: noTipo ? NO_TIPO_VALUE : item.tipo,
-        caixasPallet: regra(
-          noTipo ? NO_TIPO_VALUE : getTipoRuleValue(produto, item.tipo)
-        ),
+        caixasPallet: regra(noTipo ? NO_TIPO_VALUE : getTipoRuleValue(produto, item.tipo)),
         palletsDelta: 0,
         caixasAvulsasDelta: quantidade,
         successPrefix: "Corrigido",
-        successSubject: noTipo
-          ? `${produto} ${marca}`
-          : `${produto} ${marca} Tipo ${tipoLabel}`,
+        successSubject: noTipo ? `${produto} ${marca}` : `${produto} ${marca} Tipo ${tipoLabel}`,
         actionKind: "boxes",
         correctionMode: "quantity",
       };
@@ -593,15 +390,11 @@ async function handlePendingCorrection(rawText) {
         produto,
         marca,
         tipo: noTipo ? NO_TIPO_VALUE : item.tipo,
-        caixasPallet: regra(
-          noTipo ? NO_TIPO_VALUE : getTipoRuleValue(produto, item.tipo)
-        ),
+        caixasPallet: regra(noTipo ? NO_TIPO_VALUE : getTipoRuleValue(produto, item.tipo)),
         palletsDelta: quantidade,
         caixasAvulsasDelta: 0,
         successPrefix: "Corrigido",
-        successSubject: noTipo
-          ? `${produto} ${marca}`
-          : `${produto} ${marca} Tipo ${tipoLabel}`,
+        successSubject: noTipo ? `${produto} ${marca}` : `${produto} ${marca} Tipo ${tipoLabel}`,
         actionKind: "pallets",
         correctionMode: quantidade > 1 || noTipo ? "quantity" : "type",
       };
@@ -629,7 +422,7 @@ async function handlePendingCorrection(rawText) {
     if (!corrected) {
       pushMessage(
         "warn",
-        "O ultimo lancamento foi removido, mas a correcao nao foi aplicada. Repita o comando."
+        "O ultimo lancamento foi removido, mas a correcao nao foi aplicada. Repita o comando.",
       );
     }
     return true;
@@ -673,7 +466,10 @@ export async function processCommand(rawText) {
 
   if (isLaunchCommand(rawText) || isSaveCommand(rawText)) {
     if (state.countMode !== "new") {
-      pushMessage("warn", "Voce nao esta em modo de nova contagem. Mude para nova contagem primeiro.");
+      pushMessage(
+        "warn",
+        "Voce nao esta em modo de nova contagem. Mude para nova contagem primeiro.",
+      );
       renderContext();
       return;
     }
@@ -752,7 +548,7 @@ export async function processCommand(rawText) {
         "info",
         /\bKG\b/.test(normalizeText(brandFound)) && !isNoTipoProduct(state.produto)
           ? `Marca fixada: ${brandFound}. Agora diga o tipo.`
-          : `Marca fixada: ${brandFound}`
+          : `Marca fixada: ${brandFound}`,
       );
     }
   } else {
@@ -776,16 +572,15 @@ export async function processCommand(rawText) {
   const noTipo = isNoTipoContext(state.produto, state.marca);
   const addCommand = isAddCommand(rawText);
   const boxCommand = hasBoxKeyword(rawText);
-  const rawTipoValues = extractCommandTipoValues(
-    rawText,
-    state.produto,
-    ignoredValues
-  ).filter((value) => Number.isFinite(value) && value > 0);
-  const tipoValues = (!addCommand && !boxCommand)
-    ? splitOversizedTipoNumbers(rawTipoValues, state.produto)
-    : rawTipoValues;
+  const rawTipoValues = extractCommandTipoValues(rawText, state.produto, ignoredValues).filter(
+    (value) => Number.isFinite(value) && value > 0,
+  );
+  const tipoValues =
+    !addCommand && !boxCommand
+      ? splitOversizedTipoNumbers(rawTipoValues, state.produto)
+      : rawTipoValues;
   const specialTipos = tipoValues.filter((value) =>
-    isSpecialTipoVariantValue(state.produto, value)
+    isSpecialTipoVariantValue(state.produto, value),
   );
 
   if (boxCommand && !numericValues.length) {
@@ -796,10 +591,7 @@ export async function processCommand(rawText) {
 
   if (boxCommand) {
     if (!state.produto || !state.marca) {
-      pushMessage(
-        "warn",
-        "Diga primeiro o produto e a marca antes de adicionar caixas."
-      );
+      pushMessage("warn", "Diga primeiro o produto e a marca antes de adicionar caixas.");
       renderContext();
       return;
     }
@@ -808,7 +600,7 @@ export async function processCommand(rawText) {
     if (!regra) {
       pushMessage(
         "error",
-        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`
+        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`,
       );
       renderContext();
       return;
@@ -832,7 +624,7 @@ export async function processCommand(rawText) {
         "warn",
         hasSpecialTipoVariants(state.produto)
           ? `Diga o tipo primeiro (ex: ${getTipoExampleHint(state.produto)}) para somar caixas avulsas.`
-          : "Diga o tipo primeiro (ex: REI 4) para somar caixas avulsas."
+          : "Diga o tipo primeiro (ex: REI 4) para somar caixas avulsas.",
       );
       renderContext();
       return;
@@ -845,11 +637,7 @@ export async function processCommand(rawText) {
 
     const caixasAvulsasDelta = numericValues[numericValues.length - 1];
     const caixasPallet = regra(getTipoRuleValue(state.produto, tipoParaAdicionar));
-    const tipoLabel = formatTipoLabelValue(
-      state.produto,
-      tipoParaAdicionar,
-      state.marca
-    );
+    const tipoLabel = formatTipoLabelValue(state.produto, tipoParaAdicionar, state.marca);
 
     await registerInventoryChange({
       setor: state.setor,
@@ -878,10 +666,7 @@ export async function processCommand(rawText) {
 
   if (addCommand && numericValues.length) {
     if (!state.produto || !state.marca) {
-      pushMessage(
-        "warn",
-        "Diga primeiro o produto e a marca antes de adicionar quantidade."
-      );
+      pushMessage("warn", "Diga primeiro o produto e a marca antes de adicionar quantidade.");
       renderContext();
       return;
     }
@@ -890,7 +675,7 @@ export async function processCommand(rawText) {
     if (!regra) {
       pushMessage(
         "error",
-        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`
+        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`,
       );
       renderContext();
       return;
@@ -915,7 +700,7 @@ export async function processCommand(rawText) {
         "warn",
         hasSpecialTipoVariants(state.produto)
           ? `Diga o tipo primeiro (ex: ${getTipoExampleHint(state.produto)}) para usar 'adicionar'.`
-          : "Diga o tipo primeiro (ex: REI 4) para usar 'adicionar'."
+          : "Diga o tipo primeiro (ex: REI 4) para usar 'adicionar'.",
       );
       renderContext();
       return;
@@ -928,11 +713,7 @@ export async function processCommand(rawText) {
 
     const caixasPallet = regra(getTipoRuleValue(state.produto, tipoParaAdicionar));
     const palletsDelta = quantity;
-    const tipoLabel = formatTipoLabelValue(
-      state.produto,
-      tipoParaAdicionar,
-      state.marca
-    );
+    const tipoLabel = formatTipoLabelValue(state.produto, tipoParaAdicionar, state.marca);
 
     await registerInventoryChange({
       setor: state.setor,
@@ -958,7 +739,7 @@ export async function processCommand(rawText) {
     if (!regra) {
       pushMessage(
         "error",
-        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`
+        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`,
       );
       renderContext();
       return;
@@ -991,10 +772,7 @@ export async function processCommand(rawText) {
   // conta como 1 pallet por aparecer tambem em numericValues.
   if (!noTipo && specialTipos.length && !numericValues.length) {
     if (!state.produto || !state.marca) {
-      pushMessage(
-        "warn",
-        "Diga primeiro o produto e a marca antes de informar o tipo."
-      );
+      pushMessage("warn", "Diga primeiro o produto e a marca antes de informar o tipo.");
       renderContext();
       return;
     }
@@ -1003,7 +781,7 @@ export async function processCommand(rawText) {
     if (!regra) {
       pushMessage(
         "error",
-        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`
+        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`,
       );
       renderContext();
       return;
@@ -1033,10 +811,7 @@ export async function processCommand(rawText) {
 
   if (numericValues.length) {
     if (!state.produto || !state.marca) {
-      pushMessage(
-        "warn",
-        "Diga primeiro o produto e a marca antes de informar o numero."
-      );
+      pushMessage("warn", "Diga primeiro o produto e a marca antes de informar o numero.");
       renderContext();
       return;
     }
@@ -1045,7 +820,7 @@ export async function processCommand(rawText) {
     if (!regra) {
       pushMessage(
         "error",
-        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`
+        `Essa marca '${state.marca}' nao tem regra para o produto '${state.produto}'.`,
       );
       renderContext();
       return;
@@ -1079,9 +854,7 @@ export async function processCommand(rawText) {
       return;
     }
 
-    const tiposValid = tipoValues.filter((value) =>
-      isTipoValidForContext(state.produto, value)
-    );
+    const tiposValid = tipoValues.filter((value) => isTipoValidForContext(state.produto, value));
 
     if (!tiposValid.length) {
       pushMessage("warn", getTipoValidationMessage(state.produto));
@@ -1107,11 +880,7 @@ export async function processCommand(rawText) {
       }
     }
 
-    const tipoLabel = formatTipoCounts(
-      tipoCounts,
-      state.produto,
-      state.marca
-    );
+    const tipoLabel = formatTipoCounts(tipoCounts, state.produto, state.marca);
     const launchItems = Array.from(tipoCounts.entries()).map(([tipo, count]) => ({
       setor: state.setor,
       produto: state.produto,
@@ -1135,13 +904,12 @@ export async function processCommand(rawText) {
       renderCountTable();
       pushMessage(
         "success",
-        `Registrado (nova contagem): ${state.produto} ${state.marca} Tipos ${tipoLabel}`
+        `Registrado (nova contagem): ${state.produto} ${state.marca} Tipos ${tipoLabel}`,
       );
       const launchRecord = buildLaunchRecord({
         items: launchItems,
-        correctionMode: launchItems.length === 1 && launchItems[0].palletsDelta === 1
-          ? "type"
-          : "batch",
+        correctionMode:
+          launchItems.length === 1 && launchItems[0].palletsDelta === 1 ? "type" : "batch",
         actionKind: launchItems.length === 1 ? "pallets" : "batch",
         label: `${state.produto} ${state.marca} Tipos ${tipoLabel}`,
       });
@@ -1161,16 +929,12 @@ export async function processCommand(rawText) {
           caixasAvulsasDelta: 0,
         });
       });
-      pushMessage(
-        "success",
-        `Registrado: ${state.produto} ${state.marca} Tipos ${tipoLabel}`
-      );
+      pushMessage("success", `Registrado: ${state.produto} ${state.marca} Tipos ${tipoLabel}`);
 
       const launchRecord = buildLaunchRecord({
         items: launchItems,
-        correctionMode: launchItems.length === 1 && launchItems[0].palletsDelta === 1
-          ? "type"
-          : "batch",
+        correctionMode:
+          launchItems.length === 1 && launchItems[0].palletsDelta === 1 ? "type" : "batch",
         actionKind: launchItems.length === 1 ? "pallets" : "batch",
         label: `${state.produto} ${state.marca} Tipos ${tipoLabel}`,
       });

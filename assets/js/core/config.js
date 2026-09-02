@@ -25,7 +25,6 @@ export const CATALOG_REMOVALS_KEY = "cd_catalog_removals_v1";
 export const THEME_PREFERENCE_KEY = "cd_theme_preference_v1";
 
 export const CONFIG_GERAL = {
-  
   CHAO: {
     AMARELO: {
       ANGEL: (t) => (t >= 4 && t <= 9 ? 72 : 65),
@@ -45,7 +44,6 @@ export const CONFIG_GERAL = {
       LOLA: (t) => 66,
       BAHIA: (t) => 66,
       COSA: (t) => 66,
-
     },
     "MELANCIA (CHAO)": {
       SAMBA: (t) => (t >= 4 && t <= 7 ? 66 : 65),
@@ -166,14 +164,7 @@ export const ADD_KEYWORDS = new Set([
   "MAIS",
 ]);
 
-export const BOX_KEYWORDS = new Set([
-  "CAIXA",
-  "CAIXAS",
-  "CX",
-  "CXS",
-  "AVULSA",
-  "AVULSAS",
-]);
+export const BOX_KEYWORDS = new Set(["CAIXA", "CAIXAS", "CX", "CXS", "AVULSA", "AVULSAS"]);
 
 export const REMOVE_KEYWORDS = new Set(["REMOVER", "REMOVA", "DESFAZER"]);
 export const CORRECT_KEYWORDS = new Set(["CORRIGIR", "CORRIGE", "CORRECAO"]);

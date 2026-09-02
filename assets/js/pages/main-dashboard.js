@@ -26,7 +26,9 @@ function setupOverviewTabs() {
       const active = tab === button;
       tab.classList.toggle("active", active);
       tab.setAttribute("aria-selected", String(active));
-      document.getElementById(tab.dataset.tab ? `tab-${tab.dataset.tab}` : "")?.classList.toggle("hidden", !active);
+      document
+        .getElementById(tab.dataset.tab ? `tab-${tab.dataset.tab}` : "")
+        ?.classList.toggle("hidden", !active);
     });
 
     if (button.dataset.tab === "tendencia" && !historicoIniciado) {

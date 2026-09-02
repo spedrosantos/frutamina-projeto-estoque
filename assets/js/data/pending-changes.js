@@ -44,7 +44,7 @@ export function restorePendingChanges() {
   if (state.pendingChanges.length) {
     pushMessage(
       "info",
-      `${state.pendingChanges.length} lancamento(s) do estoque atual foram recuperados neste aparelho. Salve para grava-los.`
+      `${state.pendingChanges.length} lancamento(s) do estoque atual foram recuperados neste aparelho. Salve para grava-los.`,
     );
   }
   return state.pendingChanges.length > 0;
@@ -81,7 +81,7 @@ export function renderPendingChanges({ persist = true } = {}) {
 // fila e, quando ha valor novo, entram como um unico lancamento.
 export function replacePendingDelta(identityKey, entry = null) {
   state.pendingChanges = getPendingChanges().filter(
-    (op) => buildInventoryIdentityKey(op) !== identityKey
+    (op) => buildInventoryIdentityKey(op) !== identityKey,
   );
   if (entry) getPendingChanges().push({ kind: "delta", ...entry });
   renderPendingChanges();
@@ -94,9 +94,7 @@ export async function applyPendingRow(identityKey) {
     pushMessage("error", "Faça login para salvar as alterações.");
     return false;
   }
-  const ops = getPendingChanges().filter(
-    (op) => buildInventoryIdentityKey(op) === identityKey
-  );
+  const ops = getPendingChanges().filter((op) => buildInventoryIdentityKey(op) === identityKey);
   if (!ops.length) return true;
 
   const { error } = await applyLaunchBatch(ops);
@@ -154,7 +152,7 @@ export async function applyPendingChanges() {
   if (error) {
     pushMessage(
       "error",
-      `Erro ao salvar a contagem: ${error.message}. O que não entrou continua neste aparelho.`
+      `Erro ao salvar a contagem: ${error.message}. O que não entrou continua neste aparelho.`,
     );
     renderPendingChanges();
     return false;

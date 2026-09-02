@@ -2,7 +2,12 @@
 // Fonte dos dados: tabela estoque_historico_diario, gravada 1x/dia por um cron no
 // Supabase (ver supabase-historico-diario.sql), independente de "Nova Contagem".
 import { state, elements, PAGE_MODE } from "../core/state.js";
-import { listProductsBySetor, listBrands, setSelectOptionsWithPlaceholder, formatNumber } from "../core/utils.js";
+import {
+  listProductsBySetor,
+  listBrands,
+  setSelectOptionsWithPlaceholder,
+  formatNumber,
+} from "../core/utils.js";
 import { loadHistoricoDiario, loadHistoricoDiarioTotal } from "../data/supabase-api.js";
 import { renderLineChart } from "./dashboard.js";
 import { enhanceSelect } from "../shell/select-menu.js";
@@ -26,7 +31,11 @@ function withAlpha(color, alphaHex) {
 function formatDiaLabel(value) {
   const date = value ? new Date(`${value}T00:00:00`) : null;
   if (!date || Number.isNaN(date.getTime())) return "--";
-  return new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "2-digit" }).format(date);
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "2-digit",
+  }).format(date);
 }
 
 function getRangeDias() {
@@ -76,7 +85,7 @@ function renderHistoricoChartAndSummary() {
     renderHistoricoEmpty(
       totalMode
         ? "Sem historico diario ainda. O primeiro ponto e gravado na virada do dia."
-        : "Sem dados historicos ainda para esse periodo."
+        : "Sem dados historicos ainda para esse periodo.",
     );
     return;
   }
@@ -86,16 +95,20 @@ function renderHistoricoChartAndSummary() {
 
   // Total do CD usa o acento; produto especifico usa o verde.
   const accent = readThemeColor(totalMode ? "--app-accent" : "--app-green", "#2563eb");
-  chartMeta = renderLineChart(elements.historicoCanvas, { dates, values }, {
-    lineColor: accent,
-    fillStart: withAlpha(accent, "4d"),
-    fillEnd: withAlpha(accent, "0d"),
-    labelColor: readThemeColor("--app-text-soft", "rgba(148, 163, 184, 0.9)"),
-    gridColor: readThemeColor("--app-border", "rgba(148, 163, 184, 0.25)"),
-    showLabels: true,
-    height: 240,
-    hoverIndex,
-  });
+  chartMeta = renderLineChart(
+    elements.historicoCanvas,
+    { dates, values },
+    {
+      lineColor: accent,
+      fillStart: withAlpha(accent, "4d"),
+      fillEnd: withAlpha(accent, "0d"),
+      labelColor: readThemeColor("--app-text-soft", "rgba(148, 163, 184, 0.9)"),
+      gridColor: readThemeColor("--app-border", "rgba(148, 163, 184, 0.25)"),
+      showLabels: true,
+      height: 240,
+      hoverIndex,
+    },
+  );
 
   const { min, max } = computeMinMax(serieFiltrada);
   if (elements.historicoSummary) {
@@ -103,7 +116,7 @@ function renderHistoricoChartAndSummary() {
       ? "Total do CD"
       : `${state.historicoProduto} — ${state.historicoMarca}`;
     elements.historicoSummary.textContent = `${escopo}: ${formatNumber(
-      values[values.length - 1]
+      values[values.length - 1],
     )} cx hoje · ${serieFiltrada.length} dia(s) no periodo`;
   }
   if (elements.historicoMaxLabel && max) {
@@ -154,7 +167,7 @@ function attachHistoricoHover() {
     const ratio = (x - chartMeta.padding.left) / chartMeta.innerWidth;
     const index = Math.max(
       0,
-      Math.min(chartMeta.values.length - 1, Math.round(ratio * (chartMeta.values.length - 1)))
+      Math.min(chartMeta.values.length - 1, Math.round(ratio * (chartMeta.values.length - 1))),
     );
     if (hoverIndex === index) return;
     hoverIndex = index;
@@ -165,7 +178,7 @@ function attachHistoricoHover() {
       const px = chartMeta.getX(index);
       const py = chartMeta.getY(value);
       elements.historicoTooltip.innerHTML = `<strong>${formatNumber(value)}</strong> cx<span class="tooltip-date">${formatDiaLabel(
-        date.toISOString().slice(0, 10)
+        date.toISOString().slice(0, 10),
       )}</span>`;
       elements.historicoTooltip.style.left = `${Math.min(Math.max(px, 12), chartMeta.width - 12)}px`;
       elements.historicoTooltip.style.top = `${Math.max(py, 24)}px`;
@@ -189,7 +202,12 @@ export function setupHistoricoProduto() {
   if (PAGE_MODE !== "dashboard") return;
   if (!elements.historicoProdutoSelect || !elements.historicoMarcaSelect) return;
 
-  setSelectOptionsWithPlaceholder(elements.historicoProdutoSelect, listProductsBySetor(null), "", "Selecione");
+  setSelectOptionsWithPlaceholder(
+    elements.historicoProdutoSelect,
+    listProductsBySetor(null),
+    "",
+    "Selecione",
+  );
   updateHistoricoMarcaOptions();
   enhanceSelect(elements.historicoProdutoSelect);
   enhanceSelect(elements.historicoMarcaSelect);

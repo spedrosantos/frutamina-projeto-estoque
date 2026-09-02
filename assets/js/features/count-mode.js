@@ -11,15 +11,15 @@ import {
 } from "../core/inventory-core.js";
 import { requireAuthenticatedUser } from "../shell/auth-ui.js";
 import { renderContext, renderCountTable } from "./tables.js";
-import {
-  hasCountDraftData,
-  saveCountDraftLocally,
-  clearCountDraft,
-} from "../data/draft.js";
+import { hasCountDraftData, saveCountDraftLocally, clearCountDraft } from "../data/draft.js";
 import { buildPublicRowsAfterUserReplacement, calculateOutflowCaixas } from "./comparison.js";
 import { saveSnapshotRecord, loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
 import { clearVoiceActionState } from "./launch-core.js";
-import { hasPendingChanges, clearPendingChanges, renderPendingChanges } from "../data/pending-changes.js";
+import {
+  hasPendingChanges,
+  clearPendingChanges,
+  renderPendingChanges,
+} from "../data/pending-changes.js";
 import { confirmAction } from "../shell/confirm-modal.js";
 
 export function updateCountModeUI() {
@@ -31,10 +31,7 @@ export function updateCountModeUI() {
   }
 
   if (elements.newCountActions) {
-    elements.newCountActions.classList.toggle(
-      "hidden",
-      state.countMode !== "new"
-    );
+    elements.newCountActions.classList.toggle("hidden", state.countMode !== "new");
   }
 }
 
@@ -64,8 +61,7 @@ async function setCountMode(mode) {
     } else {
       const confirmed = await confirmAction({
         title: "Nova contagem",
-        message:
-          "Iniciar nova contagem? A contagem atual so sera substituida quando voce salvar.",
+        message: "Iniciar nova contagem? A contagem atual so sera substituida quando voce salvar.",
         confirmLabel: "Iniciar",
       });
       if (!confirmed) return;
@@ -80,7 +76,7 @@ async function setCountMode(mode) {
       if (shouldSave) {
         const saved = await saveSnapshotRecord({
           rows: aggregateRows(
-            cloneInventoryRows(state.rawPublicRows?.length ? state.rawPublicRows : state.userRows)
+            cloneInventoryRows(state.rawPublicRows?.length ? state.rawPublicRows : state.userRows),
           ),
           outflowCaixas: 0,
           showSuccess: false,
@@ -101,15 +97,14 @@ async function setCountMode(mode) {
       state.previousPublicRows = getCurrentPublicAggregateRows();
       pushMessage(
         "info",
-        "Nova contagem iniciada. O estoque anterior ficou guardado temporariamente para comparacao no final."
+        "Nova contagem iniciada. O estoque anterior ficou guardado temporariamente para comparacao no final.",
       );
     }
   } else {
     if (hasCountDraftData()) {
       const confirmed = await confirmAction({
         title: "Voltar para o estoque atual",
-        message:
-          "O rascunho da nova contagem fica salvo neste aparelho para voce retomar depois.",
+        message: "O rascunho da nova contagem fica salvo neste aparelho para voce retomar depois.",
         confirmLabel: "Voltar",
       });
       if (!confirmed) return;
@@ -151,7 +146,7 @@ export async function saveNewCount() {
     saveCountDraftLocally();
     pushMessage(
       "warn",
-      "Sem internet. A nova contagem continua salva neste aparelho. Conecte-se e tente sincronizar novamente."
+      "Sem internet. A nova contagem continua salva neste aparelho. Conecte-se e tente sincronizar novamente.",
     );
     return;
   }
@@ -162,9 +157,7 @@ export async function saveNewCount() {
   const previousPublicRows = state.previousPublicRows.length
     ? cloneInventoryRows(state.previousPublicRows)
     : getCurrentPublicAggregateRows();
-  const comparisonPreviousRows = previousPublicRows.length
-    ? previousPublicRows
-    : previousRows;
+  const comparisonPreviousRows = previousPublicRows.length ? previousPublicRows : previousRows;
   const confirmed = await confirmAction({
     title: "Salvar nova contagem",
     message: "Isso vai apagar a contagem antiga e substituir pela nova.",
@@ -185,17 +178,17 @@ export async function saveNewCount() {
     // uma falha de rede no meio do caminho deixe o estoque do usuario
     // zerado no servidor: na pior das hipoteses sobra duplicata (recuperavel).
     const setoresContados = Array.from(
-      new Set(currentRows.map((row) => row.setor).filter(Boolean))
+      new Set(currentRows.map((row) => row.setor).filter(Boolean)),
     );
     const { data: existingRows, error: selectError } = await withTimeout(
       supabaseClient.from(TABLE_NAME).select("id").in("setor", setoresContados),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao verificar a contagem atual."
+      "Tempo limite ao verificar a contagem atual.",
     );
     if (selectError) {
       pushMessage(
         "error",
-        `Erro ao verificar contagem atual: ${selectError.message}. O rascunho offline foi mantido neste aparelho.`
+        `Erro ao verificar contagem atual: ${selectError.message}. O rascunho offline foi mantido neste aparelho.`,
       );
       saveCountDraftLocally();
       return;
@@ -213,8 +206,8 @@ export async function saveNewCount() {
           user_id: state.user.id,
         },
         true,
-        true
-      )
+        true,
+      ),
     );
 
     // Upsert (nao insert) porque a unique (user_id, setor, produto, marca,
@@ -227,7 +220,7 @@ export async function saveNewCount() {
         .upsert(payload, { onConflict: "user_id,setor,produto,marca,tipo" })
         .select("id"),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao enviar a nova contagem."
+      "Tempo limite ao enviar a nova contagem.",
     );
     const insertError = insertResult?.error;
     if (insertError) {
@@ -247,7 +240,7 @@ export async function saveNewCount() {
       const deleteResult = await withTimeout(
         supabaseClient.from(TABLE_NAME).delete().in("id", idsToDelete),
         SUPABASE_TIMEOUT_MS,
-        "Tempo limite ao remover a contagem antiga."
+        "Tempo limite ao remover a contagem antiga.",
       );
       if (deleteResult?.error) {
         duplicatesWarning = ` Atencao: nao foi possivel remover os registros antigos (${deleteResult.error.message}) — pode haver itens duplicados ate a proxima sincronizacao.`;
@@ -257,11 +250,11 @@ export async function saveNewCount() {
     const currentPublicRows = buildPublicRowsAfterUserReplacement(
       comparisonPreviousRows,
       previousRows,
-      currentRows
+      currentRows,
     );
     const outflowCaixas = calculateOutflowCaixas(
       comparisonPreviousRows,
-      currentPublicRows.length ? currentPublicRows : currentRows
+      currentPublicRows.length ? currentPublicRows : currentRows,
     );
     const snapshotSaved = await saveSnapshotRecord({
       rows: currentPublicRows.length ? currentPublicRows : currentRows,
@@ -285,12 +278,12 @@ export async function saveNewCount() {
 
     pushMessage(
       duplicatesWarning ? "warn" : snapshotSaved ? "success" : "warn",
-      `${successMsg}${duplicatesWarning}`
+      `${successMsg}${duplicatesWarning}`,
     );
   } catch (error) {
     pushMessage(
       "error",
-      `${error?.message || "Erro ao sincronizar a nova contagem."} O rascunho offline foi mantido neste aparelho.`
+      `${error?.message || "Erro ao sincronizar a nova contagem."} O rascunho offline foi mantido neste aparelho.`,
     );
     saveCountDraftLocally();
   } finally {

@@ -26,7 +26,11 @@ import {
 import { scheduleCountDraftPersist } from "../data/draft.js";
 // Ciclo proposital com pending-changes.js: sao funcoes declaradas, chamadas so
 // em runtime, entao os dois modulos se resolvem sem problema.
-import { applyPendingRow, getPendingChanges, replacePendingDelta } from "../data/pending-changes.js";
+import {
+  applyPendingRow,
+  getPendingChanges,
+  replacePendingDelta,
+} from "../data/pending-changes.js";
 import { confirmAction } from "../shell/confirm-modal.js";
 
 export function formatDateTime(value) {
@@ -73,7 +77,7 @@ export async function storeUserLabel(userId, email) {
     const { error } = await withTimeout(
       supabaseClient.from(USER_LABELS_TABLE).upsert({ user_id: userId, label }),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao salvar nome do usuario."
+      "Tempo limite ao salvar nome do usuario.",
     );
     if (error) console.warn("Erro ao salvar nome do usuario:", error.message);
   } catch (error) {
@@ -121,13 +125,13 @@ function renderLastUpdate() {
   if (elements.publicLastUpdate) {
     elements.publicLastUpdate.textContent = formatPublicLastUpdateText(
       state.lastUpdatePublicAt,
-      state.lastUpdatePublicBy
+      state.lastUpdatePublicBy,
     );
   }
   if (elements.countLastUpdate) {
     elements.countLastUpdate.textContent = formatLastUpdateText(
       state.lastUpdateCountAt,
-      state.lastUpdateCountBy
+      state.lastUpdateCountBy,
     );
   }
 }
@@ -201,9 +205,7 @@ export function renderCountSyncStatus() {
 
   const online = navigator.onLine;
   const hasDraft = Boolean(
-    state.sessionRows.length ||
-    state.previousCountRows.length ||
-    state.previousPublicRows.length
+    state.sessionRows.length || state.previousCountRows.length || state.previousPublicRows.length,
   );
   const lastSaved = formatDateTime(state.countDraftSavedAt);
   const pendingCount = state.countMode === "new" ? 0 : getPendingChanges().length;
@@ -325,7 +327,7 @@ function buildSummaryGroups(rows) {
       ...group,
       brands: Array.from(group.brands).sort(),
       tipos: Array.from(group.tipos).sort(
-        (a, b) => getTipoSortOrder(group.produto, a) - getTipoSortOrder(group.produto, b)
+        (a, b) => getTipoSortOrder(group.produto, a) - getTipoSortOrder(group.produto, b),
       ),
     }))
     .sort((a, b) => {
@@ -443,10 +445,7 @@ function renderSummaryTables(rows, container, options = {}) {
       const palletsTotalCell = document.createElement("td");
       palletsTotalCell.textContent = "";
       const totalCaixasCell = document.createElement("td");
-      totalCaixasCell.textContent = formatSummaryValue(
-        totals.total_caixas,
-        true
-      );
+      totalCaixasCell.textContent = formatSummaryValue(totals.total_caixas, true);
       totalCaixasCell.className = "cell-sum";
       totalRow.append(caixasTotalCell, palletsTotalCell, totalCaixasCell);
     });
@@ -488,7 +487,7 @@ export function setPublicViewMode(mode) {
       detailed: elements.publicTableDetailed,
       summary: elements.publicTableSummary,
     },
-    renderPublicSummary
+    renderPublicSummary,
   );
 }
 
@@ -502,7 +501,7 @@ export function setCountViewMode(mode) {
       detailed: elements.countTableDetailed,
       summary: elements.countTableSummary,
     },
-    renderCountSummary
+    renderCountSummary,
   );
 }
 
@@ -515,7 +514,7 @@ function renderSummaryFor(container, getRows) {
 
 function renderPublicSummary() {
   renderSummaryFor(elements.publicTableSummary, () =>
-    state.publicRows.filter(matchesPublicFilters)
+    state.publicRows.filter(matchesPublicFilters),
   );
 }
 
@@ -533,7 +532,7 @@ export function renderPublicTable() {
     const tipoLabel = formatTipoLabelValue(
       normalizedRow.produto,
       normalizedRow.tipo,
-      normalizedRow.marca
+      normalizedRow.marca,
     );
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -566,7 +565,7 @@ function matchesPublicFilters(row) {
   if (query) {
     const tipoText = formatTipoLabelValue(row.produto, row.tipo, row.marca);
     const haystack = normalizeText(
-      `${row.setor} ${row.produto} ${row.marca} ${row.tipo} ${tipoText}`
+      `${row.setor} ${row.produto} ${row.marca} ${row.tipo} ${tipoText}`,
     );
     if (!haystack.includes(query)) return false;
   }
@@ -585,7 +584,7 @@ export function renderCountTable() {
     const tipoLabel = formatTipoLabelValue(
       normalizedRow.produto,
       normalizedRow.tipo,
-      normalizedRow.marca
+      normalizedRow.marca,
     );
     const tr = document.createElement("tr");
     const rowKey = getRowKey(normalizedRow);
@@ -691,7 +690,7 @@ function buildPendingCountRows() {
         caixas_pallet: op.caixas_pallet,
         pallets: op.palletsDelta,
         caixas_avulsas: op.caixasAvulsasDelta,
-      })
+      }),
     );
   }
   return rows;
@@ -739,9 +738,7 @@ function applyCountSourceUI() {
 // fica travada e a tela cai no estoque gravado.
 function syncCountSourceAvailability() {
   const counting =
-    state.countMode === "new"
-      ? state.sessionRows.length > 0
-      : getPendingChanges().length > 0;
+    state.countMode === "new" ? state.sessionRows.length > 0 : getPendingChanges().length > 0;
   const option = elements.countSourceSelect?.querySelector('option[value="contagem"]');
   if (option) option.disabled = !counting;
   if (!counting && state.countSource !== "estoque") state.countSource = "estoque";
@@ -783,7 +780,6 @@ function getCountRows() {
   return state.countMode === "new" ? state.sessionRows : buildPendingCountRows();
 }
 
-
 function openFilterModal() {
   if (!elements.filterModal) return;
   buildFilterOptions();
@@ -810,11 +806,7 @@ export function buildFilterOptions() {
 
   setSelectOptions(elements.filterSetor, Object.keys(CONFIG_GERAL).sort(), setor);
   setSelectOptions(elements.filterProduto, listProductsBySetor(setor), produto);
-  setSelectOptions(
-    elements.filterMarca,
-    listBrands(setor, elements.filterProduto.value),
-    marca
-  );
+  setSelectOptions(elements.filterMarca, listBrands(setor, elements.filterProduto.value), marca);
 
   elements.filterTipo.value = state.publicFilters.tipo || "";
 }
@@ -826,7 +818,11 @@ function updateFilterDependencies() {
   const setor = elements.filterSetor.value;
   const produto = elements.filterProduto.value;
   setSelectOptions(elements.filterProduto, listProductsBySetor(setor), produto);
-  setSelectOptions(elements.filterMarca, listBrands(setor, elements.filterProduto.value), elements.filterMarca.value);
+  setSelectOptions(
+    elements.filterMarca,
+    listBrands(setor, elements.filterProduto.value),
+    elements.filterMarca.value,
+  );
 }
 
 function getPrintRows(scope) {
@@ -897,7 +893,7 @@ function buildPrintHeading(scope, rows) {
         : "Contagem em andamento";
   const totalCaixas = rows.reduce(
     (sum, row) => sum + (hydrateInventoryRow(row).total_caixas || 0),
-    0
+    0,
   );
   const meta = `${rows.length} ${rows.length === 1 ? "item" : "itens"} | Total ${totalCaixas} caixas | ${formatDateTime(new Date())}`;
   return { title, meta };
@@ -918,7 +914,7 @@ function handleWhatsApp(scope) {
       meta,
       rows,
       filename: `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.pdf`,
-    })
+    }),
   );
 }
 
@@ -975,7 +971,7 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
       setSelectOptions(
         elements.filterMarca,
         listBrands(elements.filterSetor.value, elements.filterProduto.value),
-        elements.filterMarca.value
+        elements.filterMarca.value,
       );
     });
   }
@@ -1074,10 +1070,7 @@ export function updateSessionAggregateRecord({
 }) {
   const found = state.sessionRows.find(
     (row) =>
-      row.setor === setor &&
-      row.produto === produto &&
-      row.marca === marca &&
-      row.tipo === tipo
+      row.setor === setor && row.produto === produto && row.marca === marca && row.tipo === tipo,
   );
   if (found) {
     applyInventoryDeltas(found, {
@@ -1086,16 +1079,18 @@ export function updateSessionAggregateRecord({
       caixasAvulsasDelta,
     });
   } else {
-    state.sessionRows.push(hydrateInventoryRow({
-      _localId: `local_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-      setor,
-      produto,
-      marca,
-      tipo,
-      caixas_pallet,
-      pallets: palletsDelta,
-      caixas_avulsas: caixasAvulsasDelta,
-    }));
+    state.sessionRows.push(
+      hydrateInventoryRow({
+        _localId: `local_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+        setor,
+        produto,
+        marca,
+        tipo,
+        caixas_pallet,
+        pallets: palletsDelta,
+        caixas_avulsas: caixasAvulsasDelta,
+      }),
+    );
   }
 }
 

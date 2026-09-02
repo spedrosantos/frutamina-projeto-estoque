@@ -26,7 +26,7 @@ export function calculateOutflowCaixas(previousRows, currentRows) {
 export function buildPublicRowsAfterUserReplacement(
   previousPublicRows,
   previousUserRows,
-  currentUserRows
+  currentUserRows,
 ) {
   const totalsMap = new Map();
 
@@ -38,7 +38,7 @@ export function buildPublicRowsAfterUserReplacement(
       const currentTotal = current ? toNonNegativeInt(current.total_caixas, 0) : 0;
       const nextTotal = Math.max(
         0,
-        currentTotal + direction * toNonNegativeInt(normalizedRow.total_caixas, 0)
+        currentTotal + direction * toNonNegativeInt(normalizedRow.total_caixas, 0),
       );
 
       if (!nextTotal) {
@@ -52,8 +52,7 @@ export function buildPublicRowsAfterUserReplacement(
         produto: normalizedRow.produto,
         marca: normalizedRow.marca,
         tipo: normalizedRow.tipo,
-        caixas_pallet:
-          normalizedRow.caixas_pallet || current?.caixas_pallet || 0,
+        caixas_pallet: normalizedRow.caixas_pallet || current?.caixas_pallet || 0,
         total_caixas: nextTotal,
       });
     });
@@ -65,4 +64,3 @@ export function buildPublicRowsAfterUserReplacement(
 
   return Array.from(totalsMap.values()).map((row) => hydrateInventoryRow(row));
 }
-

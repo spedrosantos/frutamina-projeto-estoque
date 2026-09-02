@@ -39,12 +39,20 @@ test("estoque publico apos salvar troca a contagem do operador", () => {
   const publicoAntes = [item({ pallets: 5 })];
   const doOperadorAntes = [item({ pallets: 2 })];
   const doOperadorAgora = [item({ pallets: 4 })];
-  const depois = buildPublicRowsAfterUserReplacement(publicoAntes, doOperadorAntes, doOperadorAgora);
+  const depois = buildPublicRowsAfterUserReplacement(
+    publicoAntes,
+    doOperadorAntes,
+    doOperadorAgora,
+  );
   assert.equal(depois.length, 1);
   assert.equal(depois[0].total_caixas, 7 * 66);
 });
 
 test("item zerado pelo operador sai do estoque publico", () => {
-  const depois = buildPublicRowsAfterUserReplacement([item({ pallets: 2 })], [item({ pallets: 2 })], []);
+  const depois = buildPublicRowsAfterUserReplacement(
+    [item({ pallets: 2 })],
+    [item({ pallets: 2 })],
+    [],
+  );
   assert.deepEqual(depois, []);
 });

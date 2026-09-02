@@ -38,10 +38,8 @@ export function renderLineChart(canvas, series, options = {}) {
   const minValue = values.length ? Math.min(...values, 0) : 0;
   const range = maxValue - minValue || 1;
 
-  const getX = (index) =>
-    padding.left + (innerWidth * index) / Math.max(values.length - 1, 1);
-  const getY = (value) =>
-    padding.top + innerHeight - ((value - minValue) / range) * innerHeight;
+  const getX = (index) => padding.left + (innerWidth * index) / Math.max(values.length - 1, 1);
+  const getY = (value) => padding.top + innerHeight - ((value - minValue) / range) * innerHeight;
 
   ctx.strokeStyle = options.gridColor || "rgba(148, 163, 184, 0.25)";
   ctx.lineWidth = 1;
@@ -73,7 +71,7 @@ export function renderLineChart(canvas, series, options = {}) {
       ctx.fillText(
         new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short" }).format(date),
         x,
-        padding.top + innerHeight + 10
+        padding.top + innerHeight + 10,
       );
     }
   }
@@ -98,10 +96,7 @@ export function renderLineChart(canvas, series, options = {}) {
     const gradient = ctx.createLinearGradient(0, padding.top, 0, height);
     gradient.addColorStop(0, options.fillStart || "rgba(59, 130, 246, 0.35)");
     gradient.addColorStop(1, options.fillEnd || "rgba(59, 130, 246, 0.05)");
-    ctx.lineTo(
-      padding.left + innerWidth,
-      padding.top + innerHeight
-    );
+    ctx.lineTo(padding.left + innerWidth, padding.top + innerHeight);
     ctx.lineTo(padding.left, padding.top + innerHeight);
     ctx.closePath();
     ctx.fillStyle = gradient;
@@ -162,9 +157,7 @@ const DASHBOARD_OVERVIEW_COLORS = [
 // A sobra do donut acompanha o tema (antes era um azul-escuro fixo, que
 // aparecia como mancha no tema claro).
 function readOverviewTrackColor() {
-  const value = getComputedStyle(document.body)
-    .getPropertyValue("--app-track")
-    .trim();
+  const value = getComputedStyle(document.body).getPropertyValue("--app-track").trim();
   return value || "#eef0f4";
 }
 
@@ -275,10 +268,7 @@ function buildDashboardOverviewData() {
     const diff = latestSnapshot.delta;
     const sign = diff >= 0 ? "+" : "-";
     const prevTotal = toNonNegativeInt(previousSnapshot.total, 0);
-    const pct =
-      previousSnapshot && prevTotal > 0
-        ? (Math.abs(diff) / prevTotal) * 100
-        : null;
+    const pct = previousSnapshot && prevTotal > 0 ? (Math.abs(diff) / prevTotal) * 100 : null;
     const pctText = Number.isFinite(pct) ? ` (${formatPercent(pct)}%)` : "";
     totalCaixasMeta = `${sign}${formatNumber(Math.abs(diff))} cx${pctText} vs. contagem anterior`;
   }
@@ -330,7 +320,7 @@ function renderDashboardSetorBars(setores) {
     fill.style.width = `${Math.max(6, (item.total / maxValue) * 100)}%`;
     fill.style.setProperty(
       "--bar-color",
-      DASHBOARD_OVERVIEW_COLORS[index % DASHBOARD_OVERVIEW_COLORS.length]
+      DASHBOARD_OVERVIEW_COLORS[index % DASHBOARD_OVERVIEW_COLORS.length],
     );
 
     const value = document.createElement("span");
@@ -399,8 +389,7 @@ function renderDashboardHistory(history) {
 
   rows.forEach((entry) => {
     const tr = document.createElement("tr");
-    const deltaClass =
-      entry.delta > 0 ? "positive" : entry.delta < 0 ? "negative" : "neutral";
+    const deltaClass = entry.delta > 0 ? "positive" : entry.delta < 0 ? "negative" : "neutral";
     const deltaSign = entry.delta > 0 ? "+" : "";
     tr.innerHTML = `
       <td>${formatDateTime(entry.when)}</td>
@@ -424,7 +413,7 @@ function buildDashboardBrandGradient(marcas) {
     const end = Math.min(100, start + share);
     cursor = end;
     return `${DASHBOARD_OVERVIEW_COLORS[index % DASHBOARD_OVERVIEW_COLORS.length]} ${start.toFixed(
-      2
+      2,
     )}% ${end.toFixed(2)}%`;
   });
   if (cursor < 100) {
@@ -440,7 +429,7 @@ function renderDashboardBrands(data) {
   if (elements.ovBrandChart) {
     elements.ovBrandChart.style.setProperty(
       "--app-brand-donut",
-      buildDashboardBrandGradient(data.marcas)
+      buildDashboardBrandGradient(data.marcas),
     );
   }
   if (!elements.ovBrandGrid) return;
@@ -459,7 +448,7 @@ function renderDashboardBrands(data) {
     card.className = "overview-brand-item";
     card.style.setProperty(
       "--brand-accent",
-      DASHBOARD_OVERVIEW_COLORS[index % DASHBOARD_OVERVIEW_COLORS.length]
+      DASHBOARD_OVERVIEW_COLORS[index % DASHBOARD_OVERVIEW_COLORS.length],
     );
 
     const label = document.createElement("span");
@@ -473,7 +462,7 @@ function renderDashboardBrands(data) {
     const meta = document.createElement("span");
     meta.className = "overview-brand-meta";
     meta.textContent = `${formatNumber(marca.produtos)} produtos · ${formatNumber(
-      marca.pallets
+      marca.pallets,
     )} pallets`;
 
     card.append(label, total, meta);

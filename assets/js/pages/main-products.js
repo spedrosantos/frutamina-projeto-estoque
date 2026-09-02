@@ -8,7 +8,12 @@ import "../shell/register-sw.js";
 import { applyCatalogOverridesFromCache } from "../data/catalog-overrides.js";
 import { finishBoot } from "../shell/boot-common.js";
 import { initSetorSelects } from "../shell/auth-ui.js";
-import { buildFilterOptions, renderContext, renderPublicTable, renderCountTable } from "../features/tables.js";
+import {
+  buildFilterOptions,
+  renderContext,
+  renderPublicTable,
+  renderCountTable,
+} from "../features/tables.js";
 import { initCatalogForm, setupCatalogEvents } from "../features/catalog-crud.js";
 
 applyCatalogOverridesFromCache();

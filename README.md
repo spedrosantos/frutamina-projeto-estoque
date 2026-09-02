@@ -155,7 +155,7 @@ Observações:
 ## Modo "Estoque Atual" vs "Nova Contagem"
 
 - **Estoque Atual**
-  - cada lançamento entra numa fila de *deltas* no aparelho (`pending-changes.js`), visível na aba `Conferência`;
+  - cada lançamento entra numa fila de _deltas_ no aparelho (`pending-changes.js`), visível na aba `Conferência`;
   - ao salvar, a fila inteira vai numa única chamada (`aplicar_lancamentos`) e é aplicada numa transação: ou grava tudo, ou nada — no erro a fila continua intacta no aparelho;
   - se o banco ainda não tiver a função, o app volta sozinho ao caminho antigo (um `SELECT` + `UPDATE` por item, em série) e não avisa nada — só fica mais lento;
   - a fila sobrevive ao logout e ao fechamento do app.
@@ -254,8 +254,12 @@ pallet, agregação por item, payload do banco) e
 `assets/js/features/comparison.js` (saída entre contagens).
 
 ```bash
-node --test tests/inventory-core.test.js tests/comparison.test.js
+node --test tests/inventory-core.test.js tests/comparison.test.js tests/voice-parser.test.js
 ```
+
+O parser de voz tem teste porque virou módulo próprio: `voice-parser.js` recebe
+a frase reconhecida e devolve números, tipos e intenção, sem tocar em tela nem
+no estado global — quem age sobre isso é `voice-actions.js`.
 
 Sem dependência nenhuma — só o `node:test` que já vem no Node. Os dois
 `package.json` de uma linha (`assets/js/` e `tests/`) existem só para o Node
@@ -264,6 +268,17 @@ tratar os arquivos como módulo ES; não há build, e a raiz continua sem
 
 Nada de DOM nos testes: `tests/dom-stub.js` planta o mínimo (`document`,
 `window.supabase`, `localStorage`) para `state.js` carregar fora do navegador.
+
+## Formatação
+
+```bash
+npx prettier --check .
+npx prettier --write .
+```
+
+Config em `.prettierrc.json` (100 colunas, fim de linha automático) e
+`.prettierignore` fora de fontes e imagens. Não há dependência instalada nem
+`package.json` na raiz — o `npx` baixa na hora.
 
 ## Hook de pre-commit
 

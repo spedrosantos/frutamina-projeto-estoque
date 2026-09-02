@@ -92,7 +92,9 @@ body .sidebar .sidebar-footer button {
   font-weight: 600;
   transform: none;
   box-shadow: none;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .sidebar .sidebar-nav button:hover,
@@ -134,7 +136,10 @@ body .sidebar .sidebar-footer button {
   overflow: hidden;
   white-space: nowrap;
   transform: translateX(-6px);
-  transition: max-width 0.24s ease, opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    max-width 0.24s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .sidebar:hover .sidebar-label,
@@ -174,7 +179,10 @@ body.sidebar-open .sidebar .sidebar-footer button {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: opacity 0.2s ease, max-height 0.2s ease, padding 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    max-height 0.2s ease,
+    padding 0.2s ease;
 }
 
 .sidebar:hover .sidebar-footer .user-chip,
@@ -339,7 +347,6 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   }
 }
 
-
 .user-chip {
   background: var(--sb-chip);
   color: var(--sb-text-strong);
@@ -398,7 +405,9 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   white-space: nowrap;
   box-shadow: none;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .edit-tab:hover {
@@ -471,7 +480,9 @@ body[data-theme="dark"] .auth-form label {
   text-align: left;
   box-shadow: none;
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .select-menu-trigger:hover:not(:disabled) {
@@ -643,7 +654,9 @@ body[data-theme="dark"] .auth-form label {
   border-radius: 18px;
   background: var(--app-surface, #ffffff);
   border: 1px solid var(--app-border, #e4e7ec);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 24px 60px -34px rgba(16, 24, 40, 0.45);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 24px 60px -34px rgba(16, 24, 40, 0.45);
   text-align: center;
 }
 
@@ -713,7 +726,9 @@ body[data-theme="dark"] .auth-form label {
   background: var(--app-surface-soft, #f7f8fa);
   color: var(--app-text, #101828);
   font-size: 14.5px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .auth-field input:focus {
@@ -797,7 +812,6 @@ body[data-page="edit"] .count-toolbar-actions .select-menu {
 }
 
 @media (max-width: 640px) {
-
   /* Select do que a tabela mostra ocupa a largura toda; na linha de baixo o
      toggle fica na esquerda e os botoes na direita. */
   body[data-page="edit"] .count-toolbar-actions .select-menu {
@@ -806,9 +820,7 @@ body[data-page="edit"] .count-toolbar-actions .select-menu {
   }
 }
 
-
 @media (max-width: 980px) {
-
   .mobile-topbar {
     display: flex;
     align-items: center;
@@ -902,17 +914,13 @@ body[data-page="edit"] .count-toolbar-actions .select-menu {
   }
 }
 
-
 @media (max-width: 560px) {
-
   .mobile-topbar {
     padding: 10px 12px;
   }
 }
 
-
 @media (max-width: 980px) {
-
   /* Cor vem dos tokens --sb-*; aqui so o raio menor da pagina de estoque. */
   .mobile-topbar {
     border-radius: var(--app-radius-sm);

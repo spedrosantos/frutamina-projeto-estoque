@@ -30,21 +30,36 @@
           <div class="sync-copy">
             <strong id="count-sync-title">Sistema pronto para contagem offline</strong>
             <span id="count-sync-text">
-              Quando voce iniciar uma nova contagem, o rascunho sera salvo automaticamente neste aparelho.
+              Quando voce iniciar uma nova contagem, o rascunho sera salvo automaticamente neste
+              aparelho.
             </span>
           </div>
         </section>
         <nav id="count-tabs" class="edit-tabs" role="tablist" aria-label="Secoes da contagem">
-          <button class="edit-tab active" type="button" role="tab" data-tab="contagem" aria-selected="true" aria-controls="panel-contagem">
+          <button
+            class="edit-tab active"
+            type="button"
+            role="tab"
+            data-tab="contagem"
+            aria-selected="true"
+            aria-controls="panel-contagem"
+          >
             <i class="bi bi-pencil-square"></i><span>Contagem</span>
           </button>
-          <button class="edit-tab" type="button" role="tab" data-tab="conferencia" aria-selected="false" aria-controls="panel-conferencia">
+          <button
+            class="edit-tab"
+            type="button"
+            role="tab"
+            data-tab="conferencia"
+            aria-selected="false"
+            aria-controls="panel-conferencia"
+          >
             <i class="bi bi-list-check"></i><span>Revisar e salvar</span>
           </button>
         </nav>
 
         <div id="panel-contagem" class="edit-tabpanel">
-        <!-- Troca entre estoque atual e nova contagem offline. -->
+          <!-- Troca entre estoque atual e nova contagem offline. -->
           <section id="count-mode-bar" class="count-mode-bar">
             <div class="count-mode-row">
               <div class="count-mode-field">
@@ -64,101 +79,100 @@
               </button>
             </div>
           </section>
-        <div class="grid count-layout">
-          <div class="count-left-column">
-            
-          <!-- Card de voz com contexto travado, escuta e comando manual. -->
-          <section class="card voice-card" id="voice-card">
-            <div class="voice-card-header">
-              <h2><i class="bi bi-mic"></i>Comando por Voz</h2>
+          <div class="grid count-layout">
+            <div class="count-left-column">
+              <!-- Card de voz com contexto travado, escuta e comando manual. -->
+              <section class="card voice-card" id="voice-card">
+                <div class="voice-card-header">
+                  <h2><i class="bi bi-mic"></i>Comando por Voz</h2>
+                </div>
+
+                <div class="voice-context-box">
+                  <h3>Contexto travado</h3>
+                  <div class="voice-context-grid">
+                    <div class="voice-chip">
+                      <span>Setor</span>
+                      <strong id="ctx-setor">--</strong>
+                    </div>
+                    <div class="voice-chip">
+                      <span>Produto</span>
+                      <strong id="ctx-produto">--</strong>
+                    </div>
+                    <div class="voice-chip">
+                      <span>Marca</span>
+                      <strong id="ctx-marca">--</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <button id="voice-btn" class="voice-action" type="button">
+                  <i class="bi bi-mic-fill" aria-hidden="true"></i>
+                  <span id="voice-btn-label">Iniciar escuta</span>
+                </button>
+                <div id="voice-status" class="voice-status">Microfone pronto.</div>
+
+                <textarea
+                  id="voice-last"
+                  rows="2"
+                  readonly
+                  placeholder="O que a maquina esta ouvindo..."
+                ></textarea>
+
+                <div id="messages" class="msg-area"></div>
+              </section>
             </div>
-
-            <div class="voice-context-box">
-              <h3>Contexto travado</h3>
-              <div class="voice-context-grid">
-                <div class="voice-chip">
-                  <span>Setor</span>
-                  <strong id="ctx-setor">--</strong>
+            <div class="count-right-column">
+              <!-- Lancamento manual dos itens (setor, produto, marca, tipo e quantidade). -->
+              <section id="manual-card" class="card full">
+                <div class="card-header">
+                  <h2><i class="bi bi-pencil-square"></i>Comando Manual</h2>
+                  <p>
+                    Preencha os campos para adicionar o item. Para lancar so caixas avulsas, deixe
+                    pallets em 0.
+                  </p>
                 </div>
-                <div class="voice-chip">
-                  <span>Produto</span>
-                  <strong id="ctx-produto">--</strong>
+                <div class="manual-grid">
+                  <div class="manual-field">
+                    <span class="manual-field-label">Setor</span>
+                    <select id="manual-setor"></select>
+                  </div>
+                  <div class="manual-field">
+                    <span class="manual-field-label">Produto</span>
+                    <select id="manual-produto"></select>
+                  </div>
+                  <div class="manual-field">
+                    <span class="manual-field-label">Marca</span>
+                    <select id="manual-marca"></select>
+                  </div>
+                  <div class="manual-field">
+                    <span class="manual-field-label">Tipo</span>
+                    <select id="manual-tipo"></select>
+                  </div>
+                  <div class="manual-field">
+                    <span class="manual-field-label">Pallets</span>
+                    <select id="manual-pallets"></select>
+                  </div>
+                  <label class="manual-field">
+                    <span class="manual-field-label">Caixas avulsas</span>
+                    <input
+                      id="manual-boxes"
+                      type="number"
+                      min="0"
+                      step="1"
+                      value="0"
+                      inputmode="numeric"
+                      placeholder="0"
+                    />
+                  </label>
                 </div>
-                <div class="voice-chip">
-                  <span>Marca</span>
-                  <strong id="ctx-marca">--</strong>
+                <div class="manual-actions">
+                  <button id="manual-add" class="primary" type="button">
+                    <i class="bi bi-plus-lg"></i><span>Adicionar item</span>
+                  </button>
                 </div>
-              </div>
+              </section>
             </div>
-
-            <button id="voice-btn" class="voice-action" type="button">
-              <i class="bi bi-mic-fill" aria-hidden="true"></i>
-              <span id="voice-btn-label">Iniciar escuta</span>
-            </button>
-            <div id="voice-status" class="voice-status">Microfone pronto.</div>
-
-            <textarea
-              id="voice-last"
-              rows="2"
-              readonly
-              placeholder="O que a maquina esta ouvindo..."
-            ></textarea>
-
-          
-            <div id="messages" class="msg-area"></div>
-          </section>
-
           </div>
-          <div class="count-right-column">
-          <!-- Lancamento manual dos itens (setor, produto, marca, tipo e quantidade). -->
-          <section id="manual-card" class="card full">
-            <div class="card-header">
-              <h2><i class="bi bi-pencil-square"></i>Comando Manual</h2>
-              <p>Preencha os campos para adicionar o item. Para lancar so caixas avulsas, deixe pallets em 0.</p>
-            </div>
-            <div class="manual-grid">
-              <div class="manual-field">
-                <span class="manual-field-label">Setor</span>
-                <select id="manual-setor"></select>
-              </div>
-              <div class="manual-field">
-                <span class="manual-field-label">Produto</span>
-                <select id="manual-produto"></select>
-              </div>
-              <div class="manual-field">
-                <span class="manual-field-label">Marca</span>
-                <select id="manual-marca"></select>
-              </div>
-              <div class="manual-field">
-                <span class="manual-field-label">Tipo</span>
-                <select id="manual-tipo"></select>
-              </div>
-              <div class="manual-field">
-                <span class="manual-field-label">Pallets</span>
-                <select id="manual-pallets"></select>
-              </div>
-              <label class="manual-field">
-                <span class="manual-field-label">Caixas avulsas</span>
-                <input
-                  id="manual-boxes"
-                  type="number"
-                  min="0"
-                  step="1"
-                  value="0"
-                  inputmode="numeric"
-                  placeholder="0"
-                />
-              </label>
-            </div>
-            <div class="manual-actions">
-              <button id="manual-add" class="primary" type="button">
-                <i class="bi bi-plus-lg"></i><span>Adicionar item</span>
-              </button>
-            </div>
-          </section>
-          
-          </div>
-        </div>
         </div>
 
         <div id="panel-conferencia" class="edit-tabpanel hidden">
@@ -179,28 +193,33 @@
                   <option value="contagem">Meus lançamentos</option>
                   <option value="estoque">Já no sistema</option>
                 </select>
-                <div id="count-view-toggle" class="view-toggle" role="group" aria-label="Modo de tabela">
-                <!-- Resumo primeiro, igual ao toggle do index: o CSS da pilula
+                <div
+                  id="count-view-toggle"
+                  class="view-toggle"
+                  role="group"
+                  aria-label="Modo de tabela"
+                >
+                  <!-- Resumo primeiro, igual ao toggle do index: o CSS da pilula
                      do .view-toggle assume essa ordem. -->
-                <button
-                  id="count-view-summary"
-                  class="view-toggle-btn"
-                  type="button"
-                  aria-pressed="true"
-                  title="Resumo"
-                >
-                  <i class="bi bi-table"></i>
-                </button>
-                <button
-                  id="count-view-detailed"
-                  class="view-toggle-btn"
-                  type="button"
-                  aria-pressed="false"
-                  title="Detalhada"
-                >
-                  <i class="bi bi-list-ul"></i>
-                </button>
-              </div>
+                  <button
+                    id="count-view-summary"
+                    class="view-toggle-btn"
+                    type="button"
+                    aria-pressed="true"
+                    title="Resumo"
+                  >
+                    <i class="bi bi-table"></i>
+                  </button>
+                  <button
+                    id="count-view-detailed"
+                    class="view-toggle-btn"
+                    type="button"
+                    aria-pressed="false"
+                    title="Detalhada"
+                  >
+                    <i class="bi bi-list-ul"></i>
+                  </button>
+                </div>
 
                 <button
                   id="count-whatsapp-btn"
@@ -261,9 +280,7 @@
                 </table>
               </div>
               <div class="table-footer">
-                <div class="total">
-                  Total geral: <strong id="count-total-geral">0</strong>
-                </div>
+                <div class="total">Total geral: <strong id="count-total-geral">0</strong></div>
               </div>
             </div>
             <div id="count-table-summary" class="hidden"></div>
@@ -272,9 +289,17 @@
       </section>
     </div>
 
-
     <!-- Modal de manutencao manual dos itens ja lancados. -->
-    <div id="edit-modal" class="modal hidden" data-modal data-modal-icon="bi-pencil" data-modal-title="Editar item" data-modal-title-id="edit-title" data-modal-close="edit" data-modal-x>
+    <div
+      id="edit-modal"
+      class="modal hidden"
+      data-modal
+      data-modal-icon="bi-pencil"
+      data-modal-title="Editar item"
+      data-modal-title-id="edit-title"
+      data-modal-close="edit"
+      data-modal-x
+    >
       <div class="modal-body">
         <label for="edit-setor">Setor</label>
         <select id="edit-setor"></select>
@@ -304,15 +329,9 @@
       </div>
       <div class="debug-card hidden" id="debug-panel">
         <h4>Diagnóstico</h4>
-        <div class="debug-row">
-          <strong>URL:</strong> <span id="debug-url">--</span>
-        </div>
-        <div class="debug-row">
-          <strong>Chave:</strong> <span id="debug-key">--</span>
-        </div>
-        <div class="debug-row">
-          <strong>Login:</strong> <span id="debug-user">--</span>
-        </div>
+        <div class="debug-row"><strong>URL:</strong> <span id="debug-url">--</span></div>
+        <div class="debug-row"><strong>Chave:</strong> <span id="debug-key">--</span></div>
+        <div class="debug-row"><strong>Login:</strong> <span id="debug-user">--</span></div>
         <div class="debug-row">
           <strong>Resposta:</strong>
           <pre id="debug-result">--</pre>

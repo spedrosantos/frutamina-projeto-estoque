@@ -27,25 +27,25 @@ Este projeto foi documentado em duas camadas:
   cinco pastas por papel — o "Mapa de módulos" abaixo cita os arquivos pelo nome,
   sem a pasta:
 
-  | Pasta | O que vive lá |
-  | --- | --- |
-  | `core/` | `state`, `config`, `utils`, `inventory-core` |
-  | `shell/` | `head`, sidebar/topbar, modais, login, tema, `boot-common`, `register-sw` |
-  | `data/` | `supabase-api`, `draft`, `pending-changes`, `catalog-overrides` |
-  | `features/` | tabelas, voz, formulário manual, dashboard, catálogo, comparação, PDF |
-  | `pages/` | os quatro entry points |
+  | Pasta       | O que vive lá                                                             |
+  | ----------- | ------------------------------------------------------------------------- |
+  | `core/`     | `state`, `config`, `utils`, `inventory-core`                              |
+  | `shell/`    | `head`, sidebar/topbar, modais, login, tema, `boot-common`, `register-sw` |
+  | `data/`     | `supabase-api`, `draft`, `pending-changes`, `catalog-overrides`           |
+  | `features/` | tabelas, voz, formulário manual, dashboard, catálogo, comparação, PDF     |
+  | `pages/`    | os quatro entry points                                                    |
 
 - `assets/css/`
   O CSS em quatro fatias, carregadas por `<link>` na ordem `base`, `shell` e
   depois `tabelas` **ou** `dashboard` — a Visão Geral não baixa o CSS das
   tabelas de estoque e as outras três não baixam o do dashboard.
 
-  | Arquivo | O que tem | Páginas |
-  | --- | --- | --- |
-  | `base.css` | tokens `--app-*`, reset, botões, cards, mensagens, primitivas de tabela, impressão, ícones `.bi-*` | todas |
-  | `shell.css` | sidebar, topbar mobile, `page-head`, modais, abas, dropdown, login | todas |
-  | `tabelas.css` | tabelas do estoque, toolbars, contagem, formulário manual, catálogo, voz | index, editar, produtos |
-  | `dashboard.css` | KPIs, gráficos, setor, top produtos, marcas, sazonalidade | visao-geral |
+  | Arquivo         | O que tem                                                                                          | Páginas                 |
+  | --------------- | -------------------------------------------------------------------------------------------------- | ----------------------- |
+  | `base.css`      | tokens `--app-*`, reset, botões, cards, mensagens, primitivas de tabela, impressão, ícones `.bi-*` | todas                   |
+  | `shell.css`     | sidebar, topbar mobile, `page-head`, modais, abas, dropdown, login                                 | todas                   |
+  | `tabelas.css`   | tabelas do estoque, toolbars, contagem, formulário manual, catálogo, voz                           | index, editar, produtos |
+  | `dashboard.css` | KPIs, gráficos, setor, top produtos, marcas, sazonalidade                                          | visao-geral             |
 
   Estilos compartilhados entre as quatro páginas. Toda cor, raio, sombra e padding
   sai dos tokens `--app-*` do bloco `:root` (tema escuro em
@@ -114,14 +114,20 @@ Este projeto foi documentado em duas camadas:
 
 - `utils.js`: `normalizeText`/`tokenizeText` normalizam a transcrição da fala
   (ex.: `CEP` -> `CEPI`, `BRASIL` -> `BRAZIL`, `ORANAGE` -> `ORANGE`).
+- `voice-parser.js`: a parte pura. `extractCommandNumbers`/`extractCommandTipoValues`
+  tiram números e tipos do comando ignorando setor/produto/marca já reconhecidos;
+  `isAddCommand`/`isRemoveCommand`/... dizem a intenção; `splitOversizedTipoNumbers`
+  desgruda número que o reconhecedor juntou (`"5"`+`"6"` -> `56` -> tipos 5 e 6).
+  Não toca tela nem estado, e é o único pedaço do fluxo de voz com teste
+  (`tests/voice-parser.test.js`).
 - `voice-actions.js`: `processCommand` é o coração da automação por voz/texto —
-  decide travas de contexto, tipo, quantidade, remoção/correção e gravação final.
-  `extractCommandNumbers`/`extractCommandTipoValues` extraem números e tipos do
-  comando ignorando setor/produto/marca já reconhecidos.
+  usa o parser e decide travas de contexto, tipo, quantidade, remoção/correção e
+  gravação final.
 - `voice-speech.js`: `setupVoice`, integração real com a Web Speech API (só usado
   em `editar.html`). Carrega `voice-actions.js` por `import()` dinâmico, na
-  primeira frase reconhecida: o parser tem ~1200 linhas e só interessa a quem
-  fala com o app, então fica fora do boot de quem usa o Comando Manual.
+  primeira frase reconhecida: parser + ações passam de 1200 linhas e só
+  interessam a quem fala com o app, então ficam fora do boot de quem usa o
+  Comando Manual.
 
 ### 5. Rascunho offline
 
@@ -254,9 +260,9 @@ Quando precisar alterar alguma regra de negócio, siga esta ordem:
 5. se houver persistência nova, revise as funções do Supabase (`supabase-api.js`,
    `catalog-overrides.js`).
 
-Os testes da matemática do estoque rodam com
-`node --test tests/inventory-core.test.js tests/comparison.test.js` (sem
-dependência; ver "Testes" no README).
+Os testes rodam com `node --test tests/*.test.js` — matemática do estoque
+(`inventory-core`, `comparison`) e parser de voz (`voice-parser`). Sem
+dependência; ver "Testes" no README.
 
 Depois de qualquer mudança em `assets/js/`, `assets/css/` ou nos HTML,
 `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` precisam subir — o hook

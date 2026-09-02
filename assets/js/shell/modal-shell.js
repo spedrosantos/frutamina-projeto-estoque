@@ -18,12 +18,13 @@
 function mountModal(modal) {
   const { modalIcon, modalTitle, modalTitleId, modalClose } = modal.dataset;
   const title = modalTitleId ? `<span id="${modalTitleId}">${modalTitle}</span>` : modalTitle;
-  const closeBtn = "modalX" in modal.dataset
-    ? `
+  const closeBtn =
+    "modalX" in modal.dataset
+      ? `
             <button id="${modalClose}-close-btn" class="ghost modal-close" type="button" title="Fechar" aria-label="Fechar">
               <i class="bi bi-x-lg"></i>
             </button>`
-    : "";
+      : "";
 
   const card = document.createElement("div");
   card.className = "modal-card";

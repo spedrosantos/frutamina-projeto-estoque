@@ -251,7 +251,9 @@ button {
   cursor: pointer;
   font-weight: 600;
   font-family: inherit;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 button:hover {
@@ -527,7 +529,8 @@ body[data-page="edit"] #edit-save {
   border-radius: 12px;
   font-size: 14px;
   font-weight: 600;
-}.table-wrap table {
+}
+.table-wrap table {
   font-size: 14px;
 }
 
@@ -602,7 +605,6 @@ body[data-theme="dark"] .msg.error {
   }
 }
 
-
 @media (max-width: 720px) {
   .card {
     padding: 16px;
@@ -624,7 +626,6 @@ body[data-theme="dark"] .msg.error {
     gap: 4px;
   }
 }
-
 
 @media (max-width: 560px) {
   .app {
@@ -700,13 +701,11 @@ body[data-theme="dark"] .msg.error {
   }
 }
 
-
 @media (max-width: 720px) {
   .form-grid {
     grid-template-columns: 1fr;
   }
 }
-
 
 /*
   ===== Paleta do app =====
@@ -787,7 +786,6 @@ body[data-theme="dark"] {
   }
 }
 
-
 /* ==========================================================================
    Modal de pre-visualizacao de impressao (index.html e editar.html).
    O conteudo fica em #print-area para o @media print imprimir so a folha.
@@ -803,7 +801,9 @@ body[data-theme="dark"] {
   background: #ffffff;
   color: #111827;
   border-radius: 4px;
-  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.14), 0 18px 40px -24px rgba(16, 24, 40, 0.4);
+  box-shadow:
+    0 2px 6px rgba(16, 24, 40, 0.14),
+    0 18px 40px -24px rgba(16, 24, 40, 0.4);
 }
 
 .print-sheet h1 {
@@ -893,7 +893,6 @@ body[data-theme="dark"] {
   }
 }
 
-
 @media print {
   /* Na tela a folha esta fora do layout; na impressao ela volta a existir. */
   #print-area.print-offscreen {
@@ -927,7 +926,6 @@ body[data-theme="dark"] {
     page-break-inside: avoid;
   }
 }
-
 
 /* A folha vive fora da tela: existe so para o @media print, que reposiciona o
    #print-area em cima da pagina. O id vence body[data-theme="dark"] X na cascata
@@ -1016,41 +1014,117 @@ button.is-loading i {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.bi-arrow-clockwise::before { content: "\f116"; }
-.bi-bar-chart-line::before { content: "\f17c"; }
-.bi-box-arrow-in-right::before { content: "\f1be"; }
-.bi-box-arrow-right::before { content: "\f1c3"; }
-.bi-box-seam::before { content: "\f1c7"; }
-.bi-boxes::before { content: "\f685"; }
-.bi-check-circle::before { content: "\f26b"; }
-.bi-chevron-down::before { content: "\f282"; }
-.bi-clock-history::before { content: "\f292"; }
-.bi-diagram-3::before { content: "\f2ee"; }
-.bi-exclamation-triangle::before { content: "\f33b"; }
-.bi-floppy-fill::before { content: "\f7c5"; }
-.bi-funnel::before { content: "\f3e1"; }
-.bi-graph-up::before { content: "\f3f2"; }
-.bi-grid-1x2::before { content: "\f3f4"; }
-.bi-key::before { content: "\f44f"; }
-.bi-list::before { content: "\f479"; }
-.bi-list-check::before { content: "\f473"; }
-.bi-list-ul::before { content: "\f478"; }
-.bi-mic::before { content: "\f490"; }
-.bi-mic-fill::before { content: "\f48d"; }
-.bi-moon-stars::before { content: "\f496"; }
-.bi-pencil::before { content: "\f4cb"; }
-.bi-pencil-square::before { content: "\f4ca"; }
-.bi-person::before { content: "\f4e1"; }
-.bi-pie-chart::before { content: "\f4e9"; }
-.bi-plus-lg::before { content: "\f64d"; }
-.bi-printer::before { content: "\f501"; }
-.bi-question-circle::before { content: "\f505"; }
-.bi-search::before { content: "\f52a"; }
-.bi-shield-lock::before { content: "\f538"; }
-.bi-stack::before { content: "\f585"; }
-.bi-sun::before { content: "\f5a2"; }
-.bi-table::before { content: "\f5aa"; }
-.bi-trash3::before { content: "\f78b"; }
-.bi-trophy::before { content: "\f5e7"; }
-.bi-whatsapp::before { content: "\f618"; }
-.bi-x-lg::before { content: "\f659"; }
+.bi-arrow-clockwise::before {
+  content: "\f116";
+}
+.bi-bar-chart-line::before {
+  content: "\f17c";
+}
+.bi-box-arrow-in-right::before {
+  content: "\f1be";
+}
+.bi-box-arrow-right::before {
+  content: "\f1c3";
+}
+.bi-box-seam::before {
+  content: "\f1c7";
+}
+.bi-boxes::before {
+  content: "\f685";
+}
+.bi-check-circle::before {
+  content: "\f26b";
+}
+.bi-chevron-down::before {
+  content: "\f282";
+}
+.bi-clock-history::before {
+  content: "\f292";
+}
+.bi-diagram-3::before {
+  content: "\f2ee";
+}
+.bi-exclamation-triangle::before {
+  content: "\f33b";
+}
+.bi-floppy-fill::before {
+  content: "\f7c5";
+}
+.bi-funnel::before {
+  content: "\f3e1";
+}
+.bi-graph-up::before {
+  content: "\f3f2";
+}
+.bi-grid-1x2::before {
+  content: "\f3f4";
+}
+.bi-key::before {
+  content: "\f44f";
+}
+.bi-list::before {
+  content: "\f479";
+}
+.bi-list-check::before {
+  content: "\f473";
+}
+.bi-list-ul::before {
+  content: "\f478";
+}
+.bi-mic::before {
+  content: "\f490";
+}
+.bi-mic-fill::before {
+  content: "\f48d";
+}
+.bi-moon-stars::before {
+  content: "\f496";
+}
+.bi-pencil::before {
+  content: "\f4cb";
+}
+.bi-pencil-square::before {
+  content: "\f4ca";
+}
+.bi-person::before {
+  content: "\f4e1";
+}
+.bi-pie-chart::before {
+  content: "\f4e9";
+}
+.bi-plus-lg::before {
+  content: "\f64d";
+}
+.bi-printer::before {
+  content: "\f501";
+}
+.bi-question-circle::before {
+  content: "\f505";
+}
+.bi-search::before {
+  content: "\f52a";
+}
+.bi-shield-lock::before {
+  content: "\f538";
+}
+.bi-stack::before {
+  content: "\f585";
+}
+.bi-sun::before {
+  content: "\f5a2";
+}
+.bi-table::before {
+  content: "\f5aa";
+}
+.bi-trash3::before {
+  content: "\f78b";
+}
+.bi-trophy::before {
+  content: "\f5e7";
+}
+.bi-whatsapp::before {
+  content: "\f618";
+}
+.bi-x-lg::before {
+  content: "\f659";
+}

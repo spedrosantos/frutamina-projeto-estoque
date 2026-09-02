@@ -42,7 +42,7 @@ export function writeCatalogCache(additions, removals) {
       [CATALOG_ADDITIONS_KEY, additions],
       [CATALOG_REMOVALS_KEY, removals],
     ],
-    "Nao foi possivel salvar o cache local do catalogo."
+    "Nao foi possivel salvar o cache local do catalogo.",
   );
 }
 
@@ -88,18 +88,13 @@ export function normalizeCatalogAdditionEntry(entry) {
   };
 
   const hasRangeInput = [entry?.tipoMin, entry?.tipoMax, entry?.caixasPalletInRange].some(
-    (value) => value !== undefined && value !== null && value !== ""
+    (value) => value !== undefined && value !== null && value !== "",
   );
   if (hasRangeInput) {
     const tipoMin = toNonNegativeInt(entry?.tipoMin, 0);
     const tipoMax = toNonNegativeInt(entry?.tipoMax, 0);
     const caixasPalletInRange = toNonNegativeInt(entry?.caixasPalletInRange, 0);
-    if (
-      tipoMin < TIPO_MIN ||
-      tipoMax > TIPO_MAX ||
-      tipoMin > tipoMax ||
-      caixasPalletInRange <= 0
-    ) {
+    if (tipoMin < TIPO_MIN || tipoMax > TIPO_MAX || tipoMin > tipoMax || caixasPalletInRange <= 0) {
       return null;
     }
     result.tipoMin = tipoMin;
@@ -217,10 +212,10 @@ async function upsertCatalogRow(kind, entry, extra = {}) {
           created_by: state.user?.id || null,
           ...extra,
         },
-        { onConflict: "kind,setor,produto,marca" }
+        { onConflict: "kind,setor,produto,marca" },
       ),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao salvar o catalogo."
+      "Tempo limite ao salvar o catalogo.",
     );
   } catch (error) {
     return { error };
@@ -238,7 +233,7 @@ async function deleteCatalogRow(kind, entry) {
         .eq("produto", entry.produto)
         .eq("marca", entry.marca),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao salvar o catalogo."
+      "Tempo limite ao salvar o catalogo.",
     );
   } catch (error) {
     return { error };
@@ -275,7 +270,7 @@ function commitCatalogOverrides(additions, removals) {
   const additionKeys = new Set(additions.map((entry) => buildCatalogEntryKey(entry)));
   state.catalogAdditions = additions;
   state.catalogRemovals = removals.filter(
-    (entry) => !additionKeys.has(buildCatalogEntryKey(entry))
+    (entry) => !additionKeys.has(buildCatalogEntryKey(entry)),
   );
   applyCatalogOverridesFromState();
 }
@@ -290,12 +285,9 @@ export function applyCatalogOverridesFromCache() {
   commitCatalogOverrides(
     dedupeCatalogEntries(
       readCatalogCacheArray(CATALOG_ADDITIONS_KEY),
-      normalizeCatalogAdditionEntry
+      normalizeCatalogAdditionEntry,
     ),
-    dedupeCatalogEntries(
-      readCatalogCacheArray(CATALOG_REMOVALS_KEY),
-      normalizeCatalogRemovalEntry
-    )
+    dedupeCatalogEntries(readCatalogCacheArray(CATALOG_REMOVALS_KEY), normalizeCatalogRemovalEntry),
   );
 }
 
@@ -308,16 +300,16 @@ export async function refreshCatalogOverrides() {
     const { data, error } = await withTimeout(
       supabaseClient.from(CATALOG_TABLE).select("*"),
       SUPABASE_TIMEOUT_MS,
-      "Tempo limite ao carregar o catalogo."
+      "Tempo limite ao carregar o catalogo.",
     );
     if (error) throw error;
     const additions = dedupeCatalogEntries(
       (data || []).filter((row) => row.kind === "addition"),
-      rowToAddition
+      rowToAddition,
     );
     const removals = dedupeCatalogEntries(
       (data || []).filter((row) => row.kind === "removal"),
-      rowToRemoval
+      rowToRemoval,
     );
     writeCatalogCache(additions, removals);
     commitCatalogOverrides(additions, removals);

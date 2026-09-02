@@ -57,9 +57,33 @@ test("delta nao deixa o estoque negativo", () => {
 
 test("aggregateRows soma o mesmo item e mantem os diferentes", () => {
   const rows = aggregateRows([
-    { setor: "CHAO", produto: "AMARELO", marca: "LULA", tipo: 4, caixas_pallet: 66, pallets: 1, caixas_avulsas: 0 },
-    { setor: "CHAO", produto: "AMARELO", marca: "LULA", tipo: 4, caixas_pallet: 66, pallets: 2, caixas_avulsas: 3 },
-    { setor: "CHAO", produto: "AMARELO", marca: "LULA", tipo: 5, caixas_pallet: 66, pallets: 1, caixas_avulsas: 0 },
+    {
+      setor: "CHAO",
+      produto: "AMARELO",
+      marca: "LULA",
+      tipo: 4,
+      caixas_pallet: 66,
+      pallets: 1,
+      caixas_avulsas: 0,
+    },
+    {
+      setor: "CHAO",
+      produto: "AMARELO",
+      marca: "LULA",
+      tipo: 4,
+      caixas_pallet: 66,
+      pallets: 2,
+      caixas_avulsas: 3,
+    },
+    {
+      setor: "CHAO",
+      produto: "AMARELO",
+      marca: "LULA",
+      tipo: 5,
+      caixas_pallet: 66,
+      pallets: 1,
+      caixas_avulsas: 0,
+    },
   ]);
   assert.equal(rows.length, 2);
   assert.equal(rows.find((r) => r.tipo === 4).total_caixas, 201);
@@ -77,13 +101,28 @@ test("ORANGE 601 e o mesmo item que o tipo 14", () => {
 });
 
 test("payload omite caixas_avulsas quando e zero e inclui quando forcado", () => {
-  const row = { setor: "CHAO", produto: "AMARELO", marca: "LULA", tipo: 4, caixas_pallet: 66, pallets: 1 };
+  const row = {
+    setor: "CHAO",
+    produto: "AMARELO",
+    marca: "LULA",
+    tipo: 4,
+    caixas_pallet: 66,
+    pallets: 1,
+  };
   assert.equal("caixas_avulsas" in buildDbRowPayload(row), false);
   assert.equal(buildDbRowPayload(row, false, true).caixas_avulsas, 0);
 });
 
 test("payload so leva user_id quando pedido", () => {
-  const row = { setor: "CHAO", produto: "AMARELO", marca: "LULA", tipo: 4, caixas_pallet: 66, pallets: 1, user_id: "u1" };
+  const row = {
+    setor: "CHAO",
+    produto: "AMARELO",
+    marca: "LULA",
+    tipo: 4,
+    caixas_pallet: 66,
+    pallets: 1,
+    user_id: "u1",
+  };
   assert.equal("user_id" in buildDbRowPayload(row), false);
   assert.equal(buildDbRowPayload(row, true).user_id, "u1");
 });
@@ -98,7 +137,9 @@ test("buildInventoryTotalsMap acumula por identidade", () => {
 
 test("busca por identidade normaliza o tipo legado", () => {
   const rows = [{ setor: "CHAO", produto: "ORANGE", marca: "SOL", tipo: 14 }];
-  assert.ok(getInventoryRowByIdentity(rows, { setor: "CHAO", produto: "ORANGE", marca: "SOL", tipo: 601 }));
+  assert.ok(
+    getInventoryRowByIdentity(rows, { setor: "CHAO", produto: "ORANGE", marca: "SOL", tipo: 601 }),
+  );
 });
 
 test("formatacao do empilhamento", () => {

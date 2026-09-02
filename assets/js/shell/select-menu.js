@@ -36,7 +36,10 @@ export function enhanceSelect(select) {
   trigger.setAttribute("aria-expanded", "false");
   const label = document.createElement("span");
   label.className = "select-menu-value";
-  trigger.append(label, Object.assign(document.createElement("i"), { className: "bi bi-chevron-down" }));
+  trigger.append(
+    label,
+    Object.assign(document.createElement("i"), { className: "bi bi-chevron-down" }),
+  );
   const list = document.createElement("div");
   list.className = "select-menu-list";
   list.setAttribute("role", "listbox");
