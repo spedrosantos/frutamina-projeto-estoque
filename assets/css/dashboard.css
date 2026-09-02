@@ -1,0 +1,767 @@
+/*
+  KPIs, graficos, distribuicao por setor, top produtos, marcas e
+  sazonalidade. Somente visao-geral.html.
+
+  Uma das quatro fatias do CSS do app. A ordem entre os arquivos e a dos
+  <link> no HTML: base, shell, tabelas, dashboard.
+*/
+
+.chart-wrap canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  cursor: crosshair;
+}
+
+.chart-summary {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.chart-sub {
+  font-size: 14px;
+}
+
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--app-surface-solid, rgba(15, 23, 42, 0.95));
+  border: 1px solid var(--app-border-strong, transparent);
+  color: var(--app-text, #f8fafc);
+  box-shadow: var(--app-shadow, none);
+  font-size: 12px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  opacity: 0;
+  z-index: 2;
+  transform: translate(-50%, -120%);
+  transition: opacity 0.12s ease;
+  white-space: nowrap;
+}
+
+.chart-tooltip strong {
+  font-weight: 700;
+}
+
+.chart-tooltip .tooltip-date {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--app-text-soft, #cbd5f5);
+}
+
+.chart-tooltip.visible {
+  opacity: 1;
+}
+
+/* ==========================================================================
+   Visão Geral (dashboard).
+   Todas as cores saem dos tokens --app-* da paleta unica do app.
+   ========================================================================== */
+body[data-page="dashboard"] {
+  --app-pad: 20px;
+  color: var(--app-text-soft);
+}
+
+.overview-shell {
+  display: grid;
+  gap: 22px;
+}
+
+.overview-shell > * {
+  min-width: 0;
+}
+
+/* --- Cabeçalho ----------------------------------------------------------- */
+
+/* --- Abas da Visao Geral -------------------------------------------------- */
+/* --- Abas (compartilhado) -------------------------------------------------
+   Visao Geral (Agora/Movimento/Tendencia) e Editar (Contagem/Conferencia)
+   tinham a mesma barra escrita duas vezes, mas com estados diferentes: a aba
+   ativa da Visao Geral era uma pilula com a cor do FUNDO da pagina mais sombra,
+   e a do Editar usava accent-soft com texto na cor de destaque - que e o mesmo
+   idioma do .select-menu-item.active. Ficou a do Editar. A barra da Visao Geral
+   tambem lia um token que nao existia, entao caia sempre no cinza translucido
+   do fallback. */
+.overview-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: 14px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  overflow-x: auto;
+}
+
+.overview-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1 1 0;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--app-text-soft);
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  box-shadow: none;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.overview-tab:hover {
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  box-shadow: none;
+}
+
+.overview-tab.active {
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
+}
+
+.overview-tabpanel {
+  display: grid;
+  gap: 22px;
+}
+
+/* --- KPIs ---------------------------------------------------------------- */
+.overview-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.overview-metric {
+  --app-metric: var(--app-blue);
+  position: relative;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+  padding: 18px 18px 16px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.overview-metric:hover {
+  border-color: var(--app-border-strong);
+  box-shadow: var(--app-shadow-hover);
+}
+
+.overview-metric.metric-green {
+  --app-metric: var(--app-green);
+}
+
+.overview-metric.metric-amber {
+  --app-metric: var(--app-amber);
+}
+
+.overview-metric-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.overview-metric-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--app-metric) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--app-metric) 30%, transparent);
+  color: var(--app-metric);
+  font-size: 15px;
+  flex: 0 0 auto;
+}
+
+.overview-metric-label {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--app-text-dim);
+}
+
+.overview-metric-value {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(30px, 3.4vw, 40px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--app-text);
+}
+
+.overview-metric-meta {
+  color: var(--app-text-soft);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+/* --- Cards --------------------------------------------------------------- */
+.overview-grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.overview-card {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.overview-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 16px var(--app-pad);
+  border-bottom: 1px solid var(--app-border);
+}
+
+.overview-card-head h2 {
+  margin: 0;
+  color: var(--app-text);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-family: "Space Grotesk", sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.overview-card-head h2 i {
+  color: var(--app-text-dim);
+  font-size: 15px;
+}
+
+.overview-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface-soft);
+  color: var(--app-text-soft);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 4px 11px;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
+
+.overview-pill.highlight {
+  color: var(--app-accent);
+  border-color: color-mix(in srgb, var(--app-accent) 40%, transparent);
+  background: var(--app-accent-soft);
+}
+
+/* --- Distribuição por setor --------------------------------------------- */
+.overview-bars {
+  display: grid;
+  gap: 14px;
+  padding: var(--app-pad);
+}
+
+.overview-bar-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+}
+
+.overview-bar-label {
+  color: var(--app-text-soft);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.overview-bar-track {
+  background: var(--app-track);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 22px;
+}
+
+.overview-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--bar-color, #2563eb);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+  min-width: 46px;
+  transition: width 0.4s ease;
+}
+
+.overview-bar-value {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Top produtos ------------------------------------------------------- */
+.overview-top-list {
+  display: grid;
+  gap: 6px;
+  padding: var(--app-pad);
+}
+
+.overview-top-item {
+  border-radius: var(--app-radius-sm);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 9px 10px;
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.overview-top-item:hover {
+  background: var(--app-surface-soft);
+  border-color: var(--app-border);
+}
+
+.overview-rank {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--app-track);
+  color: var(--app-text-dim);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.overview-top-item:nth-child(1) .overview-rank {
+  background: var(--app-accent-soft);
+  color: var(--app-accent);
+}
+
+.overview-top-details {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.overview-top-details strong {
+  color: var(--app-text);
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-top-details span {
+  color: var(--app-text-dim);
+  font-size: 12px;
+}
+
+.overview-top-total {
+  color: var(--app-text);
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* --- Histórico de contagens -------------------------------------------- */
+.overview-history-wrap {
+  margin: var(--app-pad);
+  max-height: 370px;
+  overflow: auto;
+}
+
+/* Visual vem da tabela compartilhada (.table-wrap th/td). Aqui fica so o que e
+   proprio desta tabela: o cabecalho grudado, porque a lista rola dentro do card.
+   O fundo do sticky vem do --app-surface-soft do bloco compartilhado, que e
+   opaco - sem isso as linhas passariam por tras do cabecalho ao rolar. */
+body[data-page="dashboard"] .overview-history-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Mesmo idioma das outras tabelas: cabecalho de coluna numerica alinhado a
+   direita, junto com os numeros. "VARIACAO" ficava a esquerda em cima de
+   valores alinhados a direita. */
+body[data-page="dashboard"] .overview-history-table th:nth-child(n + 4) {
+  text-align: right;
+}
+
+.overview-delta {
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.overview-delta.positive {
+  color: var(--app-green);
+}
+
+.overview-delta.negative {
+  color: var(--app-red);
+}
+
+.overview-delta.neutral {
+  color: var(--app-text-dim);
+}
+
+/* --- Marcas ------------------------------------------------------------ */
+.overview-brand-layout {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 18px;
+  padding: var(--app-pad);
+  align-items: center;
+}
+
+.overview-donut-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overview-donut {
+  --app-brand-donut: conic-gradient(var(--app-track) 0 100%);
+  width: 150px;
+  aspect-ratio: 1 / 1;
+  border-radius: 999px;
+  background: var(--app-brand-donut);
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.overview-donut::after {
+  content: "";
+  position: absolute;
+  inset: 26px;
+  border-radius: 999px;
+  background: var(--app-surface-solid);
+  border: 1px solid var(--app-border);
+}
+
+.overview-donut-center {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.overview-donut-center strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--app-text);
+}
+
+.overview-donut-center span {
+  color: var(--app-text-dim);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.overview-brand-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.overview-brand-item {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  padding: 13px 14px;
+  background: var(--app-surface-soft);
+  display: grid;
+  gap: 5px;
+  transition: border-color 0.16s ease;
+}
+
+.overview-brand-item::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--brand-accent, #2563eb);
+}
+
+.overview-brand-item:hover {
+  border-color: color-mix(in srgb, var(--brand-accent, #2563eb) 45%, transparent);
+}
+
+.overview-brand-label {
+  color: var(--app-text-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.overview-brand-total {
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--brand-accent, #2563eb);
+  font-size: 26px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.overview-brand-meta {
+  color: var(--app-text-dim);
+  font-size: 12px;
+}
+
+.overview-empty {
+  margin: 0;
+  padding: var(--app-pad);
+  color: var(--app-text-dim);
+}
+
+.overview-empty-cell {
+  text-align: center;
+  color: var(--app-text-dim);
+  padding: 18px;
+}
+
+/* --- Gráfico de sazonalidade ------------------------------------------- */
+body[data-page="dashboard"] .historico-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 0;
+  padding: var(--app-pad) var(--app-pad) 0;
+}
+
+body[data-page="dashboard"] .historico-filtro {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+/* --- Rotulo de campo (compartilhado) -------------------------------------
+   Caixa alta pequena em cima do controle. Estava escrito cinco vezes, uma por
+   formulario, e no escuro duas delas usavam um cinza mais claro que as outras
+   tres - os rotulos do login e do catalogo nao batiam com os da contagem. */
+.historico-filtro-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-text-dim);
+}
+
+/* No escuro o dim fica apagado demais para caixa alta de 11px. */
+body[data-theme="dark"] .historico-filtro-label {
+  color: var(--app-text-soft);
+}
+
+body[data-page="dashboard"] .chart-range {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0;
+  padding: 12px var(--app-pad) 0;
+  gap: 6px;
+}
+
+body[data-page="dashboard"] .range-btn {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--app-text-soft);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: none;
+}
+
+body[data-page="dashboard"] .range-btn:hover {
+  background: var(--app-surface-soft);
+  box-shadow: none;
+}
+
+body[data-page="dashboard"] .range-btn.active {
+  background: var(--app-accent-soft);
+  border-color: color-mix(in srgb, var(--app-accent) 40%, transparent);
+  color: var(--app-accent);
+}
+
+body[data-page="dashboard"] .chart-wrap {
+  position: relative;
+  margin: 14px var(--app-pad) 0;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  padding: 12px;
+}
+
+body[data-page="dashboard"] .chart-summary {
+  margin: 0;
+  padding: 14px var(--app-pad) var(--app-pad);
+}
+
+body[data-page="dashboard"] .chart-summary .chart-sub:first-child {
+  color: var(--app-text);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.historico-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+}
+
+.historico-extremos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chart-chip {
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.chart-chip:empty {
+  display: none;
+}
+
+.chart-chip-max {
+  background: color-mix(in srgb, var(--app-green) 12%, transparent);
+  border-color: color-mix(in srgb, var(--app-green) 40%, transparent);
+  color: var(--app-green);
+}
+
+.chart-chip-min {
+  background: var(--app-track);
+  border-color: var(--app-border-strong);
+  color: var(--app-text-soft);
+}
+
+/* --- Responsivo -------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .overview-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 980px) {
+  .overview-grid-two {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-brand-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .overview-brand-grid {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  body[data-page="dashboard"] {
+    --app-pad: 14px;
+  }
+
+  .overview-shell {
+    gap: 16px;
+  }
+
+  .overview-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .overview-metric {
+    padding: 14px;
+  }
+
+  .overview-card-head h2 {
+    font-size: 16px;
+  }
+
+  .overview-donut {
+    width: 160px;
+  }
+}
+
+@media (max-width: 560px) {
+  .overview-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-card-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .overview-top-item {
+    grid-template-columns: 26px 1fr;
+  }
+
+  .overview-top-total {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+
+  body[data-page="dashboard"] .overview-history-table {
+    min-width: 560px;
+  }
+}
+
+/* Mesmo acabamento da tabela do index: cabecalho em caixa alta, celulas com
+   respiro, numeros a direita e a linha do total em destaque. */
+/* Quadro da tabela: a tabela rola dentro dele em vez de esticar o card. Estava
+   escrito duas vezes (index e editar+produtos) e o Historico da Visao Geral nao
+   tinha - por isso ele destoava das outras. */
+.overview-history-wrap {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface);
+}

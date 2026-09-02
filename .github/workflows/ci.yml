@@ -1,0 +1,23 @@
+# Roda o que dá para rodar sem navegador: os testes e a checagem de formatação.
+# Sem build e sem dependência instalada — o repo é estático de propósito.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Testes
+        run: node --test tests/*.test.js
+
+      - name: Formatação
+        run: npx --yes prettier@3 --check .

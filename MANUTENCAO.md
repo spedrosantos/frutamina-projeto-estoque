@@ -21,11 +21,32 @@ Este projeto foi documentado em duas camadas:
 
 - `assets/js/`
   Todo o código do sistema, dividido em módulos ES nativos (`import`/`export`, sem bundler).
-  Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`,
-  `main-dashboard.js`, `main-products.js`), que só importa os módulos que aquela
-  página realmente usa. Ver "Mapa de módulos" abaixo.
+  Cada página carrega um entry point próprio (`pages/main-view.js`,
+  `pages/main-edit.js`, `pages/main-dashboard.js`, `pages/main-products.js`), que
+  só importa os módulos que aquela página realmente usa. Os módulos ficam em
+  cinco pastas por papel — o "Mapa de módulos" abaixo cita os arquivos pelo nome,
+  sem a pasta:
 
-- `styles.css`
+  | Pasta       | O que vive lá                                                             |
+  | ----------- | ------------------------------------------------------------------------- |
+  | `core/`     | `state`, `config`, `utils`, `inventory-core`                              |
+  | `shell/`    | `head`, sidebar/topbar, modais, login, tema, `boot-common`, `register-sw` |
+  | `data/`     | `supabase-api`, `draft`, `pending-changes`, `catalog-overrides`           |
+  | `features/` | tabelas, voz, formulário manual, dashboard, catálogo, comparação, PDF     |
+  | `pages/`    | os quatro entry points                                                    |
+
+- `assets/css/`
+  O CSS em quatro fatias, carregadas por `<link>` na ordem `base`, `shell` e
+  depois `tabelas` **ou** `dashboard` — a Visão Geral não baixa o CSS das
+  tabelas de estoque e as outras três não baixam o do dashboard.
+
+  | Arquivo         | O que tem                                                                                          | Páginas                 |
+  | --------------- | -------------------------------------------------------------------------------------------------- | ----------------------- |
+  | `base.css`      | tokens `--app-*`, reset, botões, cards, mensagens, primitivas de tabela, impressão, ícones `.bi-*` | todas                   |
+  | `shell.css`     | sidebar, topbar mobile, `page-head`, modais, abas, dropdown, login                                 | todas                   |
+  | `tabelas.css`   | tabelas do estoque, toolbars, contagem, formulário manual, catálogo, voz                           | index, editar, produtos |
+  | `dashboard.css` | KPIs, gráficos, setor, top produtos, marcas, sazonalidade                                          | visao-geral             |
+
   Estilos compartilhados entre as quatro páginas. Toda cor, raio, sombra e padding
   sai dos tokens `--app-*` do bloco `:root` (tema escuro em
   `body[data-theme="dark"]`) — não existe mais paleta por página.
@@ -45,18 +66,9 @@ Este projeto foi documentado em duas camadas:
 - `service-worker.js`
   Cache offline do shell do app (HTML/CSS/módulos JS listados em `APP_SHELL`).
 
-- `supabase-completo.sql`
-  Script principal de estrutura do banco.
-
-- `supabase-caixas-avulsas.sql`
-  Migração da funcionalidade de caixas avulsas.
-
-- `supabase-dashboard-migracao.sql`
-  Migração do campo `outflow_caixas` usado no dashboard.
-
-> Nota: a tabela `catalog_overrides` (catálogo de produtos cadastrados pelos
-> usuários) ainda não tem um script `.sql` próprio nesta pasta — foi criada
-> manualmente no Supabase. Ver estrutura em `assets/js/catalog-overrides.js`.
+> Nota: o repo não guarda scripts `.sql`. O schema (tabelas, triggers, views,
+> funções, RLS) vive no projeto do Supabase — ver "Banco de Dados" no README.
+> Estrutura de `catalog_overrides` em `assets/js/data/catalog-overrides.js`.
 
 ## Mapa de módulos (`assets/js/`)
 
@@ -102,14 +114,20 @@ Este projeto foi documentado em duas camadas:
 
 - `utils.js`: `normalizeText`/`tokenizeText` normalizam a transcrição da fala
   (ex.: `CEP` -> `CEPI`, `BRASIL` -> `BRAZIL`, `ORANAGE` -> `ORANGE`).
+- `voice-parser.js`: a parte pura. `extractCommandNumbers`/`extractCommandTipoValues`
+  tiram números e tipos do comando ignorando setor/produto/marca já reconhecidos;
+  `isAddCommand`/`isRemoveCommand`/... dizem a intenção; `splitOversizedTipoNumbers`
+  desgruda número que o reconhecedor juntou (`"5"`+`"6"` -> `56` -> tipos 5 e 6).
+  Não toca tela nem estado, e é o único pedaço do fluxo de voz com teste
+  (`tests/voice-parser.test.js`).
 - `voice-actions.js`: `processCommand` é o coração da automação por voz/texto —
-  decide travas de contexto, tipo, quantidade, remoção/correção e gravação final.
-  `extractCommandNumbers`/`extractCommandTipoValues` extraem números e tipos do
-  comando ignorando setor/produto/marca já reconhecidos.
+  usa o parser e decide travas de contexto, tipo, quantidade, remoção/correção e
+  gravação final.
 - `voice-speech.js`: `setupVoice`, integração real com a Web Speech API (só usado
   em `editar.html`). Carrega `voice-actions.js` por `import()` dinâmico, na
-  primeira frase reconhecida: o parser tem ~1200 linhas e só interessa a quem
-  fala com o app, então fica fora do boot de quem usa o Comando Manual.
+  primeira frase reconhecida: parser + ações passam de 1200 linhas e só
+  interessam a quem fala com o app, então ficam fora do boot de quem usa o
+  Comando Manual.
 
 ### 5. Rascunho offline
 
@@ -165,7 +183,7 @@ Essas funções permitem continuar a nova contagem sem internet.
 ### 11. Bootstrap
 
 - `head.js`: metatags, manifest e fontes do `<head>`. Cada HTML traz só charset,
-  `<title>`, `styles.css` e este script — o resto era idêntico nas quatro páginas.
+  `<title>`, os `<link>` de CSS e este script — o resto era idêntico nas quatro páginas.
   Script clássico e síncrono de propósito (o `theme-color` precisa valer antes da
   primeira pintura).
 - `app-shell.js`: sidebar, topbar mobile e o conteúdo do `<header class="page-head">`
@@ -242,8 +260,14 @@ Quando precisar alterar alguma regra de negócio, siga esta ordem:
 5. se houver persistência nova, revise as funções do Supabase (`supabase-api.js`,
    `catalog-overrides.js`).
 
-Depois de qualquer mudança em `assets/js/*.js`, `styles.css` ou nos HTML,
-incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js`. Não existe
+Os testes rodam com `node --test tests/*.test.js` — matemática do estoque
+(`inventory-core`, `comparison`) e parser de voz (`voice-parser`). Sem
+dependência; ver "Testes" no README.
+
+Depois de qualquer mudança em `assets/js/`, `assets/css/` ou nos HTML,
+`STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` precisam subir — o hook
+em `.githooks/pre-commit` faz isso no commit (ligue com
+`git config core.hooksPath .githooks`); sem o hook, é na mão. Não existe
 mais `?v=...` nos `<link>`/`<script>`: a versão do app vive só nessas duas
 constantes. Como o fetch é stale-while-revalidate, esquecer de subir a versão
 significa que o aparelho continua pintando o código antigo até o carregamento
@@ -253,7 +277,7 @@ seguinte.
 
 `assets/fonts/bootstrap-icons-subset.woff2` (4KB) é um subset do bootstrap-icons
 1.11.3 com **apenas os ícones que o projeto usa**; o `@font-face` e as classes
-`.bi-*` ficam no fim do `styles.css`. Uma classe `.bi-` que não esteja lá não
+`.bi-*` ficam no fim do `assets/css/base.css`. Uma classe `.bi-` que não esteja lá não
 desenha nada.
 
 Para usar um ícone novo:
@@ -268,4 +292,5 @@ Para usar um ícone novo:
    (`.../font/fonts/bootstrap-icons.woff2`) com
    `fonttools subset ... --unicodes=U+f5aa,... --flavor=woff2`;
 5. acrescente a regra `.bi-nome::before { content: "5aa"; }` no fim do
-   `styles.css` e suba a versão do cache.
+   `assets/css/base.css` (a versão do cache sobe sozinha no commit, pelo hook em
+   `.githooks/pre-commit`).

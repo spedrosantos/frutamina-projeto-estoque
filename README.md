@@ -61,49 +61,43 @@ Fluxo principal:
 ```text
 projeto-estoque/
 |- assets/
-|  |- js/       (32 modulos ES; mapa completo em MANUTENCAO.md)
+|  |- js/
+|  |  |- core/      (state, config, utils, inventory-core)
+|  |  |- shell/     (head, sidebar/topbar, modais, login, tema, boot)
+|  |  |- data/      (Supabase, rascunho offline, fila, catalogo)
+|  |  |- features/  (tabelas, voz, formulario, dashboard, catalogo)
+|  |  `- pages/     (um entry point por pagina)
+|  |- fonts/
 |  `- img/
 |- index.html
 |- editar.html
 |- visao-geral.html
 |- produtos.html
-|- styles.css
+|  `- css/
+|     |- base.css      (tokens, botoes, cards, tabelas, icones)
+|     |- shell.css     (sidebar, topbar, modais, abas, login)
+|     |- tabelas.css   (index, editar, produtos)
+|     `- dashboard.css (visao-geral)
 |- service-worker.js
 |- manifest.webmanifest
-|- MANUTENCAO.md
-`- *.sql        (ver "Banco de Dados")
+`- MANUTENCAO.md
 ```
 
-Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, `styles.css` e `assets/js/head.js` — o resto das metatags é injetado por esse script.
+Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, os `<link>` de CSS e `assets/js/shell/head.js` — o resto das metatags é injetado por esse script.
 
 ## Banco de Dados (Supabase)
 
-### Script principal
+### Onde fica o schema
 
-Para ambiente novo, execute `supabase-completo.sql`. Ele cria/ajusta:
+O repo não guarda scripts `.sql`. Tabelas, triggers, views, funções, job do
+`pg_cron`, políticas RLS e grants vivem direto no projeto do Supabase — é lá que
+se consulta ou altera a estrutura (SQL Editor / Table Editor). O resumo abaixo
+serve para entender o app; não substitui o que está no banco.
 
-- tabela `public.estoque_registros`;
-- tabela `public.estoque_snapshots`;
-- função/trigger `calcular_total_caixas`;
-- índices, políticas RLS e grants.
-
-### Demais scripts
-
-Aplicar na ordem abaixo (num ambiente novo, todos; num ambiente antigo, só os que faltam):
-
-| Script | O que faz |
-| --- | --- |
-| `supabase-caixas-avulsas.sql` | adiciona `caixas_avulsas`, recalcula totais e recria o trigger de normalização |
-| `supabase-dashboard-migracao.sql` | adiciona `outflow_caixas` em `estoque_snapshots` |
-| `supabase-estoque-delete-policy.sql` | permite que uma nova contagem substitua as linhas do setor gravadas por **qualquer** operador (sem isso o RLS bloqueia em silêncio e o estoque duplica) |
-| `supabase-usuarios-label.sql` | cria `usuarios_label`, para o nome do operador aparecer em todos os aparelhos e não só em quem já logou naquele |
-| `supabase-historico-diario.sql` | cria `estoque_historico_diario` e o job `pg_cron` que captura o estoque 1x/dia |
-| `supabase-historico-diario-total.sql` | cria a view `estoque_historico_diario_total`, usada quando a aba Tendência não filtra produto/marca |
-| `supabase-lancamentos-rpc.sql` | cria a função `aplicar_lancamentos`, que grava a fila do modo "Estoque Atual" numa única requisição e numa transação; normaliza os tipos legados do ORANGE (`601`/`602` → `14`/`15`) |
-
-Não há script para `catalog_overrides` — a tabela foi criada manualmente no Supabase. Estrutura em `assets/js/catalog-overrides.js`.
-
-`supabase-notifications-remover.sql` é opcional e **destrutivo**: dá `DROP TABLE push_subscriptions`, sobra da função de notificações push que foi removida do app. Rode só se quiser limpar a tabela órfã.
+Objetos usados pelo app: `estoque_registros`, `estoque_snapshots`,
+`estoque_historico_diario` (+ view `estoque_historico_diario_total`),
+`catalog_overrides`, `usuarios_label`, o trigger `calcular_total_caixas` e a
+função `aplicar_lancamentos`.
 
 ### Modelo de dados (resumo)
 
@@ -123,7 +117,7 @@ Não há script para `catalog_overrides` — a tabela foi criada manualmente no 
 
 - Leitura de `estoque_registros`: pública (`anon`, `authenticated`).
 - Escrita de `estoque_registros`: somente o dono (`auth.uid() = user_id`).
-- Exclusão de `estoque_registros`: qualquer usuário autenticado (ver `supabase-estoque-delete-policy.sql`).
+- Exclusão de `estoque_registros`: qualquer usuário autenticado.
 - Leitura de `estoque_snapshots`: pública. Inserção: usuário autenticado dono do registro.
 
 ## Autenticação
@@ -138,7 +132,7 @@ Os usuários devem existir no Supabase Auth com esse padrão de e-mail e senha v
 ## Regras de Negócio Importantes
 
 - Setores principais: `CHAO`, `GELADEIRA`, `ITAUEIRA`.
-- Regras fixas de produto/marca/caixas por pallet ficam em `CONFIG_GERAL` (`assets/js/config.js`); o que os usuários cadastram em `produtos.html` vai para `catalog_overrides` e é aplicado por cima.
+- Regras fixas de produto/marca/caixas por pallet ficam em `CONFIG_GERAL` (`assets/js/core/config.js`); o que os usuários cadastram em `produtos.html` vai para `catalog_overrides` e é aplicado por cima.
 - Tipos válidos padrão: `3` a `15`.
 - `PIMENTÃO` não usa tipo: valor interno `0`, exibição `S/T`.
 - `ORANGE` divide o tipo 6 em `6A` (interno `14`) e `6B` (interno `15`).
@@ -161,8 +155,8 @@ Observações:
 ## Modo "Estoque Atual" vs "Nova Contagem"
 
 - **Estoque Atual**
-  - cada lançamento entra numa fila de *deltas* no aparelho (`pending-changes.js`), visível na aba `Conferência`;
-  - ao salvar, a fila inteira vai numa única chamada (`aplicar_lancamentos`, ver `supabase-lancamentos-rpc.sql`) e é aplicada numa transação: ou grava tudo, ou nada — no erro a fila continua intacta no aparelho;
+  - cada lançamento entra numa fila de _deltas_ no aparelho (`pending-changes.js`), visível na aba `Conferência`;
+  - ao salvar, a fila inteira vai numa única chamada (`aplicar_lancamentos`) e é aplicada numa transação: ou grava tudo, ou nada — no erro a fila continua intacta no aparelho;
   - se o banco ainda não tiver a função, o app volta sozinho ao caminho antigo (um `SELECT` + `UPDATE` por item, em série) e não avisa nada — só fica mais lento;
   - a fila sobrevive ao logout e ao fechamento do app.
 
@@ -182,7 +176,7 @@ Offline, nos dois modos o que foi lançado fica no aparelho até haver internet.
 - Sessão: `cd_login_at`, limite de 1 hora.
 - Leituras de boot usam timeout curto (`SUPABASE_READ_TIMEOUT_MS`, 12s): passado isso, o cache local é servido em vez de deixar a tela esperando.
 - Service worker: tudo (inclusive HTML/CSS/JS do app) é servido do cache e revalidado em segundo plano — a tela pinta sem esperar a rede. Em troca, **subir a versão do cache a cada deploy deixou de ser opcional**: sem isso a mudança só aparece no carregamento seguinte.
-- Ícones não vêm mais de CDN: `assets/fonts/bootstrap-icons-subset.woff2` (4KB) tem só os 38 ícones usados, e as classes `.bi-*` ficam no fim do `styles.css`.
+- Ícones não vêm mais de CDN: `assets/fonts/bootstrap-icons-subset.woff2` (4KB) tem só os 38 ícones usados, e as classes `.bi-*` ficam no fim do `assets/css/base.css`.
 
 ## Exportação e Compartilhamento
 
@@ -199,7 +193,7 @@ Offline, nos dois modos o que foi lançado fica no aparelho até haver internet.
 
 ### 2) Credenciais Supabase
 
-Em `assets/js/config.js`, revise `SUPABASE_URL` e `SUPABASE_ANON_KEY`.
+Em `assets/js/core/config.js`, revise `SUPABASE_URL` e `SUPABASE_ANON_KEY`.
 
 ### 3) Servidor estático
 
@@ -217,27 +211,26 @@ Frontend estático — Vercel, Netlify, GitHub Pages ou qualquer servidor HTTP. 
 
 ### Alterar regras de produto/marca/tipo
 
-Editar `CONFIG_GERAL` em `assets/js/config.js` (regras fixas) ou usar o cadastro em `produtos.html` (o que os usuários devem gerenciar sozinhos). Depois validar parser de voz (`normalizeText`, `processCommand`), formulário manual (`updateManualTipoOptions`, `addManualItem`) e renderização das tabelas/resumo.
+Editar `CONFIG_GERAL` em `assets/js/core/config.js` (regras fixas) ou usar o cadastro em `produtos.html` (o que os usuários devem gerenciar sozinhos). Depois validar parser de voz (`normalizeText`, `processCommand`), formulário manual (`updateManualTipoOptions`, `addManualItem`) e renderização das tabelas/resumo.
 
 ### Alterar estilos
 
-Toda cor, raio, sombra e padding sai dos tokens `--app-*` do `:root` em `styles.css` (tema escuro em `body[data-theme="dark"]`). Componentes como `.card`, `.ghost`, `.primary` e `.summary-table` são definidos uma única vez e valem para as quatro páginas.
+Toda cor, raio, sombra e padding sai dos tokens `--app-*` do `:root` em `assets/css/base.css` (tema escuro em `body[data-theme="dark"]`). Componentes como `.card`, `.ghost`, `.primary` e `.summary-table` são definidos uma única vez e valem para as quatro páginas.
 
 ### Atualizar versão de cache PWA
 
 Ao publicar **qualquer** mudança de código ou asset:
 
-- incremente `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` — obrigatório, o fetch é stale-while-revalidate e sem a troca de versão o aparelho continua servindo o que já tem;
+- a versão de `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` sobe sozinha no commit, pelo hook de pre-commit (ver "Hook de pre-commit"). Se você commita sem o hook ligado, suba na mão — o fetch é stale-while-revalidate e sem a troca de versão o aparelho continua servindo o que já tem;
 - confira se todo arquivo novo está listado em `APP_SHELL`.
 
 ## Troubleshooting
 
-- **Erro mencionando `caixas_avulsas`** — aplique `supabase-caixas-avulsas.sql`.
-- **Erro mencionando `outflow_caixas`** — aplique `supabase-dashboard-migracao.sql`.
-- **Estoque duplicando depois de uma nova contagem** — aplique `supabase-estoque-delete-policy.sql`.
-- **Histórico mostrando "usuário &lt;id curto&gt;"** — aplique `supabase-usuarios-label.sql`.
-- **Salvar a contagem está lento (dezenas de segundos)** — o banco não tem `aplicar_lancamentos`; aplique `supabase-lancamentos-rpc.sql`. O app funciona sem ela, mas gasta 2 a 3 requisições por item.
-- **Aba Tendência vazia** — aplique os dois scripts de histórico diário e confirme se o job `pg_cron` está ativo (o gráfico só tem dados a partir do primeiro dia capturado).
+- **Erro mencionando uma coluna** (`caixas_avulsas`, `outflow_caixas`) — a coluna não existe no banco; crie no Supabase.
+- **Estoque duplicando depois de uma nova contagem** — falta a policy de DELETE em `estoque_registros`: sem ela o RLS bloqueia em silêncio e as linhas do setor não são substituídas.
+- **Histórico mostrando "usuário &lt;id curto&gt;"** — falta a tabela `usuarios_label`.
+- **Salvar a contagem está lento (dezenas de segundos)** — o banco não tem a função `aplicar_lancamentos`. O app funciona sem ela, mas gasta 2 a 3 requisições por item.
+- **Aba Tendência vazia** — confira `estoque_historico_diario`, a view `estoque_historico_diario_total` e se o job `pg_cron` está ativo (o gráfico só tem dados a partir do primeiro dia capturado).
 - **Sem internet** — a consulta pública usa o último cache; a fila e o rascunho ficam no aparelho até sincronizar.
 - **Microfone não funciona** — use Chrome/Edge, confirme a permissão e valide HTTPS em produção.
 - **Mudança publicada não aparece** — é o service worker servindo cache: incremente a versão em `service-worker.js`.
@@ -245,10 +238,64 @@ Ao publicar **qualquer** mudança de código ou asset:
 ## Observações de Segurança
 
 - A chave do frontend é publishable (`anon`), o que é esperado para apps web.
-- A proteção real de escrita depende das políticas RLS, previstas nos scripts SQL.
+- A proteção real de escrita depende das políticas RLS configuradas no Supabase.
 - Não desabilite RLS nas tabelas de produção.
 - A exclusão em `estoque_registros` é liberada para qualquer usuário autenticado, por necessidade do fluxo de nova contagem. Quem tem login pode apagar linha de outro operador.
 
 ## Documentação Complementar
 
 - `MANUTENCAO.md`: mapa técnico dos módulos, funções e fluxos internos.
+
+## Testes
+
+A matemática do estoque tem teste, e ela é a parte que vira número no relatório:
+`assets/js/core/inventory-core.js` (total de caixas, conversão de avulsas em
+pallet, agregação por item, payload do banco) e
+`assets/js/features/comparison.js` (saída entre contagens).
+
+```bash
+node --test tests/*.test.js
+```
+
+São 53 casos: matemática do estoque (`inventory-core`, `comparison`), parser de
+voz (`voice-parser`) e as funções de linguagem e de tipo que os dois usam
+(`utils`) — normalização da fala (`BRASIL` → `BRAZIL`), tipos 6A/6B do ORANGE,
+`PIMENTÃO` sem tipo, login por matrícula.
+
+O parser de voz tem teste porque virou módulo próprio: `voice-parser.js` recebe
+a frase reconhecida e devolve números, tipos e intenção, sem tocar em tela nem
+no estado global — quem age sobre isso é `voice-actions.js`.
+
+Sem dependência nenhuma — só o `node:test` que já vem no Node. Os dois
+`package.json` de uma linha (`assets/js/` e `tests/`) existem só para o Node
+tratar os arquivos como módulo ES; não há build, e a raiz continua sem
+`package.json` de propósito, para nenhum host de estático tentar instalar nada.
+
+Nada de DOM nos testes: `tests/dom-stub.js` planta o mínimo (`document`,
+`window.supabase`, `localStorage`) para `state.js` carregar fora do navegador.
+
+## CI
+
+`.github/workflows/ci.yml` roda os testes e `prettier --check` em cada push e
+pull request. É tudo que dá para verificar sem navegador — não há build.
+
+## Formatação
+
+```bash
+npx prettier --check .
+npx prettier --write .
+```
+
+Config em `.prettierrc.json` (100 colunas, fim de linha automático) e
+`.prettierignore` fora de fontes e imagens. Não há dependência instalada nem
+`package.json` na raiz — o `npx` baixa na hora.
+
+## Hook de pre-commit
+
+`.githooks/pre-commit` sobe a versão do cache do service worker sozinho quando o
+commit mexe em `assets/`, num HTML ou no manifest. Numa cópia nova do repo,
+ligue com:
+
+```bash
+git config core.hooksPath .githooks
+```

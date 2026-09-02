@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v124";
-const RUNTIME_CACHE = "frutamina-runtime-v124";
+const STATIC_CACHE = "frutamina-static-v133";
+const RUNTIME_CACHE = "frutamina-runtime-v133";
 
 const APP_SHELL = [
   "./",
@@ -27,20 +27,23 @@ const APP_SHELL = [
   "./produtos.html",
   "./visao-geral.html",
   "./manifest.webmanifest",
-  "./styles.css",
-  "./assets/js/head.js",
-  "./assets/js/boot-common.js",
-  "./assets/js/main-view.js",
-  "./assets/js/main-edit.js",
-  "./assets/js/main-dashboard.js",
-  "./assets/js/main-products.js",
+  "./assets/css/base.css",
+  "./assets/css/shell.css",
+  "./assets/css/tabelas.css",
+  "./assets/css/dashboard.css",
+  "./assets/js/shell/head.js",
+  "./assets/js/shell/boot-common.js",
+  "./assets/js/pages/main-view.js",
+  "./assets/js/pages/main-edit.js",
+  "./assets/js/pages/main-dashboard.js",
+  "./assets/js/pages/main-products.js",
   "./assets/img/logo.webp",
   "./assets/img/icon-192.png",
   "./assets/img/icon-512.png",
   "./assets/img/apple-touch-icon.png",
   "./assets/fonts/bootstrap-icons-subset.woff2",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-  "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap"
+  "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap",
 ];
 
 // Chamadas do Supabase devem priorizar rede; cache serve apenas como fallback.
@@ -57,7 +60,7 @@ async function cacheAppShell() {
       } catch (error) {
         console.warn("Falha ao adicionar asset no cache:", asset, error);
       }
-    })
+    }),
   );
 }
 
@@ -103,13 +106,16 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key))
-          .map((key) => caches.delete(key))
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key))
+            .map((key) => caches.delete(key)),
+        ),
       )
-    ).then(() => self.clients.claim())
+      .then(() => self.clients.claim()),
   );
 });
 

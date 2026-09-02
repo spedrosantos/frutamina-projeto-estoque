@@ -1,0 +1,28 @@
+#!/bin/sh
+# Sobe a versao do cache do service worker quando o commit mexe em algo que o
+# PWA serve do cache. Sem isso o aparelho continua pintando o codigo antigo -
+# ja aconteceu, e e o tipo de erro que so aparece no celular do operador.
+#
+# Ligar em uma copia nova do repo:  git config core.hooksPath .githooks
+
+sw="service-worker.js"
+changed=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# O proprio service worker mudando ja conta; fora dele, olha assets e HTML.
+echo "$changed" | grep -qE '^(assets/|.*\.html$|manifest\.webmanifest$)' || exit 0
+
+# Se a versao ja subiu neste commit, nao mexe de novo.
+if echo "$changed" | grep -q "^$sw$" && git diff --cached "$sw" | grep -q '^+const STATIC_CACHE'; then
+  exit 0
+fi
+
+atual=$(sed -n 's/^const STATIC_CACHE = "frutamina-static-v\([0-9]*\)";$/\1/p' "$sw")
+if [ -z "$atual" ]; then
+  echo "pre-commit: nao achei a versao do cache em $sw; suba na mao." >&2
+  exit 1
+fi
+
+nova=$((atual + 1))
+sed -i "s/-v$atual\";$/-v$nova\";/" "$sw"
+git add "$sw"
+echo "pre-commit: cache do service worker v$atual -> v$nova"

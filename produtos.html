@@ -3,16 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <title>Produtos</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="assets/js/head.js"></script>
+    <link rel="stylesheet" href="assets/css/base.css" />
+    <link rel="stylesheet" href="assets/css/shell.css" />
+    <link rel="stylesheet" href="assets/css/tabelas.css" />
+    <script src="assets/js/shell/head.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   </head>
   <body data-page="products">
     <div class="app">
-
       <header class="page-head" data-page-head></header>
 
-      <!-- Login: conteudo vem de assets/js/auth-panel.js. -->
+      <!-- Login: conteudo vem de assets/js/shell/auth-panel.js. -->
       <section
         id="auth-panel"
         class="card auth-card"
@@ -69,11 +70,20 @@
               <tbody id="catalog-table-body"></tbody>
             </table>
           </div>
-          <div id="catalog-list-msg" class="msg-area"></div>
+          <div id="catalog-list-msg" class="msg-area" role="status" aria-live="polite"></div>
         </section>
       </section>
 
-      <div id="catalog-modal" class="modal hidden" data-modal data-modal-icon="bi-box-seam" data-modal-title="Novo produto" data-modal-title-id="catalog-modal-title" data-modal-close="catalog-modal" data-modal-x>
+      <div
+        id="catalog-modal"
+        class="modal hidden"
+        data-modal
+        data-modal-icon="bi-box-seam"
+        data-modal-title="Novo produto"
+        data-modal-title-id="catalog-modal-title"
+        data-modal-close="catalog-modal"
+        data-modal-x
+      >
         <div class="modal-body">
           <p>A combinacao de setor, produto e marca e o que aparece na contagem.</p>
           <div class="catalog-form">
@@ -137,27 +147,29 @@
             <i class="bi bi-plus-lg"></i><span id="catalog-add-btn-label">Cadastrar produto</span>
           </button>
         </div>
-        <div id="catalog-msg" class="msg-area"></div>
+        <div id="catalog-msg" class="msg-area" role="status" aria-live="polite"></div>
       </div>
 
-      <div id="catalog-added-modal" class="modal hidden" data-modal data-modal-icon="bi-check-circle" data-modal-title="Produto cadastrado" data-modal-close="catalog-added-modal">
+      <div
+        id="catalog-added-modal"
+        class="modal hidden"
+        data-modal
+        data-modal-icon="bi-check-circle"
+        data-modal-title="Produto cadastrado"
+        data-modal-close="catalog-added-modal"
+      >
         <div class="modal-body">
           <p id="catalog-added-message"></p>
         </div>
         <div class="modal-actions">
-          <button id="catalog-add-another-btn" class="primary" type="button">Cadastrar outro</button>
+          <button id="catalog-add-another-btn" class="primary" type="button">
+            Cadastrar outro
+          </button>
           <button id="catalog-added-done-btn" class="ghost" type="button">Concluir</button>
         </div>
       </div>
     </div>
 
-    <script type="module" src="assets/js/main-products.js"></script>
+    <script type="module" src="assets/js/pages/main-products.js"></script>
   </body>
 </html>
-
-
-
-
-
-
-

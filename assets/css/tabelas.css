@@ -1,0 +1,1522 @@
+/*
+  Tabelas do estoque, toolbars, contagem, formulario manual, catalogo e voz.
+  index.html, editar.html e produtos.html.
+
+  Uma das quatro fatias do CSS do app. A ordem entre os arquivos e a dos
+  <link> no HTML: base, shell, tabelas, dashboard.
+*/
+
+.eyebrow {
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.7;
+}
+
+.public-section {
+  display: grid;
+  gap: 14px;
+}
+
+.public-section > * {
+  min-width: 0;
+}
+
+.public-last-update {
+  margin-top: 2px;
+}
+
+/* --- Modal de cadastro de produto ---------------------------------------- */
+/* Campos empilhados (rotulo em cima), opcoes como cartoes clicaveis e a faixa de
+   tipos num bloco proprio: com o form-grid de duas colunas o modal ficava com
+   rotulos comprimidos e campos de larguras diferentes. */
+.catalog-form {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.catalog-form label:not(:first-child) {
+  margin-top: 10px;
+}
+
+.catalog-form input,
+.catalog-form select {
+  width: 100%;
+  max-width: none;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border-strong, #d0d5dd);
+  background: var(--app-surface-soft, #f7f8fa);
+  color: var(--app-text, #101828);
+  font-size: 14.5px;
+}
+
+.catalog-form input:focus,
+.catalog-form select:focus,
+.catalog-range input:focus {
+  outline: none;
+  border-color: var(--app-accent, #2563eb);
+}
+
+.catalog-hint {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--app-text-soft, #667085);
+}
+
+.catalog-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.catalog-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border, #e4e7ec);
+  background: var(--app-surface-soft, #f7f8fa);
+  cursor: pointer;
+  text-align: left;
+}
+
+.catalog-checkbox:has(input:checked) {
+  border-color: var(--app-accent, #2563eb);
+  background: var(--app-accent-soft, #eef4ff);
+}
+
+.catalog-checkbox input {
+  width: 17px;
+  height: 17px;
+  margin: 1px 0 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--app-accent, #2563eb);
+  flex: 0 0 auto;
+}
+
+.catalog-checkbox span {
+  display: grid;
+  gap: 2px;
+}
+
+.catalog-checkbox strong {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--app-text, #101828);
+}
+
+.catalog-checkbox small {
+  font-size: 12px;
+  color: var(--app-text-soft, #667085);
+}
+
+.catalog-range {
+  margin: 16px 0 0;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border, #e4e7ec);
+  background: var(--app-surface, #ffffff);
+}
+
+.catalog-range legend {
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-text-dim, #98a2b3);
+}
+
+/* A excecao por tipo e lida como frase: "do tipo 4 ao 6 tem 66 caixas por
+   pallet". Tres campos soltos com rotulo nao diziam como as regras se combinam. */
+.catalog-rule-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--app-text, #101828);
+}
+
+.catalog-rule-line select,
+.catalog-rule-line input {
+  width: auto;
+  min-width: 68px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border-strong, #d0d5dd);
+  background: var(--app-surface-soft, #f7f8fa);
+  color: var(--app-text, #101828);
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.catalog-rule-line input {
+  min-width: 78px;
+}
+
+.catalog-rule-line select:focus,
+.catalog-rule-line input:focus {
+  outline: none;
+  border-color: var(--app-accent, #2563eb);
+}
+
+.catalog-rule-preview {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: var(--app-accent-soft, #eef4ff);
+  color: var(--app-accent, #2563eb);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* Sem display:flex na <td>: a celula flex perde o alinhamento e a borda de
+   baixo da linha aparece quebrada na coluna Acoes. */
+.row-actions {
+  white-space: nowrap;
+}
+
+.row-actions button {
+  padding: 6px 12px;
+  vertical-align: middle;
+}
+
+.row-actions button + button {
+  margin-left: 6px;
+}
+
+.row-actions .icon-btn {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.row-selected {
+  background: var(--app-accent-soft);
+}
+
+.voice-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  text-align: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.voice-card .voice-action {
+  position: relative;
+  z-index: 2;
+  padding: 12px 22px;
+  font-size: 16px;
+}
+
+.voice-card.listening {
+  transform: translateY(-2px);
+  box-shadow: 0 26px 60px rgba(15, 23, 42, 0.18);
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.04), #ffffff);
+}
+
+.voice-card.listening .voice-action {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.voice-status {
+  font-size: 14px;
+  color: #6b7280;
+  position: relative;
+  z-index: 2;
+}
+
+#voice-last {
+  position: relative;
+  z-index: 2;
+  width: min(360px, 90%);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.public-toolbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.public-toolbar input {
+  flex: 1;
+  min-width: 260px;
+}
+
+.public-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.public-toolbar-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  border-radius: 12px;
+  min-width: 0;
+}
+
+.public-toolbar-actions button i {
+  font-size: 14px;
+}
+
+#public-table-detailed,
+#public-table-summary {
+  min-width: 0;
+}
+
+#public-table-detailed .table-wrap {
+  margin-top: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+#public-table-detailed table {
+  min-width: 720px;
+}
+
+.public-table-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 0;
+}
+
+.public-table-modes {
+  margin-top: 0;
+}
+
+.catalog-empty {
+  text-align: center;
+  color: var(--app-text-soft);
+}
+
+.debug-row {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.debug-row pre {
+  margin: 0;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 8px;
+  max-height: 120px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.table-modes {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.view-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+}
+
+.view-toggle::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 42px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--app-accent);
+  transition: transform 0.2s ease;
+}
+
+.view-toggle:not(.mode-summary)::before {
+  transform: translateX(44px);
+}
+
+.view-toggle-btn {
+  position: relative;
+  z-index: 1;
+  width: 42px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  padding: 0;
+  background: transparent;
+  color: var(--app-text-soft);
+  box-shadow: none;
+}
+
+.view-toggle-btn:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.view-toggle.mode-summary .view-toggle-btn:first-child,
+.view-toggle:not(.mode-summary) .view-toggle-btn:last-child {
+  color: #ffffff;
+}
+
+.view-toggle i {
+  font-size: 18px;
+}
+
+.summary-table tfoot td {
+  font-weight: 600;
+  background: var(--app-surface-soft);
+}
+
+#public-table-summary,
+#count-table-summary {
+  min-width: 0;
+  width: 100%;
+}
+
+#public-table-summary .summary-card .table-wrap,
+#count-table-summary .summary-card .table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+#public-table-summary .summary-table,
+#count-table-summary .summary-table {
+  width: max-content;
+  min-width: 100%;
+}
+
+#public-table-summary .summary-table th,
+#public-table-summary .summary-table td,
+#count-table-summary .summary-table th,
+#count-table-summary .summary-table td {
+  white-space: nowrap;
+}
+
+.summary-colorized .cell-total {
+  background: #ffffff;
+  color: inherit;
+  font-weight: 600;
+}
+
+/* --- Rotulo de campo (compartilhado) -------------------------------------
+   Caixa alta pequena em cima do controle. Estava escrito cinco vezes, uma por
+   formulario, e no escuro duas delas usavam um cinza mais claro que as outras
+   tres - os rotulos do login e do catalogo nao batiam com os da contagem. */
+.catalog-form label,
+.manual-field-label,
+.count-mode-caption {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-text-dim);
+}
+
+/* No escuro o dim fica apagado demais para caixa alta de 11px. */
+body[data-theme="dark"] .catalog-form label,
+body[data-theme="dark"] .manual-field-label,
+body[data-theme="dark"] .count-mode-caption {
+  color: var(--app-text-soft);
+}
+
+.sync-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+  border: 1px solid rgba(147, 197, 253, 0.35);
+}
+
+.sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sync-pill::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  flex: 0 0 auto;
+}
+
+.sync-pill.online {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.sync-pill.offline {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.sync-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.sync-copy strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 15px;
+  color: #0f172a;
+}
+
+.sync-copy span {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.count-mode-bar {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.count-mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* --- Produtos: busca, chip de origem e estado vazio ----------------------- */
+#catalog-card .table-wrap table {
+  min-width: 720px;
+}
+
+body[data-page="products"] .catalog-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 140px;
+  max-width: 340px;
+}
+
+body[data-page="products"] .catalog-search i {
+  position: absolute;
+  left: 11px;
+  font-size: 14px;
+  color: var(--app-text-dim);
+  pointer-events: none;
+}
+
+body[data-page="products"] .catalog-search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  border-radius: 10px;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font-size: 13.5px;
+}
+
+body[data-page="products"] .catalog-search input:focus {
+  outline: none;
+  border-color: var(--app-accent);
+}
+
+/* Origem do item: padrao do sistema x cadastrado pela equipe. */
+.catalog-origin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--app-surface-soft, #f2f4f7);
+  color: var(--app-text-soft, #667085);
+  border: 1px solid var(--app-border, #e4e7ec);
+}
+
+.catalog-origin.is-custom {
+  background: var(--app-accent-soft, #eef4ff);
+  color: var(--app-accent, #2563eb);
+  border-color: transparent;
+}
+
+@media (max-width: 640px) {
+  /* Busca e botoes ficam na mesma linha tambem no celular: a busca encolhe e os
+     icones mantem o tamanho. */
+  body[data-page="products"] .count-toolbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  body[data-page="products"] .catalog-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+body[data-page="products"] .catalog-empty {
+  padding: 26px 12px;
+  text-align: center;
+  color: var(--app-text-soft);
+}
+
+/* --- Faixa de status online/offline -------------------------------------- */
+body[data-page="edit"] .sync-banner {
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  box-shadow: none;
+}
+
+body[data-page="edit"] .sync-copy strong {
+  font-size: 14px;
+  color: var(--app-text);
+}
+
+body[data-page="edit"] .sync-copy span {
+  font-size: 12.5px;
+  color: var(--app-text-soft);
+}
+
+/* --- Seletor de modo -------------------------------------------------------
+   Fica dentro da aba Contagem, mas deliberadamente diferente das abas: as abas
+   sao a navegacao (pill grande, com icone, na cor de destaque) e o modo e um
+   campo suspenso precedido do rotulo "Editando", com a forma dos dropdowns do
+   Comando Manual, para os dois nao serem lidos como o mesmo controle. */
+body[data-page="edit"] .count-mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 0;
+}
+
+body[data-page="edit"] .count-mode-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+}
+
+body[data-page="edit"] .count-mode-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+body[data-page="edit"] #new-count-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0;
+}
+
+body[data-page="edit"] #new-count-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/* No celular os dois botoes dividem a linha em vez de empilhar. */
+@media (max-width: 640px) {
+  body[data-page="edit"] #new-count-actions {
+    width: 100%;
+  }
+
+  body[data-page="edit"] #new-count-actions button {
+    flex: 1 1 0;
+    justify-content: center;
+    min-width: 0;
+    padding: 10px 10px;
+  }
+
+  body[data-page="edit"] #new-count-actions button span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+body[data-page="edit"] #new-count-actions button i {
+  font-size: 13px;
+}
+
+#count-panel {
+  display: grid;
+  gap: 16px;
+}
+
+body[data-page="edit"] .count-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 410px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+body[data-page="edit"] .count-left-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-content: start;
+  min-width: 0;
+}
+
+body[data-page="edit"] .count-right-column {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+
+body[data-page="edit"] .count-left-column > *,
+body[data-page="edit"] .count-right-column > * {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+#manual-card {
+  order: 1;
+  min-height: 0;
+  align-self: start;
+}
+
+#voice-card {
+  order: 2;
+  min-height: 220px;
+  height: auto;
+  align-self: start;
+  display: grid;
+  gap: 12px;
+  place-items: initial;
+  text-align: left;
+  padding: var(--app-pad);
+  border-radius: var(--app-radius);
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  box-shadow: var(--app-shadow);
+  color: var(--app-text);
+}
+
+#voice-card .voice-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+#voice-card .voice-card-header h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--app-text);
+}
+
+#voice-card .voice-card-header i {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+#voice-card .voice-context-box {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--app-surface-soft);
+}
+
+#voice-card .voice-context-box h3 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--app-text-dim);
+}
+
+#voice-card .voice-context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+#voice-card .voice-chip {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+}
+
+#voice-card .voice-chip span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--app-text-dim);
+}
+
+#voice-card .voice-chip strong {
+  font-size: 14px;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#voice-card .voice-context-box strong {
+  color: var(--app-text);
+}
+
+#voice-card .voice-action {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  border: 1px solid var(--app-accent);
+  border-radius: 12px;
+  background: var(--app-accent);
+  color: var(--voice-action-text);
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+#voice-card .voice-action i {
+  font-size: 16px;
+}
+
+#voice-card .voice-action:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--app-accent) 88%, #000);
+  border-color: color-mix(in srgb, var(--app-accent) 88%, #000);
+}
+
+#voice-card .voice-action:disabled {
+  opacity: 0.6;
+}
+
+#voice-card .voice-action:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+#voice-card .voice-status {
+  margin-top: -2px;
+  font-size: 15px;
+  color: var(--app-text-soft);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#voice-card #voice-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--app-text-dim);
+  flex: 0 0 auto;
+}
+
+#voice-card #voice-last {
+  width: 100%;
+  min-height: 68px;
+  border: 1px solid var(--app-border-strong);
+  border-radius: 10px;
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  margin-top: 0;
+}
+
+#voice-card #voice-last::placeholder {
+  color: var(--app-text-dim);
+}
+
+#voice-card.listening {
+  transform: none;
+  background: var(--app-surface);
+}
+
+#voice-card.listening .voice-action {
+  border-color: var(--voice-listening-action-border);
+  background: var(--voice-listening-action-bg);
+  color: var(--voice-listening-action-text);
+}
+
+#voice-card.listening .voice-action::before {
+  background: var(--voice-listening-dot);
+}
+
+#voice-card.listening #voice-status {
+  color: var(--voice-listening-status-text);
+}
+
+#voice-card.listening #voice-status::before {
+  background: var(--voice-listening-status-dot);
+}
+
+/* --- Cards internos (padrao .overview-card da Visao Geral) ---------------- */
+#manual-card,
+#count-items-card,
+#catalog-card {
+  padding: var(--app-pad);
+  border-radius: var(--app-radius);
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  box-shadow: var(--app-shadow);
+}
+
+#manual-card .card-header h2,
+#count-items-card .card-header h2,
+#catalog-card .card-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  color: var(--app-text);
+}
+
+#manual-card .card-header h2 i,
+#count-items-card .card-header h2 i,
+#catalog-card .card-header h2 i {
+  font-size: 15px;
+  color: var(--app-text-dim);
+}
+
+#manual-card .card-header p,
+#count-items-card .card-header p,
+#catalog-card .card-header p {
+  color: var(--app-text-soft);
+  font-size: 13px;
+}
+
+/* --- Comando Manual: grid no lugar da tabela de 7 colunas ----------------- */
+body[data-page="edit"] .manual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+body[data-page="edit"] .manual-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+body[data-page="edit"] .manual-field input {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border-strong);
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+body[data-page="edit"] .manual-field input:focus {
+  outline: none;
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-accent) 20%, transparent);
+}
+
+body[data-page="edit"] .manual-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+body[data-page="edit"] .manual-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Enviar por WhatsApp: mesmo botao de icone, com a cor da marca. */
+body[data-page="edit"] .count-toolbar-actions .whatsapp-btn i {
+  color: #25d366;
+}
+
+body[data-page="edit"] .count-toolbar-actions .icon-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* --- Itens Contados: toolbar unica ---------------------------------------- */
+body[data-page="edit"] .count-toolbar,
+body[data-page="products"] .count-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--app-surface-soft);
+  border: 1px solid var(--app-border);
+}
+
+body[data-page="edit"] .count-toolbar-meta,
+body[data-page="products"] .count-toolbar-meta {
+  display: grid;
+  gap: 2px;
+  font-size: 13px;
+}
+
+body[data-page="edit"] .count-toolbar-meta span,
+body[data-page="products"] .count-toolbar-meta span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--app-text-dim);
+}
+
+body[data-page="edit"] .count-toolbar-meta strong,
+body[data-page="products"] .count-toolbar-meta strong {
+  color: var(--app-text);
+}
+
+body[data-page="edit"] .count-toolbar-actions,
+body[data-page="products"] .count-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Produtos: os tres controles na mesma linha - a busca encolhe, os botoes nao.
+   Este bloco tem de vir DEPOIS da regra acima: a especificidade e a mesma, e
+   antes ele ficava em cima no arquivo, entao o nowrap nunca valia. */
+body[data-page="products"] .count-toolbar-actions {
+  flex-wrap: nowrap;
+  gap: 8px;
+}
+
+body[data-page="products"] .count-toolbar-actions .icon-btn {
+  flex: 0 0 auto;
+}
+
+/* Separa a navegacao de visualizacao das acoes destrutivas/de saida. */
+body[data-page="edit"] .count-toolbar-actions .view-toggle + .icon-btn {
+  margin-left: 10px;
+}
+
+/* O seletor de visualizacao nasceu com 44px de altura, num tempo em que ficava
+   sozinho numa linha. Dentro da toolbar ele encolhe para a mesma altura dos
+   botoes ao lado. */
+body[data-page="edit"] .count-toolbar-actions .view-toggle {
+  margin: 0;
+  flex: 0 0 auto;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle::before {
+  top: 3px;
+  left: 3px;
+  width: 34px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--app-accent);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle:not(.mode-summary)::before {
+  transform: translateX(36px);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle-btn {
+  width: 34px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--app-text-soft);
+}
+
+body[data-page="edit"] .count-toolbar-actions .view-toggle i {
+  font-size: 15px;
+}
+
+/* Exportar e Limpar viraram so icone: com rotulo, os tres controles brigavam
+   por espaco na mesma linha. O texto continua no title/aria-label. */
+body[data-page="edit"] .count-toolbar-actions .icon-btn,
+body[data-page="products"] .count-toolbar-actions .icon-btn {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+body[data-page="edit"] .count-toolbar-actions .icon-btn i,
+body[data-page="products"] .count-toolbar-actions .icon-btn i {
+  font-size: 15px;
+}
+
+#count-items-card .table-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* A tabela detalhada tem nove colunas: ela rola dentro do proprio quadro em vez
+   de esticar o card e, com ele, a pagina inteira. */
+#count-items-card .table-wrap {
+  -webkit-overflow-scrolling: touch;
+}
+
+#count-table-detailed .table-wrap table {
+  min-width: 780px;
+}
+
+/* Mesmo acabamento da tabela do index: cabecalho em caixa alta, celulas com
+   respiro, numeros a direita e a linha do total em destaque. */
+/* Quadro da tabela: a tabela rola dentro dele em vez de esticar o card. Estava
+   escrito duas vezes (index e editar+produtos) e o Historico da Visao Geral nao
+   tinha - por isso ele destoava das outras. */
+#public-table-detailed .table-wrap,
+#count-table-detailed .table-wrap,
+#catalog-card .table-wrap {
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-sm);
+  background: var(--app-surface);
+}
+#count-items-card table {
+  font-size: 14px;
+}
+
+/* Coluna Acoes: largura fixa para os icones nao empurrarem as outras colunas. */
+#count-table-detailed th:last-child,
+#count-table-body td:last-child,
+#catalog-card th:last-child,
+#catalog-table-body td:last-child {
+  width: 1%;
+  padding-left: 8px;
+  padding-right: 12px;
+  text-align: right;
+}
+
+/* Colunas numericas alinhadas a direita nas duas tabelas detalhadas. O indice
+   da primeira coluna numerica muda (a do estoque tem uma coluna a menos), o
+   acabamento nao - por isso um bloco so. */
+#public-table-detailed th:nth-child(n + 4),
+#public-table-body td:nth-child(n + 4),
+#count-table-detailed th:nth-child(n + 5):not(:last-child),
+#count-table-body td:nth-child(n + 5):not(:last-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#count-table-body td:nth-child(2) {
+  font-weight: 600;
+}
+
+#count-table-body td:nth-child(8) {
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  body[data-page="edit"] .count-toolbar {
+    align-items: stretch;
+  }
+
+  /* "Ultima atualizacao" vira uma linha unica (rotulo: valor) com um risco
+     separando as acoes - em grid, o rotulo e o valor empilhados comiam duas
+     linhas de altura no celular. */
+  body[data-page="edit"] .count-toolbar-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    width: 100%;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--app-border);
+  }
+
+  body[data-page="edit"] .count-toolbar-meta span::after {
+    content: ":";
+  }
+
+  /* No celular a toolbar quebra em duas linhas: tudo encostado a direita, para
+     os icones nao ficarem espalhados pela largura do card. */
+  body[data-page="edit"] .count-toolbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  body[data-page="edit"] .count-toolbar-actions .view-toggle {
+    margin-right: auto;
+  }
+
+  body[data-page="edit"] .count-toolbar-actions .view-toggle + .icon-btn {
+    margin-left: 0;
+  }
+}
+
+body[data-page="edit"] .count-toolbar-actions button,
+body[data-page="products"] .count-toolbar-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+#count-items-card {
+  min-height: 0;
+  height: auto;
+  align-self: start;
+}
+
+#manual-card .table-wrap {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+#count-items-card .table-wrap {
+  margin-top: 12px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 1240px) {
+  body[data-page="edit"] .count-layout {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+  }
+
+  #voice-card .voice-card-header h2 {
+    font-size: 20px;
+  }
+
+  #voice-card .voice-context-box h3,
+  #voice-card .voice-action,
+  #voice-card .voice-status {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 1080px) {
+  body[data-page="edit"] .count-layout {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-page="edit"] .count-left-column {
+    gap: 14px;
+  }
+
+  #voice-card,
+  #manual-card,
+  #count-items-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  #voice-card {
+    padding: 14px;
+  }
+
+  #voice-card .voice-card-header {
+    flex-wrap: wrap;
+  }
+
+  #voice-card .voice-card-header h2 {
+    font-size: 18px;
+  }
+
+  #voice-card .voice-context-box h3,
+  #voice-card .voice-action,
+  #voice-card .voice-status {
+    font-size: 15px;
+  }
+
+  #voice-card .voice-context-box p {
+    font-size: 14px;
+  }
+}
+
+/*
+  ===== Tema escuro: o que os tokens nao resolvem =====
+  Quase todo o app troca de tema so pelos tokens --app-* (ver "Paleta do app").
+  Aqui ficam as excecoes: cores de estado (.msg), gradientes e superficies que
+  nao sao uma cor de token, e o color-scheme dos <select> nativos.
+*/
+
+/* O <select> nativo herda a cor do sistema: sem color-scheme a lista de opcoes
+   abre branca mesmo com o campo escuro. */
+body[data-theme="dark"] .catalog-form select,
+body[data-theme="dark"] .catalog-rule-line select {
+  color-scheme: dark;
+}
+
+body[data-theme="dark"] .summary-table thead th,
+body[data-theme="dark"] .summary-table tfoot td {
+  background: var(--app-surface-soft);
+}
+
+body[data-theme="dark"] .summary-table td,
+body[data-theme="dark"] .summary-colorized .cell-total {
+  background: transparent;
+}
+
+body[data-theme="dark"] .sync-banner {
+  background: linear-gradient(135deg, #0f1a2d 0%, #13233e 100%);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+body[data-theme="dark"] .sync-copy strong {
+  color: #e2ebff;
+}
+
+@media (max-width: 980px) {
+  .public-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .public-toolbar input {
+    min-width: 0;
+  }
+
+  .public-toolbar-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .public-toolbar-actions button {
+    width: 100%;
+  }
+
+  .public-table-controls {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .sync-banner {
+    flex-direction: column;
+  }
+
+  .count-mode-row {
+    align-items: stretch;
+  }
+
+  .public-toolbar-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .public-toolbar-actions button:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .public-table-controls {
+    justify-content: center;
+  }
+
+  #public-table-detailed table {
+    min-width: 640px;
+  }
+
+  #public-table-summary .summary-table,
+  #count-table-summary .summary-table {
+    font-size: 11px;
+  }
+
+  #public-table-summary .summary-table th,
+  #public-table-summary .summary-table td,
+  #count-table-summary .summary-table th,
+  #count-table-summary .summary-table td {
+    padding: 5px 6px;
+  }
+}
+
+@media (max-width: 560px) {
+  .public-toolbar-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .public-toolbar-actions button:last-child {
+    grid-column: auto;
+  }
+
+  #public-table-detailed table {
+    min-width: 600px;
+  }
+
+  #public-table-summary .summary-table th,
+  #public-table-summary .summary-table td,
+  #count-table-summary .summary-table th,
+  #count-table-summary .summary-table td {
+    padding: 4px 5px;
+    font-size: 10px;
+  }
+}
+
+.public-section {
+  gap: 16px;
+}
+
+/* Barra de busca e acoes */
+.public-toolbar {
+  gap: 8px;
+}
+
+.search-field {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+  display: flex;
+  align-items: center;
+}
+
+.search-field i {
+  position: absolute;
+  left: 12px;
+  font-size: 15px;
+  color: var(--app-text-soft);
+  pointer-events: none;
+}
+
+.search-field input {
+  padding-left: 36px;
+  height: 42px;
+}
+
+.public-toolbar-actions button {
+  height: 42px;
+  border-radius: var(--app-radius-sm);
+  padding: 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border-strong);
+  color: var(--app-text);
+  box-shadow: none;
+}
+
+.public-toolbar-actions button:hover {
+  transform: none;
+  background: var(--app-surface-soft);
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+  box-shadow: none;
+}
+
+/* Tabela detalhada */
+#public-table-body td:first-child {
+  font-weight: 600;
+}
+
+#public-table-body td:nth-child(7) {
+  font-weight: 700;
+}
+
+@media (max-width: 980px) {
+  .public-toolbar-actions {
+    gap: 8px;
+  }
+
+  .public-toolbar-actions button {
+    padding: 0 8px;
+    font-size: 13px;
+  }
+}
