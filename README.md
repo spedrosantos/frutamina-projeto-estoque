@@ -70,40 +70,24 @@ projeto-estoque/
 |- styles.css
 |- service-worker.js
 |- manifest.webmanifest
-|- MANUTENCAO.md
-`- *.sql        (ver "Banco de Dados")
+`- MANUTENCAO.md
 ```
 
 Cada página carrega um entry point próprio (`main-view.js`, `main-edit.js`, `main-dashboard.js`, `main-products.js`) que importa só o que aquela tela usa. O `<head>` das quatro páginas tem apenas charset, `<title>`, `styles.css` e `assets/js/head.js` — o resto das metatags é injetado por esse script.
 
 ## Banco de Dados (Supabase)
 
-### Script principal
+### Onde fica o schema
 
-Para ambiente novo, execute `supabase-completo.sql`. Ele cria/ajusta:
+O repo não guarda scripts `.sql`. Tabelas, triggers, views, funções, job do
+`pg_cron`, políticas RLS e grants vivem direto no projeto do Supabase — é lá que
+se consulta ou altera a estrutura (SQL Editor / Table Editor). O resumo abaixo
+serve para entender o app; não substitui o que está no banco.
 
-- tabela `public.estoque_registros`;
-- tabela `public.estoque_snapshots`;
-- função/trigger `calcular_total_caixas`;
-- índices, políticas RLS e grants.
-
-### Demais scripts
-
-Aplicar na ordem abaixo (num ambiente novo, todos; num ambiente antigo, só os que faltam):
-
-| Script | O que faz |
-| --- | --- |
-| `supabase-caixas-avulsas.sql` | adiciona `caixas_avulsas`, recalcula totais e recria o trigger de normalização |
-| `supabase-dashboard-migracao.sql` | adiciona `outflow_caixas` em `estoque_snapshots` |
-| `supabase-estoque-delete-policy.sql` | permite que uma nova contagem substitua as linhas do setor gravadas por **qualquer** operador (sem isso o RLS bloqueia em silêncio e o estoque duplica) |
-| `supabase-usuarios-label.sql` | cria `usuarios_label`, para o nome do operador aparecer em todos os aparelhos e não só em quem já logou naquele |
-| `supabase-historico-diario.sql` | cria `estoque_historico_diario` e o job `pg_cron` que captura o estoque 1x/dia |
-| `supabase-historico-diario-total.sql` | cria a view `estoque_historico_diario_total`, usada quando a aba Tendência não filtra produto/marca |
-| `supabase-lancamentos-rpc.sql` | cria a função `aplicar_lancamentos`, que grava a fila do modo "Estoque Atual" numa única requisição e numa transação; normaliza os tipos legados do ORANGE (`601`/`602` → `14`/`15`) |
-
-Não há script para `catalog_overrides` — a tabela foi criada manualmente no Supabase. Estrutura em `assets/js/catalog-overrides.js`.
-
-`supabase-notifications-remover.sql` é opcional e **destrutivo**: dá `DROP TABLE push_subscriptions`, sobra da função de notificações push que foi removida do app. Rode só se quiser limpar a tabela órfã.
+Objetos usados pelo app: `estoque_registros`, `estoque_snapshots`,
+`estoque_historico_diario` (+ view `estoque_historico_diario_total`),
+`catalog_overrides`, `usuarios_label`, o trigger `calcular_total_caixas` e a
+função `aplicar_lancamentos`.
 
 ### Modelo de dados (resumo)
 
@@ -123,7 +107,7 @@ Não há script para `catalog_overrides` — a tabela foi criada manualmente no 
 
 - Leitura de `estoque_registros`: pública (`anon`, `authenticated`).
 - Escrita de `estoque_registros`: somente o dono (`auth.uid() = user_id`).
-- Exclusão de `estoque_registros`: qualquer usuário autenticado (ver `supabase-estoque-delete-policy.sql`).
+- Exclusão de `estoque_registros`: qualquer usuário autenticado.
 - Leitura de `estoque_snapshots`: pública. Inserção: usuário autenticado dono do registro.
 
 ## Autenticação
@@ -162,7 +146,7 @@ Observações:
 
 - **Estoque Atual**
   - cada lançamento entra numa fila de *deltas* no aparelho (`pending-changes.js`), visível na aba `Conferência`;
-  - ao salvar, a fila inteira vai numa única chamada (`aplicar_lancamentos`, ver `supabase-lancamentos-rpc.sql`) e é aplicada numa transação: ou grava tudo, ou nada — no erro a fila continua intacta no aparelho;
+  - ao salvar, a fila inteira vai numa única chamada (`aplicar_lancamentos`) e é aplicada numa transação: ou grava tudo, ou nada — no erro a fila continua intacta no aparelho;
   - se o banco ainda não tiver a função, o app volta sozinho ao caminho antigo (um `SELECT` + `UPDATE` por item, em série) e não avisa nada — só fica mais lento;
   - a fila sobrevive ao logout e ao fechamento do app.
 
@@ -232,12 +216,11 @@ Ao publicar **qualquer** mudança de código ou asset:
 
 ## Troubleshooting
 
-- **Erro mencionando `caixas_avulsas`** — aplique `supabase-caixas-avulsas.sql`.
-- **Erro mencionando `outflow_caixas`** — aplique `supabase-dashboard-migracao.sql`.
-- **Estoque duplicando depois de uma nova contagem** — aplique `supabase-estoque-delete-policy.sql`.
-- **Histórico mostrando "usuário &lt;id curto&gt;"** — aplique `supabase-usuarios-label.sql`.
-- **Salvar a contagem está lento (dezenas de segundos)** — o banco não tem `aplicar_lancamentos`; aplique `supabase-lancamentos-rpc.sql`. O app funciona sem ela, mas gasta 2 a 3 requisições por item.
-- **Aba Tendência vazia** — aplique os dois scripts de histórico diário e confirme se o job `pg_cron` está ativo (o gráfico só tem dados a partir do primeiro dia capturado).
+- **Erro mencionando uma coluna** (`caixas_avulsas`, `outflow_caixas`) — a coluna não existe no banco; crie no Supabase.
+- **Estoque duplicando depois de uma nova contagem** — falta a policy de DELETE em `estoque_registros`: sem ela o RLS bloqueia em silêncio e as linhas do setor não são substituídas.
+- **Histórico mostrando "usuário &lt;id curto&gt;"** — falta a tabela `usuarios_label`.
+- **Salvar a contagem está lento (dezenas de segundos)** — o banco não tem a função `aplicar_lancamentos`. O app funciona sem ela, mas gasta 2 a 3 requisições por item.
+- **Aba Tendência vazia** — confira `estoque_historico_diario`, a view `estoque_historico_diario_total` e se o job `pg_cron` está ativo (o gráfico só tem dados a partir do primeiro dia capturado).
 - **Sem internet** — a consulta pública usa o último cache; a fila e o rascunho ficam no aparelho até sincronizar.
 - **Microfone não funciona** — use Chrome/Edge, confirme a permissão e valide HTTPS em produção.
 - **Mudança publicada não aparece** — é o service worker servindo cache: incremente a versão em `service-worker.js`.
@@ -245,7 +228,7 @@ Ao publicar **qualquer** mudança de código ou asset:
 ## Observações de Segurança
 
 - A chave do frontend é publishable (`anon`), o que é esperado para apps web.
-- A proteção real de escrita depende das políticas RLS, previstas nos scripts SQL.
+- A proteção real de escrita depende das políticas RLS configuradas no Supabase.
 - Não desabilite RLS nas tabelas de produção.
 - A exclusão em `estoque_registros` é liberada para qualquer usuário autenticado, por necessidade do fluxo de nova contagem. Quem tem login pode apagar linha de outro operador.
 

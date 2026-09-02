@@ -45,18 +45,9 @@ Este projeto foi documentado em duas camadas:
 - `service-worker.js`
   Cache offline do shell do app (HTML/CSS/módulos JS listados em `APP_SHELL`).
 
-- `supabase-completo.sql`
-  Script principal de estrutura do banco.
-
-- `supabase-caixas-avulsas.sql`
-  Migração da funcionalidade de caixas avulsas.
-
-- `supabase-dashboard-migracao.sql`
-  Migração do campo `outflow_caixas` usado no dashboard.
-
-> Nota: a tabela `catalog_overrides` (catálogo de produtos cadastrados pelos
-> usuários) ainda não tem um script `.sql` próprio nesta pasta — foi criada
-> manualmente no Supabase. Ver estrutura em `assets/js/catalog-overrides.js`.
+> Nota: o repo não guarda scripts `.sql`. O schema (tabelas, triggers, views,
+> funções, RLS) vive no projeto do Supabase — ver "Banco de Dados" no README.
+> Estrutura de `catalog_overrides` em `assets/js/catalog-overrides.js`.
 
 ## Mapa de módulos (`assets/js/`)
 
