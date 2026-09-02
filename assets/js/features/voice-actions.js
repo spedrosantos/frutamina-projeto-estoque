@@ -623,9 +623,6 @@ async function handlePendingCorrection(rawText) {
     state.produto = produto;
     state.marca = marca;
     state.tipo = nextParams.tipo;
-    if (elements.setorSelect) {
-      elements.setorSelect.value = setor;
-    }
     renderContext();
 
     const corrected = await registerInventoryChange(nextParams);

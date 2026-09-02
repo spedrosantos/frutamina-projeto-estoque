@@ -292,7 +292,6 @@ async function saveEditItem() {
       row.total_caixas = normalizedMetrics.total_caixas;
       if (setor && state.setor !== setor) {
         state.setor = setor;
-        if (elements.setorSelect) elements.setorSelect.value = setor;
         renderContext();
       }
       renderCountTable();
@@ -317,7 +316,6 @@ async function saveEditItem() {
       clearTimeout(slowTimer);
       if (setor && state.setor !== setor) {
         state.setor = setor;
-        if (elements.setorSelect) elements.setorSelect.value = setor;
         renderContext();
       }
       state.selectedRowKey = null;
@@ -404,7 +402,6 @@ async function saveEditItem() {
     clearTimeout(slowTimer);
     if (setor && state.setor !== setor) {
       state.setor = setor;
-      if (elements.setorSelect) elements.setorSelect.value = setor;
       renderContext();
     }
     state.selectedRowKey = null;
@@ -677,9 +674,6 @@ async function addManualItem() {
   state.setor = setor;
   state.produto = produto;
   state.marca = marca;
-  if (elements.setorSelect) {
-    elements.setorSelect.value = setor;
-  }
   renderContext();
 
   await registerInventoryChange({

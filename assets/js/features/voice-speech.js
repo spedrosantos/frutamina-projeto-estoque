@@ -169,10 +169,6 @@ export function setupVoice() {
       elements.voiceLast.value = displayText;
     }
 
-    if (elements.commandInput) {
-      elements.commandInput.value = displayText;
-    }
-
     if (normalizedFinalTranscript) {
       // voice-actions.js tem ~1200 linhas de parser e so serve a quem fala com o
       // app: entra na primeira frase reconhecida, nao no boot.

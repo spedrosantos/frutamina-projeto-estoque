@@ -480,9 +480,6 @@ body[data-page="products"] {
   /* O card de voz herda os tokens dos outros cards; so o que e proprio dele
      (branco sobre o accent, vermelho de "ouvindo") vive aqui. */
   --voice-action-text: #ffffff;
-  --voice-btn-border: var(--app-border-strong);
-  --voice-btn-bg: var(--app-surface);
-  --voice-btn-text: var(--app-text-soft);
   --voice-listening-action-border: #b91c1c;
   --voice-listening-action-bg: #b91c1c;
   --voice-listening-action-text: #ffffff;
@@ -494,9 +491,6 @@ body[data-page="products"] {
 body[data-theme="dark"][data-page="edit"],
 body[data-theme="dark"][data-page="products"] {
   --voice-action-text: #0a0d14;
-  --voice-btn-border: #2a3a57;
-  --voice-btn-bg: transparent;
-  --voice-btn-text: #cdd9ef;
   --voice-listening-status-text: #fca5a5;
 }
 

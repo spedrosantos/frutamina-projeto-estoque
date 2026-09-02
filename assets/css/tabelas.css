@@ -909,32 +909,6 @@ body[data-page="edit"] .count-right-column > * {
   color: var(--app-text-dim);
 }
 
-#voice-card #command-input {
-  width: 100%;
-  border-radius: 10px;
-  border-color: var(--app-border-strong);
-  background: var(--app-surface-soft);
-  color: var(--app-text);
-}
-
-#voice-card #command-input::placeholder {
-  color: var(--app-text-dim);
-}
-
-#voice-card #process-btn {
-  min-height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--voice-btn-border);
-  background: var(--voice-btn-bg);
-  color: var(--voice-btn-text);
-  box-shadow: none;
-}
-
-#voice-card #process-btn:hover {
-  transform: none;
-  box-shadow: none;
-}
-
 #voice-card.listening {
   transform: none;
   background: var(--app-surface);
@@ -1328,10 +1302,6 @@ body[data-page="products"] .count-toolbar-actions button {
   #manual-card,
   #count-items-card {
     min-height: auto;
-  }
-
-  #voice-card #process-btn {
-    width: 100%;
   }
 }
 

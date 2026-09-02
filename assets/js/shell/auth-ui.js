@@ -320,20 +320,9 @@ export function setupAuth() {
   });
 }
 
-// Inicializa os selects base de setor usados no contexto e no modal de edicao.
+// Popula o select de setor do modal de edicao (o unico que existe no HTML).
 export function initSetorSelects() {
   const setores = Object.keys(CONFIG_GERAL);
-  if (elements.setorSelect) {
-    elements.setorSelect.innerHTML = "";
-    setores.forEach((setor) => {
-      const option = document.createElement("option");
-      option.value = setor;
-      option.textContent = setor;
-      elements.setorSelect.appendChild(option);
-    });
-    elements.setorSelect.value = state.setor;
-  }
-
   if (elements.editSetor) {
     elements.editSetor.innerHTML = "";
     setores.forEach((setor) => {

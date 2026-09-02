@@ -181,7 +181,6 @@ export function renderContext() {
   if (elements.ctxSetor) elements.ctxSetor.textContent = state.setor || "--";
   if (elements.ctxProduto) elements.ctxProduto.textContent = state.produto || "--";
   if (elements.ctxMarca) elements.ctxMarca.textContent = state.marca || "--";
-  if (elements.setorSelect) elements.setorSelect.value = state.setor;
   if (elements.manualSetor && elements.manualSetor.value !== state.setor) {
     elements.manualSetor.value = state.setor || "";
     import("./manual-form.js").then((m) => m.updateManualDependencies());
