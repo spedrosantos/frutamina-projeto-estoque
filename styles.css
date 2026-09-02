@@ -3470,6 +3470,17 @@ body[data-theme="dark"] .msg.error {
     margin-bottom: 16px;
   }
 
+  /* A topbar mobile mora dentro do .app, que no login vira grid centralizado:
+     sem isso ela encolhia para a largura do conteudo e ficava no meio, com o
+     menu destoando das outras paginas. */
+  body.auth-locked .app {
+    grid-template-rows: auto 1fr;
+  }
+
+  body.auth-locked .mobile-topbar {
+    justify-self: stretch;
+  }
+
   .mobile-topbar-logo {
     width: 122px;
     height: auto;
