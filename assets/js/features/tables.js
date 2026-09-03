@@ -741,6 +741,9 @@ function syncCountSourceAvailability() {
     state.countMode === "new" ? state.sessionRows.length > 0 : getPendingChanges().length > 0;
   const option = elements.countSourceSelect?.querySelector('option[value="contagem"]');
   if (option) option.disabled = !counting;
+  // Sem contagem em andamento so ha uma opcao valida: trava o select inteiro
+  // para nem abrir o dropdown, em vez de so desabilitar a opcao dentro dele.
+  if (elements.countSourceSelect) elements.countSourceSelect.disabled = !counting;
   if (!counting && state.countSource !== "estoque") state.countSource = "estoque";
   applyCountSourceUI();
 }
