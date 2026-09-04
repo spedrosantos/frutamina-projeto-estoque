@@ -16,19 +16,15 @@ let isSavingLaunch = false;
 import { CONFIG_GERAL, NO_TIPO_VALUE, TABLE_NAME, SUPABASE_TIMEOUT_MS } from "../core/config.js";
 import {
   toNonNegativeInt,
-  normalizeText,
   tokenizeText,
   formatTipoLabelValue,
   isNoTipoContext,
-  isNoTipoProduct,
   getTipoRuleValue,
   isTipoValidForContext,
   hasSpecialTipoVariants,
   getTipoExampleHint,
   getTipoValidationMessage,
   isSpecialTipoVariantValue,
-  buildNormalizedMap,
-  findExactMatch,
   pushMessage,
   withTimeout,
   getRowKey,
@@ -46,9 +42,6 @@ import { renderContext, renderCountTable, updateSessionAggregateRecord } from ".
 import { loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
 import { queuePendingDelta, undoLastPending } from "../data/pending-changes.js";
 import {
-  buildAllBrandMap,
-  buildBrandMap,
-  buildMaps,
   extractCommandNumbers,
   extractCommandTipoValues,
   formatTipoCounts,
@@ -59,6 +52,7 @@ import {
   isLaunchCommand,
   isRemoveCommand,
   isSaveCommand,
+  resolveVoiceContext,
   splitOversizedTipoNumbers,
 } from "./voice-parser.js";
 import {
@@ -509,54 +503,13 @@ export async function processCommand(rawText) {
     }
   }
 
-  const sectorMap = buildNormalizedMap(Object.keys(CONFIG_GERAL));
-  const sectorFound = findExactMatch(tokens, sectorMap);
-  if (sectorFound) {
-    const changed = sectorFound !== state.setor;
-    state.setor = sectorFound;
-    if (changed) {
-      state.produto = null;
-      state.marca = null;
-      state.tipo = null;
-    }
-    pushMessage("info", `Setor fixado: ${sectorFound}`);
-  }
-
-  const { products, productMap } = buildMaps(state.setor);
-  const productFound = findExactMatch(tokens, productMap);
-  if (productFound) {
-    const changed = productFound !== state.produto;
-    state.produto = productFound;
-    if (changed) {
-      state.marca = null;
-      state.tipo = null;
-    }
-    pushMessage("info", `Produto fixado: ${productFound}`);
-  }
-
-  let brandFound = null;
-  if (state.produto) {
-    const brandMap = buildBrandMap(products, state.produto);
-    brandFound = findExactMatch(tokens, brandMap);
-    if (brandFound) {
-      const changed = brandFound !== state.marca;
-      state.marca = brandFound;
-      if (changed) {
-        state.tipo = null;
-      }
-      pushMessage(
-        "info",
-        /\bKG\b/.test(normalizeText(brandFound)) && !isNoTipoProduct(state.produto)
-          ? `Marca fixada: ${brandFound}. Agora diga o tipo.`
-          : `Marca fixada: ${brandFound}`,
-      );
-    }
-  } else {
-    const anyBrand = findExactMatch(tokens, buildAllBrandMap(products));
-    if (anyBrand) {
-      pushMessage("warn", "Diga o produto antes da marca.");
-    }
-  }
+  const contexto = resolveVoiceContext(tokens, state);
+  const { products, sectorFound, productFound, brandFound } = contexto;
+  state.setor = contexto.setor;
+  state.produto = contexto.produto;
+  state.marca = contexto.marca;
+  state.tipo = contexto.tipo;
+  contexto.mensagens.forEach(({ level, text }) => pushMessage(level, text));
 
   const ignoredValues = [
     sectorFound,

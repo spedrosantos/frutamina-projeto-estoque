@@ -3,8 +3,11 @@
   service worker TEM que mudar junto.
 
   Sem isso o aparelho continua pintando o codigo velho que ja tem em cache (o
-  fetch e stale-while-revalidate), e a regra fica dependendo de alguem lembrar
-  na hora do commit.
+  fetch e stale-while-revalidate).
+
+  Quem rodou "git config core.hooksPath .githooks" ja tem o bump automatico no
+  pre-commit e nunca vai ver esta checagem falhar. Ela existe para o clone que
+  nao ligou o hook: e opt-in por copia do repo, entao nao da para contar com ele.
 
   Uso: node scripts/verificar-versao-cache.mjs <sha-base>
   Sem sha base (ou com base desconhecida) a checagem e pulada.
