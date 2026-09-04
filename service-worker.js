@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v134";
-const RUNTIME_CACHE = "frutamina-runtime-v134";
+const STATIC_CACHE = "frutamina-static-v135";
+const RUNTIME_CACHE = "frutamina-runtime-v135";
 
 const APP_SHELL = [
   "./",
@@ -42,7 +42,10 @@ const APP_SHELL = [
   "./assets/img/icon-512.png",
   "./assets/img/apple-touch-icon.png",
   "./assets/fonts/bootstrap-icons-subset.woff2",
-  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+  // Versao fixa de proposito: com "@2" a CDN pode trocar o build sem commit
+  // nenhum, e cada aparelho fica com um build diferente preso no cache. Ao subir
+  // a versao, atualizar tambem o integrity nos quatro HTML.
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.js",
   "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Source+Sans+3:wght@400;600&display=swap",
 ];
 

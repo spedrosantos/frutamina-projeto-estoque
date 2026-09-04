@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Histórico completo: a guarda da versão do cache compara com o commit base.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -21,3 +24,6 @@ jobs:
 
       - name: Formatação
         run: npx --yes prettier@3 --check .
+
+      - name: Versão do cache do service worker
+        run: node scripts/verificar-versao-cache.mjs "${{ github.event.pull_request.base.sha || github.event.before }}"
