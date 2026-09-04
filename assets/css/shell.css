@@ -593,12 +593,17 @@ body[data-theme="dark"] .auth-form label {
   margin-bottom: 22px;
 }
 
+/* Mora aqui, e nao no tabelas.css, porque a Visao Geral carrega dashboard.css
+   no lugar do tabelas.css: la o eyebrow ficava sem caixa alta e com a margem
+   padrao do <p> empurrando o titulo. */
 .page-head .eyebrow {
   color: var(--app-text-soft);
   opacity: 1;
   letter-spacing: 0.12em;
   font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+  margin: 0;
 }
 
 .page-head h1 {
