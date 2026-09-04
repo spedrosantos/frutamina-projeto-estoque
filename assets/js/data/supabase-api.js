@@ -146,10 +146,13 @@ export async function loadUserLabels() {
     (data || []).forEach((row) => {
       if (row.user_id) map[row.user_id] = row.label;
     });
+    const changed = JSON.stringify(map) !== JSON.stringify(state.userLabels);
     state.userLabels = map;
+    return changed;
   } catch (error) {
     console.warn("Erro ao carregar nomes de usuarios:", error?.message || error);
   }
+  return false;
 }
 
 // Escritas nunca devem rejeitar: os chamadores (voz, formulario manual) fazem

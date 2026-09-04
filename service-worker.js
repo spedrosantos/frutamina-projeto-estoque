@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v137";
-const RUNTIME_CACHE = "frutamina-runtime-v137";
+const STATIC_CACHE = "frutamina-static-v138";
+const RUNTIME_CACHE = "frutamina-runtime-v138";
 
 const APP_SHELL = [
   "./",
