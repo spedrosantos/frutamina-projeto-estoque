@@ -391,12 +391,16 @@ function renderDashboardHistory(history) {
     const tr = document.createElement("tr");
     const deltaClass = entry.delta > 0 ? "positive" : entry.delta < 0 ? "negative" : "neutral";
     const deltaSign = entry.delta > 0 ? "+" : "";
+    // O nome do operador vem da tabela usuarios_label, ou seja, de fora: e o
+    // unico texto desta tela que nao passa pela whitelist do catalogo. Vai por
+    // textContent para nao poder virar HTML.
     tr.innerHTML = `
       <td>${formatDateTime(entry.when)}</td>
-      <td>${entry.operator}</td>
+      <td class="overview-operator"></td>
       <td>${entry.event}</td>
       <td class="overview-delta ${deltaClass}">${deltaSign}${formatNumber(entry.delta)} cx</td>
     `;
+    tr.querySelector(".overview-operator").textContent = entry.operator;
     elements.ovHistoryBody.appendChild(tr);
   });
 }
