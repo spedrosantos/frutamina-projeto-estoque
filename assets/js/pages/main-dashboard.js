@@ -46,6 +46,16 @@ if (PAGE_MODE === "dashboard") {
 }
 finishBoot();
 
+// O resize dispara dezenas de vezes por segundo ao arrastar a janela, e no
+// celular tambem quando a barra de URL some ou o teclado abre. renderDashboard
+// remonta as tabelas e redesenha os canvas, entao sem isto a tela trava. Uma
+// rajada vira um render so, no proximo frame.
+let renderDashboardAgendado = false;
 window.addEventListener("resize", () => {
-  renderDashboard();
+  if (renderDashboardAgendado) return;
+  renderDashboardAgendado = true;
+  requestAnimationFrame(() => {
+    renderDashboardAgendado = false;
+    renderDashboard();
+  });
 });
