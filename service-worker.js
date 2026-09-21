@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v156";
-const RUNTIME_CACHE = "frutamina-runtime-v156";
+const STATIC_CACHE = "frutamina-static-v157";
+const RUNTIME_CACHE = "frutamina-runtime-v157";
 
 const APP_SHELL = [
   "./",
@@ -142,20 +142,28 @@ async function forcarRecarga() {
 }
 
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    (async () => {
-      const chaves = await caches.keys();
-      const vencidos = chaves.filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key));
-      await Promise.all(vencidos.map((key) => caches.delete(key)));
-      await self.clients.claim();
+  const preparar = (async () => {
+    const chaves = await caches.keys();
+    const vencidos = chaves.filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key));
+    await Promise.all(vencidos.map((key) => caches.delete(key)));
+    await self.clients.claim();
 
-      // Cache antigo do app so existe se uma versao anterior ja rodou aqui. Na
-      // primeira instalacao nao ha nada para recarregar, e mandar a pagina
-      // recarregar logo na estreia seria um susto a toa.
-      const eraAtualizacao = vencidos.some((key) => key.startsWith("frutamina-"));
-      if (eraAtualizacao) await forcarRecarga();
-    })(),
-  );
+    // Cache antigo do app so existe se uma versao anterior ja rodou aqui. Na
+    // primeira instalacao nao ha nada para recarregar, e mandar a pagina
+    // recarregar logo na estreia seria um susto a toa.
+    return vencidos.some((key) => key.startsWith("frutamina-"));
+  })();
+
+  event.waitUntil(preparar);
+
+  // FORA do waitUntil de proposito. navigate() so termina depois que este
+  // worker estiver ativado, e a ativacao so termina quando o waitUntil
+  // resolve: esperar a recarga aqui dentro trava os dois: a pagina fica
+  // parada esperando o worker, e o worker esperando a pagina. Deu exatamente
+  // isso no teste com Chrome, com a janela congelada por mais de um minuto.
+  preparar.then((eraAtualizacao) => {
+    if (eraAtualizacao) forcarRecarga();
+  });
 });
 
 self.addEventListener("fetch", (event) => {
