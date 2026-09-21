@@ -116,8 +116,9 @@ export function openEditModal(row = null) {
   setEditMessage("", "");
 
   if (elements.editTitle) {
-    // innerHTML para o icone do cabecalho nao ser apagado junto com o texto.
-    elements.editTitle.innerHTML = '<i class="bi bi-pencil"></i>Editar item';
+    // So o texto: o icone do cabecalho vem do data-modal-icon e fica fora deste
+    // span (ver modal-shell.js). Escrever a tag aqui duplicava o lapis.
+    elements.editTitle.textContent = "Editar item";
   }
 
   if (elements.editSetor) {
