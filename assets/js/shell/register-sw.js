@@ -52,6 +52,24 @@ async function aplicarVersaoNova() {
   window.location.reload();
 }
 
+// A versao mora num lugar so - a constante STATIC_CACHE do service-worker.js,
+// que o hook de pre-commit sobe a cada deploy. Ler do nome do cache evita uma
+// segunda copia do numero em algum arquivo, que envelheceria sozinha.
+async function mostrarVersao() {
+  const alvo = document.getElementById("app-version");
+  if (!alvo || !("caches" in window)) return;
+  try {
+    const versoes = (await caches.keys())
+      .map((nome) => /^frutamina-static-v(\d+)$/.exec(nome)?.[1])
+      .filter(Boolean)
+      .map(Number);
+    if (versoes.length) alvo.textContent = `v${Math.max(...versoes)}`;
+  } catch (error) {
+    // Sem versao na tela o app funciona igual; nao vale derrubar o boot.
+    console.warn("Nao foi possivel ler a versao do cache.", error);
+  }
+}
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     if (!jaTinhaControlador) return;
@@ -62,5 +80,8 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("./service-worker.js")
       .catch((error) => console.warn("Falha ao registrar o service worker.", error));
+    // Depois do ready: no primeiro acesso o cache ainda nem existe na hora do
+    // register.
+    navigator.serviceWorker.ready.then(mostrarVersao).catch(() => {});
   });
 }

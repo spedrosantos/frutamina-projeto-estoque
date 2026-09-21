@@ -972,3 +972,15 @@ body[data-page="edit"] .count-toolbar-actions .select-menu {
     width: 100%;
   }
 }
+
+/* Versao do cache no pe da barra lateral. Existe para dar para conferir, sem
+   DevTools, se o aparelho ja pegou o deploy - foi justamente o que faltou
+   quando um celular ficou com o CSS de uma versao e o JS de outra. */
+.app-version {
+  margin: 10px 0 0;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-text);
+  opacity: 0.55;
+  text-align: center;
+}
