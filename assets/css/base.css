@@ -521,33 +521,6 @@ body[data-page="edit"] #discard-new-count:hover {
   box-shadow: none;
 }
 
-/* Os dois botoes do modal de edicao dividem a mesma forma. A regra era so do
-   Salvar, e o Excluir nascia com o pilula de 999px do button base e sem o
-   espaco do icone. */
-body[data-page="edit"] #edit-save,
-body[data-page="edit"] #edit-delete {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 20px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-/* Excluir fica na ponta oposta do Salvar: os dois lado a lado num modal que se
-   abre com um clique na linha e convite a apagar contagem sem querer. */
-body[data-page="edit"] #edit-delete {
-  margin-right: auto;
-}
-
-/* O .danger nao zera o salto do hover do button base, como .primary e .ghost
-   fazem; sem isto so o Excluir pulava ao passar o mouse. */
-body[data-page="edit"] #edit-delete:hover {
-  transform: none;
-  box-shadow: none;
-  filter: brightness(0.97);
-}
 .table-wrap table {
   font-size: 14px;
 }
