@@ -29,7 +29,10 @@ export function finishBoot() {
   }
   setSidebarOpen(false);
   setupAuth();
-  loadPublicRecords();
+  // A tela de Produtos mexe so no catalogo: nao le state.publicRows em lugar
+  // nenhum e nao tem tabela para renderizar. Puxar a tabela de estoque inteira
+  // no boot dela era uma consulta jogada fora a cada abertura.
+  if (PAGE_MODE !== "products") loadPublicRecords();
 
   // Os nomes dos operadores chegam depois do primeiro render. Sem re-renderizar
   // aqui, quem abriu a tela antes da resposta fica vendo "usuario 02d6871d" ate

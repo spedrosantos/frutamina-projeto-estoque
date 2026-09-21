@@ -53,7 +53,7 @@ export async function loadSnapshotRecords(options = {}) {
     ({ data, error } = await withTimeout(
       supabaseClient
         .from(SNAPSHOT_TABLE)
-        .select("*")
+        .select("created_at,updated_at,total_caixas,outflow_caixas,user_id")
         .order("created_at", { ascending: false })
         .limit(SNAPSHOT_FETCH_LIMIT),
       SUPABASE_READ_TIMEOUT_MS,
