@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v155";
-const RUNTIME_CACHE = "frutamina-runtime-v155";
+const STATIC_CACHE = "frutamina-static-v156";
+const RUNTIME_CACHE = "frutamina-runtime-v156";
 
 const APP_SHELL = [
   "./",
@@ -108,18 +108,53 @@ self.addEventListener("install", (event) => {
   event.waitUntil(cacheAppShell().then(() => self.skipWaiting()));
 });
 
+// Pede para uma janela se atualizar sozinha e espera a resposta. A pagina com o
+// codigo novo responde, salva o rascunho da contagem e recarrega; a que nao
+// responde esta numa versao antiga, que nao conhece este recado.
+function pedirRecarga(janela) {
+  return new Promise((resolve) => {
+    const canal = new MessageChannel();
+    const prazo = setTimeout(() => resolve(false), 3000);
+    canal.port1.onmessage = () => {
+      clearTimeout(prazo);
+      resolve(true);
+    };
+    janela.postMessage({ tipo: "recarregar" }, [canal.port2]);
+  });
+}
+
+// A ordem de recarregar mora AQUI, e nao na pagina, de proposito: o worker e o
+// unico arquivo que o navegador sempre busca na rede, nunca do cache. Assim o
+// aparelho parado numa versao antiga tambem atualiza, mesmo sem ter o codigo
+// novo da pagina - era o caso em que ninguem conseguia alcancar o operador.
+async function forcarRecarga() {
+  const janelas = await self.clients.matchAll({ type: "window" });
+  await Promise.all(
+    janelas.map(async (janela) => {
+      if (await pedirRecarga(janela)) return;
+      try {
+        await janela.navigate(janela.url);
+      } catch (error) {
+        console.warn("Nao foi possivel recarregar a janela.", error);
+      }
+    }),
+  );
+}
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key))
-            .map((key) => caches.delete(key)),
-        ),
-      )
-      .then(() => self.clients.claim()),
+    (async () => {
+      const chaves = await caches.keys();
+      const vencidos = chaves.filter((key) => ![STATIC_CACHE, RUNTIME_CACHE].includes(key));
+      await Promise.all(vencidos.map((key) => caches.delete(key)));
+      await self.clients.claim();
+
+      // Cache antigo do app so existe se uma versao anterior ja rodou aqui. Na
+      // primeira instalacao nao ha nada para recarregar, e mandar a pagina
+      // recarregar logo na estreia seria um susto a toa.
+      const eraAtualizacao = vencidos.some((key) => key.startsWith("frutamina-"));
+      if (eraAtualizacao) await forcarRecarga();
+    })(),
   );
 });
 

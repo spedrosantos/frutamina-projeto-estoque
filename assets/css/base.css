@@ -1193,10 +1193,9 @@ button.is-loading i {
   content: "\f659";
 }
 
-/* Faixa dos recados do service worker: "nova versao disponivel" quando ha
-   contagem em andamento, e "app atualizado" depois da recarga. Fica sobre tudo,
-   mas fora do caminho do polegar, que no celular trabalha na metade de baixo
-   da tela. */
+/* Aviso de "app atualizado" depois da recarga. So informa, entao usa cor
+   neutra; fica sobre tudo, mas fora do caminho do polegar, que no celular
+   trabalha na metade de baixo da tela. */
 .sw-banner {
   position: fixed;
   left: 50%;
@@ -1204,18 +1203,12 @@ button.is-loading i {
   transform: translateX(-50%);
   z-index: 1000;
   max-width: calc(100% - 32px);
-  background: var(--app-accent);
-  color: #ffffff;
+  background: var(--app-surface-soft);
+  color: var(--app-text);
+  border: 1px solid var(--app-border-strong);
   border-radius: 999px;
   padding: 11px 20px;
   font-size: 13px;
   font-weight: 600;
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.28);
-}
-
-/* So informa, entao nao disputa atencao com o resto da tela. */
-.sw-banner.is-info {
-  background: var(--app-surface-soft);
-  color: var(--app-text);
-  border: 1px solid var(--app-border-strong);
 }

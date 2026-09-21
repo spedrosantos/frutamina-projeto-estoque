@@ -1,39 +1,19 @@
 // Registro do service worker (PWA), antes repetido como <script> inline nas
 // quatro paginas. Cada entry point so precisa importar este modulo.
 //
-// O worker novo entra sozinho (skipWaiting + clients.claim no service-worker.js),
-// mas a tela que ja esta na frente do operador continua com os arquivos velhos
-// que ela mesma pintou. Sem o recarregamento abaixo, a versao nova so aparecia
-// na segunda abertura do app - e no meio do caminho dava para ficar com o CSS
-// de uma versao e o JS de outra, que ja aconteceu aqui.
+// Quem manda recarregar e o proprio worker (ver forcarRecarga em
+// service-worker.js), nao esta pagina: o worker e o unico arquivo que o
+// navegador sempre busca na rede, entao a ordem alcanca ate o aparelho parado
+// numa versao antiga. Aqui so respondemos que assumimos a tarefa, salvamos o
+// rascunho e recarregamos - quem nao responde e recarregado a forca de la.
 
-// Havia controlador antes? Na primeira visita de todas o controllerchange
-// tambem dispara, e recarregar ali seria um refresh a toa logo na abertura.
-const jaTinhaControlador =
-  "serviceWorker" in navigator && Boolean(navigator.serviceWorker.controller);
-
-// O recarregamento apaga tudo o que esta na memoria, entao o aviso de "atualizou"
-// precisa atravessar a recarga por escrito. sessionStorage e o certo aqui: dura
-// o que a aba durar e se limpa sozinho, sem sobrar aviso velho para a proxima
-// abertura do app.
+// O recarregamento apaga tudo o que esta na memoria, entao o aviso de
+// "atualizou" precisa atravessar a recarga por escrito. sessionStorage e o
+// certo aqui: dura o que a aba durar e se limpa sozinho, sem sobrar aviso
+// velho para a proxima abertura do app.
 const CHAVE_AVISO = "cd_app_atualizado";
 
 let recarregamentoAgendado = false;
-
-async function temContagemEmAndamento() {
-  try {
-    const [{ hasPendingChanges }, { state }] = await Promise.all([
-      import("../data/pending-changes.js"),
-      import("../core/state.js"),
-    ]);
-    return hasPendingChanges() || Boolean(state.sessionRows?.length);
-  } catch (error) {
-    // Na duvida, trata como se houvesse contagem: perguntar e menos pior do que
-    // recarregar por cima de quem esta lancando.
-    console.warn("Nao foi possivel checar a contagem pendente.", error);
-    return true;
-  }
-}
 
 // A versao mora num lugar so - a constante STATIC_CACHE do service-worker.js,
 // que o hook de pre-commit sobe a cada deploy. Ler do nome do cache evita uma
@@ -60,37 +40,28 @@ async function mostrarVersao() {
   if (versao) alvo.textContent = versao;
 }
 
-// Faixa unica para os dois recados. Com acao vira botao e fica na tela ate o
-// operador tocar; sem acao ela some sozinha, porque so informa.
-function mostrarFaixa(texto, { acao, sumirEm = 0 } = {}) {
+function mostrarFaixa(texto, { sumirEm = 0 } = {}) {
   document.getElementById("sw-banner")?.remove();
   const faixa = document.createElement("button");
   faixa.id = "sw-banner";
-  faixa.className = acao ? "sw-banner" : "sw-banner is-info";
+  faixa.className = "sw-banner";
   faixa.type = "button";
   faixa.textContent = texto;
-  faixa.addEventListener("click", () => (acao ? acao() : faixa.remove()));
+  faixa.addEventListener("click", () => faixa.remove());
   document.body.appendChild(faixa);
   if (sumirEm) setTimeout(() => faixa.remove(), sumirEm);
 }
 
-async function aplicarVersaoNova() {
-  if (recarregamentoAgendado) return;
-  recarregamentoAgendado = true;
-  // Recarregar por cima de uma contagem nao perde dado (o rascunho fica no
-  // localStorage), mas corta quem esta ditando por voz. Nesse caso quem decide
-  // a hora e o operador.
-  if (await temContagemEmAndamento()) {
-    mostrarFaixa("Nova versão disponível — tocar para atualizar", {
-      acao: () => {
-        marcarAtualizacao();
-        window.location.reload();
-      },
-    });
-    return;
+// O rascunho da contagem so vai para o localStorage 120ms depois da ultima
+// mudanca (scheduleCountDraftPersist em data/draft.js). Gravar agora fecha a
+// fresta em que a recarga levaria o ultimo lancamento junto.
+async function salvarRascunho() {
+  try {
+    const { saveCountDraftLocally } = await import("../data/draft.js");
+    saveCountDraftLocally();
+  } catch (error) {
+    console.warn("Nao foi possivel salvar o rascunho antes de atualizar.", error);
   }
-  marcarAtualizacao();
-  window.location.reload();
 }
 
 function marcarAtualizacao() {
@@ -100,6 +71,14 @@ function marcarAtualizacao() {
     // Sem o aviso a atualizacao acontece do mesmo jeito.
     console.warn("Nao foi possivel marcar a atualizacao.", error);
   }
+}
+
+async function aplicarVersaoNova() {
+  if (recarregamentoAgendado) return;
+  recarregamentoAgendado = true;
+  await salvarRascunho();
+  marcarAtualizacao();
+  window.location.reload();
 }
 
 // Depois da recarga: conta ao operador por que a tela piscou.
@@ -119,8 +98,11 @@ async function avisarSeAtualizou() {
 }
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
-    if (!jaTinhaControlador) return;
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.tipo !== "recarregar") return;
+    // Responder ANTES de recarregar: e o que avisa ao worker que esta janela se
+    // vira sozinha, para ele nao navegar por cima e causar duas recargas.
+    event.ports?.[0]?.postMessage({ assumido: true });
     aplicarVersaoNova();
   });
 
