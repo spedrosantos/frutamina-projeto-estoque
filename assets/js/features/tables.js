@@ -2,15 +2,13 @@
 // Import dinamico para o formulario manual/edicao: mantem tables.js utilizavel em index.html
 // sem carregar manual-form.js la (o botao de acoes so existe quando PAGE_MODE === "edit").
 import { state, elements, PAGE_MODE, supabaseClient } from "../core/state.js";
-import { CONFIG_GERAL, USER_LABELS_TABLE, SUPABASE_TIMEOUT_MS } from "../core/config.js";
+import { USER_LABELS_TABLE, SUPABASE_TIMEOUT_MS } from "../core/config.js";
 import {
   getRowKey,
   normalizeText,
   formatTipoLabelValue,
   getTipoSortOrder,
   displayUserFromEmail,
-  listProductsBySetor,
-  listBrands,
   setSelectOptions,
   pushMessage,
   withTimeout,
@@ -656,11 +654,24 @@ export function renderCountTable() {
       actionsTd.append(editBtn, deleteBtn);
       if (rowSaveBtn) actionsTd.append(rowSaveBtn);
       tr.appendChild(actionsTd);
+
+      // A linha inteira abre a edicao - no celular acertar o lapis e dificil.
+      // Os botoes de acao ficam de fora para o clique neles nao abrir o modal.
+      tr.classList.add("row-clickable");
+      tr.addEventListener("click", (event) => {
+        if (event.target.closest(".row-actions")) return;
+        import("./manual-form.js").then((m) => m.openEditModal(row));
+      });
     }
     elements.countTableBody.appendChild(tr);
     total += totalCaixas;
   }
   elements.countTotalGeral.textContent = total;
+  // Filtro escondendo linha sem aviso e susto na contagem: o operador acha que
+  // perdeu o que lancou. O botao fica marcado enquanto houver filtro.
+  if (elements.countFilterBtn) {
+    elements.countFilterBtn.classList.toggle("is-filtered", hasCountFilters());
+  }
   renderCountSummary();
   renderCountSyncStatus();
   if (state.countMode === "new") {
@@ -699,7 +710,7 @@ function buildPendingCountRows() {
 // Descarta os lancamentos de um item da contagem em andamento (visao Contagem).
 // Toda exclusao pede confirmacao: o lancamento so existe no aparelho, entao
 // nao ha como recuperar depois de descartado.
-async function removePendingCountRow(row) {
+export async function removePendingCountRow(row) {
   const tipoLabel = formatTipoLabelValue(row?.produto, row?.tipo, row?.marca);
   const nome = [row?.produto, row?.marca].filter(Boolean).join(" ");
   const confirmed = await confirmAction({
@@ -741,6 +752,9 @@ function syncCountSourceAvailability() {
     state.countMode === "new" ? state.sessionRows.length > 0 : getPendingChanges().length > 0;
   const option = elements.countSourceSelect?.querySelector('option[value="contagem"]');
   if (option) option.disabled = !counting;
+  // Sem contagem em andamento so ha uma opcao valida: trava o select inteiro
+  // para nem abrir o dropdown, em vez de so desabilitar a opcao dentro dele.
+  if (elements.countSourceSelect) elements.countSourceSelect.disabled = !counting;
   if (!counting && state.countSource !== "estoque") state.countSource = "estoque";
   applyCountSourceUI();
 }
@@ -775,9 +789,43 @@ function buildStockRows() {
 
 // A Conferencia mostra sempre todos os setores: o contexto travado serve para
 // lancar, nao para esconder o que ja foi contado em outro setor.
-function getCountRows() {
+function matchesCountFilters(row) {
+  const { setor, produto, marca, tipo } = state.countFilters;
+  if (setor && row.setor !== setor) return false;
+  if (produto && row.produto !== produto) return false;
+  if (marca && row.marca !== marca) return false;
+  if (tipo) {
+    const tipoNum = Number.parseInt(tipo, 10);
+    if (!Number.isNaN(tipoNum) && row.tipo !== tipoNum) return false;
+  }
+  return true;
+}
+
+export function hasCountFilters() {
+  return Object.values(state.countFilters).some(Boolean);
+}
+
+// O que a Conferencia mostra antes de filtrar. Serve tambem para montar as
+// opcoes do filtro: oferecer o catalogo inteiro faria o operador escolher um
+// produto que nao tem linha e cair numa tela vazia.
+function getCountRowsRaw() {
   if (state.countSource === "estoque") return buildStockRows();
   return state.countMode === "new" ? state.sessionRows : buildPendingCountRows();
+}
+
+// Tabela, resumo e impressao da Conferencia passam por aqui, entao o filtro
+// vale nos tres. Nenhuma gravacao usa esta funcao - se usasse, filtrar aqui
+// salvaria a contagem pela metade.
+function getCountRows() {
+  return getCountRowsRaw().filter(matchesCountFilters);
+}
+
+// Valores distintos de um campo entre as linhas da tabela, na ordem alfabetica.
+function countFilterValues(campo, criterio = () => true) {
+  const valores = getCountRowsRaw()
+    .filter(criterio)
+    .map((row) => row[campo]);
+  return [...new Set(valores.filter(Boolean))].sort();
 }
 
 function openFilterModal() {
@@ -791,38 +839,75 @@ function closeFilterModal() {
   elements.filterModal.classList.add("hidden");
 }
 
-export function buildFilterOptions() {
-  if (
-    !elements.filterSetor ||
-    !elements.filterProduto ||
-    !elements.filterMarca ||
-    !elements.filterTipo
-  ) {
-    return;
-  }
-  const setor = state.publicFilters.setor;
-  const produto = state.publicFilters.produto;
-  const marca = state.publicFilters.marca;
+// Marca so existe dentro de um produto, e produto dentro de um setor: a mesma
+// marca aparece em produtos diferentes, entao escolher marca solta trazia
+// linhas de produto que ninguem pediu. Enquanto o nivel de cima estiver em
+// "Todos", o de baixo fica vazio e desligado.
+function preencherFiltroCascata(ui, valoresDe, escolhido = {}) {
+  if (!ui.setor || !ui.produto || !ui.marca) return;
 
-  setSelectOptions(elements.filterSetor, Object.keys(CONFIG_GERAL).sort(), setor);
-  setSelectOptions(elements.filterProduto, listProductsBySetor(setor), produto);
-  setSelectOptions(elements.filterMarca, listBrands(setor, elements.filterProduto.value), marca);
+  setSelectOptions(ui.setor, valoresDe("setor"), escolhido.setor ?? ui.setor.value);
+  const setor = ui.setor.value;
 
-  elements.filterTipo.value = state.publicFilters.tipo || "";
+  setSelectOptions(
+    ui.produto,
+    setor ? valoresDe("produto", (row) => row.setor === setor) : [],
+    setor ? (escolhido.produto ?? ui.produto.value) : "",
+  );
+  ui.produto.disabled = !setor;
+  const produto = ui.produto.value;
+
+  setSelectOptions(
+    ui.marca,
+    produto ? valoresDe("marca", (row) => row.setor === setor && row.produto === produto) : [],
+    produto ? (escolhido.marca ?? ui.marca.value) : "",
+  );
+  ui.marca.disabled = !produto;
 }
 
-function updateFilterDependencies() {
-  if (!elements.filterSetor || !elements.filterProduto || !elements.filterMarca) {
-    return;
-  }
-  const setor = elements.filterSetor.value;
-  const produto = elements.filterProduto.value;
-  setSelectOptions(elements.filterProduto, listProductsBySetor(setor), produto);
-  setSelectOptions(
-    elements.filterMarca,
-    listBrands(setor, elements.filterProduto.value),
-    elements.filterMarca.value,
-  );
+// A cascata vale tambem no que fica guardado: marca sem produto, ou produto
+// sem setor, filtraria por um nivel que a tela nem deixa escolher.
+function filtroEmCascata({ setor, produto, marca, tipo }) {
+  const produtoValido = setor ? produto : "";
+  return { setor, produto: produtoValido, marca: produtoValido ? marca : "", tipo };
+}
+
+const uiCountFilter = () => ({
+  setor: elements.countFilterSetor,
+  produto: elements.countFilterProduto,
+  marca: elements.countFilterMarca,
+});
+
+const uiPublicFilter = () => ({
+  setor: elements.filterSetor,
+  produto: elements.filterProduto,
+  marca: elements.filterMarca,
+});
+
+export function buildCountFilterOptions() {
+  if (!elements.countFilterSetor || !elements.countFilterTipo) return;
+  const { setor, produto, marca, tipo } = state.countFilters;
+  preencherFiltroCascata(uiCountFilter(), countFilterValues, { setor, produto, marca });
+  elements.countFilterTipo.value = tipo || "";
+}
+
+// Mesma regra do filtro da Conferencia: so entra no select o que tem linha na
+// tabela. O catalogo inteiro deixava escolher produto sem estoque e cair numa
+// tela vazia sem explicacao.
+function publicFilterValues(campo, criterio = () => true) {
+  const valores = state.publicRows.filter(criterio).map((row) => row[campo]);
+  return [...new Set(valores.filter(Boolean))].sort();
+}
+
+export function buildFilterOptions() {
+  if (!elements.filterSetor || !elements.filterTipo) return;
+  const { setor, produto, marca, tipo } = state.publicFilters;
+  preencherFiltroCascata(uiPublicFilter(), publicFilterValues, { setor, produto, marca });
+  elements.filterTipo.value = tipo || "";
+}
+
+function updateFilterDependencies(escolhido) {
+  preencherFiltroCascata(uiPublicFilter(), publicFilterValues, escolhido);
 }
 
 function getPrintRows(scope) {
@@ -853,12 +938,81 @@ function ensurePrintArea() {
   const area = document.createElement("div");
   area.id = "print-area";
   area.className = "print-sheet print-offscreen";
+  // O rodape e position: fixed no @media print: o navegador repete elemento
+  // fixo em toda folha, que e como se consegue um rodape por pagina sem
+  // depender de @page { @bottom-center }, que o Chrome nao implementa.
   area.innerHTML = `
-    <h1></h1>
-    <p class="print-meta"></p>
-    <div class="print-sheet-body"></div>`;
+    <header class="print-head">
+      <img src="assets/img/logo.webp" alt="Frutamina" class="print-logo" />
+      <div class="print-head-text">
+        <h1></h1>
+        <p class="print-meta"></p>
+      </div>
+    </header>
+    <div class="print-sheet-body"></div>
+    <footer class="print-footer">
+      <span>Developed by Pedro Santos</span>
+      <img src="assets/img/logo.webp" alt="Frutamina" class="print-footer-logo" />
+    </footer>`;
   document.body.appendChild(area);
   return area;
+}
+
+// Quantas marcas cabem numa tabela de papel. Cada marca ocupa 3 colunas
+// (Cx/P, P + Av, T), entao 6 marcas ja sao 19 colunas numa folha A4 retrato.
+// Acima disso a coluna fica mais estreita que uma letra e o navegador quebra
+// "Cx/P" na vertical, uma letra por linha - o relatorio vira ilegivel.
+const MAX_MARCAS_POR_TABELA = 5;
+
+// Remove de uma tabela de resumo todas as marcas fora da faixa [inicio, fim).
+// A tabela tem a coluna Tipo na posicao 0 e 3 colunas por marca depois dela;
+// a remocao vai de tras para frente para os indices nao andarem no caminho.
+function recortarMarcas(tabela, inicio, fim, totalMarcas) {
+  const cabecalhoMarcas = tabela.tHead.rows[0];
+  const cabecalhoColunas = tabela.tHead.rows[1];
+  const linhasDeDados = [...tabela.tBodies[0].rows, ...(tabela.tFoot?.rows || [])];
+
+  for (let marca = totalMarcas - 1; marca >= 0; marca -= 1) {
+    if (marca >= inicio && marca < fim) continue;
+    cabecalhoMarcas.deleteCell(1 + marca);
+    for (let coluna = 2; coluna >= 0; coluna -= 1) {
+      cabecalhoColunas.deleteCell(marca * 3 + coluna);
+      linhasDeDados.forEach((linha) => linha.deleteCell(1 + marca * 3 + coluna));
+    }
+  }
+
+  // Tipo que nao tem nenhum valor nas marcas que sobraram e so ruido no papel.
+  [...tabela.tBodies[0].rows].forEach((linha) => {
+    const vazia = [...linha.cells].slice(1).every((celula) => !celula.textContent.trim());
+    if (vazia) linha.remove();
+  });
+}
+
+// Quebra as tabelas largas demais em varias, repetindo a coluna Tipo. Roda so
+// no clone que vai para a folha: a tela continua com a tabela cruzada inteira.
+function dividirTabelasLargas(raiz) {
+  raiz.querySelectorAll(".summary-card").forEach((card) => {
+    const tabela = card.querySelector("table.summary-table");
+    if (!tabela?.tHead || tabela.tHead.rows.length < 2 || !tabela.tBodies[0]) return;
+
+    const totalMarcas = tabela.tHead.rows[0].cells.length - 1;
+    if (totalMarcas <= MAX_MARCAS_POR_TABELA) return;
+
+    const partes = Math.ceil(totalMarcas / MAX_MARCAS_POR_TABELA);
+    const blocos = document.createDocumentFragment();
+
+    for (let parte = 0; parte < partes; parte += 1) {
+      const inicio = parte * MAX_MARCAS_POR_TABELA;
+      const fim = Math.min(inicio + MAX_MARCAS_POR_TABELA, totalMarcas);
+      const bloco = card.cloneNode(true);
+      recortarMarcas(bloco.querySelector("table.summary-table"), inicio, fim, totalMarcas);
+      const titulo = bloco.querySelector(".summary-header h3");
+      if (titulo) titulo.textContent = `${titulo.textContent} (${parte + 1}/${partes})`;
+      blocos.appendChild(bloco);
+    }
+
+    card.replaceWith(blocos);
+  });
 }
 
 function printContent(title, contentNode, meta) {
@@ -871,6 +1025,7 @@ function printContent(title, contentNode, meta) {
   clone.removeAttribute("id");
   clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
   clone.classList.remove("hidden");
+  dividirTabelasLargas(clone);
 
   const area = ensurePrintArea();
   area.querySelector("h1").textContent = title;
@@ -962,28 +1117,24 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
 
   if (elements.filterSetor) {
     elements.filterSetor.addEventListener("change", () => {
-      updateFilterDependencies();
+      updateFilterDependencies({ produto: "", marca: "" });
     });
   }
 
   if (elements.filterProduto) {
     elements.filterProduto.addEventListener("change", () => {
-      setSelectOptions(
-        elements.filterMarca,
-        listBrands(elements.filterSetor.value, elements.filterProduto.value),
-        elements.filterMarca.value,
-      );
+      updateFilterDependencies({ marca: "" });
     });
   }
 
   if (elements.filterApply) {
     elements.filterApply.addEventListener("click", () => {
-      state.publicFilters = {
+      state.publicFilters = filtroEmCascata({
         setor: elements.filterSetor.value,
         produto: elements.filterProduto.value,
         marca: elements.filterMarca.value,
         tipo: elements.filterTipo.value.trim(),
-      };
+      });
       renderPublicTable();
       closeFilterModal();
     });
@@ -1036,8 +1187,59 @@ function setupCountSourceEvents() {
   });
 }
 
+function setupCountFilterEvents() {
+  const fechar = () => elements.countFilterModal?.classList.add("hidden");
+
+  if (elements.countFilterBtn) {
+    elements.countFilterBtn.addEventListener("click", () => {
+      buildCountFilterOptions();
+      elements.countFilterModal?.classList.remove("hidden");
+    });
+  }
+
+  [elements.countFilterClose, elements.countFilterCloseBtn].forEach((botao) => {
+    botao?.addEventListener("click", fechar);
+  });
+
+  // Trocar um nivel limpa os de baixo: a marca do produto anterior nao vale
+  // para o novo.
+  if (elements.countFilterSetor) {
+    elements.countFilterSetor.addEventListener("change", () => {
+      preencherFiltroCascata(uiCountFilter(), countFilterValues, { produto: "", marca: "" });
+    });
+  }
+
+  if (elements.countFilterProduto) {
+    elements.countFilterProduto.addEventListener("change", () => {
+      preencherFiltroCascata(uiCountFilter(), countFilterValues, { marca: "" });
+    });
+  }
+
+  if (elements.countFilterApply) {
+    elements.countFilterApply.addEventListener("click", () => {
+      state.countFilters = filtroEmCascata({
+        setor: elements.countFilterSetor.value,
+        produto: elements.countFilterProduto.value,
+        marca: elements.countFilterMarca.value,
+        tipo: elements.countFilterTipo.value.trim(),
+      });
+      renderCountTable();
+      fechar();
+    });
+  }
+
+  if (elements.countFilterClear) {
+    elements.countFilterClear.addEventListener("click", () => {
+      state.countFilters = { setor: "", produto: "", marca: "", tipo: "" };
+      buildCountFilterOptions();
+      renderCountTable();
+    });
+  }
+}
+
 export function setupCountTableEvents() {
   setupCountSourceEvents();
+  setupCountFilterEvents();
   if (elements.countViewDetailedBtn) {
     elements.countViewDetailedBtn.addEventListener("click", () => {
       setCountViewMode("detailed");

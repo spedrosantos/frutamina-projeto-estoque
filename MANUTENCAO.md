@@ -266,8 +266,9 @@ dependência; ver "Testes" no README.
 
 Depois de qualquer mudança em `assets/js/`, `assets/css/` ou nos HTML,
 `STATIC_CACHE` e `RUNTIME_CACHE` em `service-worker.js` precisam subir — o hook
-em `.githooks/pre-commit` faz isso no commit (ligue com
-`git config core.hooksPath .githooks`); sem o hook, é na mão. Não existe
+em `.githooks/pre-commit` faz isso no commit — e também roda os testes, barrando
+o commit se algum quebrar (ligue com `git config core.hooksPath .githooks`); sem
+o hook, é na mão. Não existe
 mais `?v=...` nos `<link>`/`<script>`: a versão do app vive só nessas duas
 constantes. Como o fetch é stale-while-revalidate, esquecer de subir a versão
 significa que o aparelho continua pintando o código antigo até o carregamento

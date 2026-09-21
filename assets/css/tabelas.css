@@ -6,14 +6,6 @@
   <link> no HTML: base, shell, tabelas, dashboard.
 */
 
-.eyebrow {
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  font-size: 12px;
-  margin: 0;
-  opacity: 0.7;
-}
-
 .public-section {
   display: grid;
   gap: 14px;
@@ -1519,4 +1511,16 @@ body[data-theme="dark"] .sync-copy strong {
     padding: 0 8px;
     font-size: 13px;
   }
+}
+
+/* A linha da contagem abre o modal de edicao ao ser clicada. */
+.row-clickable {
+  cursor: pointer;
+}
+
+/* Filtro ligado: sem marca no botao, a linha some da Conferencia e o operador
+   acha que perdeu o lancamento. */
+.count-toolbar-actions #count-filter-btn.is-filtered {
+  border-color: var(--app-accent);
+  color: var(--app-accent);
 }

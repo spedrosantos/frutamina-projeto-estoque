@@ -308,6 +308,34 @@ body.sidebar-open .sidebar .sidebar-footer .user-chip {
   margin-top: 18px;
 }
 
+/* Todo botao de acao de modal tem a mesma forma, seja .primary, .ghost ou
+   .danger. Antes cada um herdava de um lugar: o Salvar da edicao tinha regra
+   propria por id (com 12px cravado, fora do token), e o Excluir caia no pilula
+   de 999px do button base, sem o espaco entre icone e texto. */
+.modal-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--app-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* .primary e .ghost ja zeram o salto do hover do button base; .danger nao. */
+.modal-actions button:hover {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.97);
+}
+
+/* Excluir na ponta oposta do Salvar: os dois lado a lado num modal que abre
+   com um clique na linha e convite a apagar contagem sem querer. */
+.modal-actions #edit-delete {
+  margin-right: auto;
+}
+
 /* Confirmacao (confirm-modal.js): mesmo cartao, so mais estreito. */
 .confirm-card {
   width: min(420px, 100%);
@@ -593,12 +621,17 @@ body[data-theme="dark"] .auth-form label {
   margin-bottom: 22px;
 }
 
+/* Mora aqui, e nao no tabelas.css, porque a Visao Geral carrega dashboard.css
+   no lugar do tabelas.css: la o eyebrow ficava sem caixa alta e com a margem
+   padrao do <p> empurrando o titulo. */
 .page-head .eyebrow {
   color: var(--app-text-soft);
   opacity: 1;
   letter-spacing: 0.12em;
   font-size: 11px;
   font-weight: 600;
+  text-transform: uppercase;
+  margin: 0;
 }
 
 .page-head h1 {

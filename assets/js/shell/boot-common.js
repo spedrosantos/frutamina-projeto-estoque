@@ -4,7 +4,7 @@
 // bloqueio de acesso, sessao, catalogo global). Repetir isso ja tinha custado
 // paginas com um passo a menos que as outras; agora o bloco vive aqui e cada
 // entry point cuida so do que e proprio dela.
-import { isRestrictedPageMode } from "../core/state.js";
+import { PAGE_MODE, isRestrictedPageMode } from "../core/state.js";
 import { refreshCatalogOverrides } from "../data/catalog-overrides.js";
 import {
   setupTheme,
@@ -30,7 +30,21 @@ export function finishBoot() {
   setSidebarOpen(false);
   setupAuth();
   loadPublicRecords();
-  loadUserLabels();
+
+  // Os nomes dos operadores chegam depois do primeiro render. Sem re-renderizar
+  // aqui, quem abriu a tela antes da resposta fica vendo "usuario 02d6871d" ate
+  // o proximo render. Cada render abaixo so age na pagina que e dele.
+  loadUserLabels().then((changed) => {
+    if (!changed) return;
+    if (PAGE_MODE === "dashboard") {
+      import("../features/dashboard.js").then((m) => m.renderDashboard());
+      return;
+    }
+    import("../features/tables.js").then((m) => {
+      m.renderPublicTable();
+      m.renderCountTable();
+    });
+  });
   setInterval(enforceSessionLimit, SESSION_CHECK_MS);
 
   // Catalogo global vem do Supabase, mas nao pode bloquear o boot: a UI ja subiu

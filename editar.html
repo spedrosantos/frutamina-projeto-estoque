@@ -7,9 +7,15 @@
     <link rel="stylesheet" href="assets/css/shell.css" />
     <link rel="stylesheet" href="assets/css/tabelas.css" />
     <script src="assets/js/shell/head.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.115.0/dist/umd/supabase.js"
+      integrity="sha384-CLZeq1dk8+Uzrs7TVvBUdlFoV5F0DMqgRoeHa8g5wJcuPe5SkVfEvdxB0ZuzlnBQ"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body data-page="edit">
+    <script src="assets/js/shell/theme-boot.js"></script>
     <div class="app">
       <header class="page-head" data-page-head></header>
 
@@ -224,6 +230,15 @@
                 </div>
 
                 <button
+                  id="count-filter-btn"
+                  class="ghost icon-btn"
+                  type="button"
+                  title="Filtros"
+                  aria-label="Filtros"
+                >
+                  <i class="bi bi-funnel"></i>
+                </button>
+                <button
                   id="count-whatsapp-btn"
                   class="ghost icon-btn whatsapp-btn"
                   type="button"
@@ -292,6 +307,35 @@
     </div>
 
     <!-- Modal de manutencao manual dos itens ja lancados. -->
+    <!-- Filtros da tabela da Conferencia. Mesmos campos do filtro do index. -->
+    <div
+      id="count-filter-modal"
+      class="modal hidden"
+      data-modal
+      data-modal-icon="bi-funnel"
+      data-modal-title="Filtros"
+      data-modal-close="count-filter"
+      data-modal-x
+    >
+      <div class="modal-body">
+        <label for="count-filter-setor">Setor</label>
+        <select id="count-filter-setor"></select>
+
+        <label for="count-filter-produto">Produto</label>
+        <select id="count-filter-produto"></select>
+
+        <label for="count-filter-marca">Marca</label>
+        <select id="count-filter-marca"></select>
+
+        <label for="count-filter-tipo">Tipo</label>
+        <input id="count-filter-tipo" type="number" placeholder="Ex: 4" />
+      </div>
+      <div class="modal-actions">
+        <button id="count-filter-clear" class="ghost" type="button">Limpar</button>
+        <button id="count-filter-apply" class="primary" type="button">Aplicar</button>
+      </div>
+    </div>
+
     <div
       id="edit-modal"
       class="modal hidden"
@@ -307,13 +351,13 @@
         <select id="edit-setor"></select>
 
         <label for="edit-produto">Produto</label>
-        <input id="edit-produto" type="text" />
+        <select id="edit-produto"></select>
 
         <label for="edit-marca">Marca</label>
-        <input id="edit-marca" type="text" />
+        <select id="edit-marca"></select>
 
         <label for="edit-tipo">Tipo</label>
-        <input id="edit-tipo" type="text" placeholder="Ex: 4 ou 6A" />
+        <select id="edit-tipo"></select>
 
         <label for="edit-caixas">Caixas por pallet</label>
         <input id="edit-caixas" type="number" />
@@ -325,6 +369,9 @@
         <input id="edit-loose-boxes" type="number" />
       </div>
       <div class="modal-actions">
+        <button id="edit-delete" class="danger" type="button">
+          <i class="bi bi-trash3"></i><span>Excluir</span>
+        </button>
         <button id="edit-save" class="primary" type="button">
           <i class="bi bi-floppy-fill"></i><span>Salvar</span>
         </button>

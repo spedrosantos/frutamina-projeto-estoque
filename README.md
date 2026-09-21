@@ -292,9 +292,14 @@ Config em `.prettierrc.json` (100 colunas, fim de linha automático) e
 
 ## Hook de pre-commit
 
-`.githooks/pre-commit` sobe a versão do cache do service worker sozinho quando o
-commit mexe em `assets/`, num HTML ou no manifest. Numa cópia nova do repo,
-ligue com:
+`.githooks/pre-commit` faz duas coisas antes de cada commit:
+
+1. roda `node --test tests/*.test.js` e aborta o commit se algum teste quebrar
+   (leva ~200ms; para pular num caso excepcional, `git commit --no-verify`);
+2. sobe a versão do cache do service worker quando o commit mexe em `assets/`,
+   num HTML ou no manifest.
+
+Numa cópia nova do repo, ligue com:
 
 ```bash
 git config core.hooksPath .githooks

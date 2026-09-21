@@ -20,7 +20,9 @@ import {
 } from "../core/config.js";
 import {
   buildNormalizedMap,
+  findExactMatch,
   formatTipoLabelValue,
+  isNoTipoProduct,
   getTipoSortOrder,
   isTipoValidForContext,
   matchSpecialTipoAtTokens,
@@ -209,4 +211,75 @@ export function formatTipoCounts(tipoCounts, produto, marca = "") {
       return count > 1 ? `${tipoLabel}x${count}` : String(tipoLabel);
     })
     .join(", ");
+}
+
+/*
+  Resolve para que setor/produto/marca a frase aponta.
+
+  Esta e a parte do comando de voz onde um erro custa dado: se o produto muda e
+  a marca antiga fica de pe, a contagem vai parar na linha errada sem ninguem
+  perceber. Por isso a cascata e explicita - setor novo zera produto, marca e
+  tipo; produto novo zera marca e tipo; marca nova zera o tipo.
+
+  Sem estado global e sem tela: recebe o contexto atual, devolve o proximo mais
+  as mensagens que o chamador deve mostrar.
+*/
+export function resolveVoiceContext(tokens, contexto = {}) {
+  let { setor = null, produto = null, marca = null, tipo = null } = contexto;
+  const mensagens = [];
+
+  const sectorFound = findExactMatch(tokens, buildNormalizedMap(Object.keys(CONFIG_GERAL)));
+  if (sectorFound) {
+    if (sectorFound !== setor) {
+      produto = null;
+      marca = null;
+      tipo = null;
+    }
+    setor = sectorFound;
+    mensagens.push({ level: "info", text: `Setor fixado: ${sectorFound}` });
+  }
+
+  const { products, productMap } = buildMaps(setor);
+  const productFound = findExactMatch(tokens, productMap);
+  if (productFound) {
+    if (productFound !== produto) {
+      marca = null;
+      tipo = null;
+    }
+    produto = productFound;
+    mensagens.push({ level: "info", text: `Produto fixado: ${productFound}` });
+  }
+
+  let brandFound = null;
+  if (produto) {
+    brandFound = findExactMatch(tokens, buildBrandMap(products, produto));
+    if (brandFound) {
+      if (brandFound !== marca) {
+        tipo = null;
+      }
+      marca = brandFound;
+      mensagens.push({
+        level: "info",
+        text:
+          /\bKG\b/.test(normalizeText(brandFound)) && !isNoTipoProduct(produto)
+            ? `Marca fixada: ${brandFound}. Agora diga o tipo.`
+            : `Marca fixada: ${brandFound}`,
+      });
+    }
+  } else if (findExactMatch(tokens, buildAllBrandMap(products))) {
+    // A marca so existe dentro de um produto: sem produto nao da para saber qual.
+    mensagens.push({ level: "warn", text: "Diga o produto antes da marca." });
+  }
+
+  return {
+    setor,
+    produto,
+    marca,
+    tipo,
+    products,
+    sectorFound,
+    productFound,
+    brandFound,
+    mensagens,
+  };
 }

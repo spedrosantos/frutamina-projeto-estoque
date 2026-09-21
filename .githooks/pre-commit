@@ -1,9 +1,24 @@
 #!/bin/sh
-# Sobe a versao do cache do service worker quando o commit mexe em algo que o
-# PWA serve do cache. Sem isso o aparelho continua pintando o codigo antigo -
-# ja aconteceu, e e o tipo de erro que so aparece no celular do operador.
+# Duas travas antes de cada commit:
+#
+# 1. Roda os testes. Um erro de conta so aparece no celular do operador, tarde
+#    demais; aqui custa 200ms.
+# 2. Sobe a versao do cache do service worker quando o commit mexe em algo que o
+#    PWA serve do cache. Sem isso o aparelho continua pintando o codigo antigo -
+#    ja aconteceu.
+#
+# Os testes olham a arvore de trabalho, nao so o que esta no stage: um arquivo
+# alterado e nao adicionado tambem conta.
 #
 # Ligar em uma copia nova do repo:  git config core.hooksPath .githooks
+
+# Os testes rodam em ~200ms e nao precisam de nada instalado. Se um quebra, o
+# commit para aqui: e mais barato descobrir agora do que no CI ou no celular do
+# operador. Para pular num caso excepcional:  git commit --no-verify
+if ! node --test --test-reporter=dot tests/*.test.js; then
+  echo "pre-commit: teste quebrado; commit abortado." >&2
+  exit 1
+fi
 
 sw="service-worker.js"
 changed=$(git diff --cached --name-only --diff-filter=ACMR)
