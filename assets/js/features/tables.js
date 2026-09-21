@@ -2,15 +2,13 @@
 // Import dinamico para o formulario manual/edicao: mantem tables.js utilizavel em index.html
 // sem carregar manual-form.js la (o botao de acoes so existe quando PAGE_MODE === "edit").
 import { state, elements, PAGE_MODE, supabaseClient } from "../core/state.js";
-import { CONFIG_GERAL, USER_LABELS_TABLE, SUPABASE_TIMEOUT_MS } from "../core/config.js";
+import { USER_LABELS_TABLE, SUPABASE_TIMEOUT_MS } from "../core/config.js";
 import {
   getRowKey,
   normalizeText,
   formatTipoLabelValue,
   getTipoSortOrder,
   displayUserFromEmail,
-  listProductsBySetor,
-  listBrands,
   setSelectOptions,
   pushMessage,
   withTimeout,
@@ -807,17 +805,27 @@ export function hasCountFilters() {
   return Object.values(state.countFilters).some(Boolean);
 }
 
+// O que a Conferencia mostra antes de filtrar. Serve tambem para montar as
+// opcoes do filtro: oferecer o catalogo inteiro faria o operador escolher um
+// produto que nao tem linha e cair numa tela vazia.
+function getCountRowsRaw() {
+  if (state.countSource === "estoque") return buildStockRows();
+  return state.countMode === "new" ? state.sessionRows : buildPendingCountRows();
+}
+
 // Tabela, resumo e impressao da Conferencia passam por aqui, entao o filtro
 // vale nos tres. Nenhuma gravacao usa esta funcao - se usasse, filtrar aqui
 // salvaria a contagem pela metade.
 function getCountRows() {
-  const rows =
-    state.countSource === "estoque"
-      ? buildStockRows()
-      : state.countMode === "new"
-        ? state.sessionRows
-        : buildPendingCountRows();
-  return rows.filter(matchesCountFilters);
+  return getCountRowsRaw().filter(matchesCountFilters);
+}
+
+// Valores distintos de um campo entre as linhas da tabela, na ordem alfabetica.
+function countFilterValues(campo, criterio = () => true) {
+  const valores = getCountRowsRaw()
+    .filter(criterio)
+    .map((row) => row[campo]);
+  return [...new Set(valores.filter(Boolean))].sort();
 }
 
 function openFilterModal() {
@@ -841,14 +849,31 @@ export function buildCountFilterOptions() {
     return;
   }
   const { setor, produto, marca, tipo } = state.countFilters;
-  setSelectOptions(elements.countFilterSetor, Object.keys(CONFIG_GERAL).sort(), setor);
-  setSelectOptions(elements.countFilterProduto, listProductsBySetor(setor), produto);
+  setSelectOptions(elements.countFilterSetor, countFilterValues("setor"), setor);
+  setSelectOptions(
+    elements.countFilterProduto,
+    countFilterValues("produto", (row) => !setor || row.setor === setor),
+    produto,
+  );
   setSelectOptions(
     elements.countFilterMarca,
-    listBrands(setor, elements.countFilterProduto.value),
+    countFilterValues(
+      "marca",
+      (row) =>
+        (!setor || row.setor === setor) &&
+        (!elements.countFilterProduto.value || row.produto === elements.countFilterProduto.value),
+    ),
     marca,
   );
   elements.countFilterTipo.value = tipo || "";
+}
+
+// Mesma regra do filtro da Conferencia: so entra no select o que tem linha na
+// tabela. O catalogo inteiro deixava escolher produto sem estoque e cair numa
+// tela vazia sem explicacao.
+function publicFilterValues(campo, criterio = () => true) {
+  const valores = state.publicRows.filter(criterio).map((row) => row[campo]);
+  return [...new Set(valores.filter(Boolean))].sort();
 }
 
 export function buildFilterOptions() {
@@ -860,13 +885,24 @@ export function buildFilterOptions() {
   ) {
     return;
   }
-  const setor = state.publicFilters.setor;
-  const produto = state.publicFilters.produto;
-  const marca = state.publicFilters.marca;
+  const { setor, produto, marca } = state.publicFilters;
 
-  setSelectOptions(elements.filterSetor, Object.keys(CONFIG_GERAL).sort(), setor);
-  setSelectOptions(elements.filterProduto, listProductsBySetor(setor), produto);
-  setSelectOptions(elements.filterMarca, listBrands(setor, elements.filterProduto.value), marca);
+  setSelectOptions(elements.filterSetor, publicFilterValues("setor"), setor);
+  setSelectOptions(
+    elements.filterProduto,
+    publicFilterValues("produto", (row) => !setor || row.setor === setor),
+    produto,
+  );
+  setSelectOptions(
+    elements.filterMarca,
+    publicFilterValues(
+      "marca",
+      (row) =>
+        (!setor || row.setor === setor) &&
+        (!elements.filterProduto.value || row.produto === elements.filterProduto.value),
+    ),
+    marca,
+  );
 
   elements.filterTipo.value = state.publicFilters.tipo || "";
 }
@@ -877,10 +913,17 @@ function updateFilterDependencies() {
   }
   const setor = elements.filterSetor.value;
   const produto = elements.filterProduto.value;
-  setSelectOptions(elements.filterProduto, listProductsBySetor(setor), produto);
+  setSelectOptions(
+    elements.filterProduto,
+    publicFilterValues("produto", (row) => !setor || row.setor === setor),
+    produto,
+  );
   setSelectOptions(
     elements.filterMarca,
-    listBrands(setor, elements.filterProduto.value),
+    publicFilterValues(
+      "marca",
+      (row) => (!setor || row.setor === setor) && (!produto || row.produto === produto),
+    ),
     elements.filterMarca.value,
   );
 }
@@ -1098,11 +1141,7 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
 
   if (elements.filterProduto) {
     elements.filterProduto.addEventListener("change", () => {
-      setSelectOptions(
-        elements.filterMarca,
-        listBrands(elements.filterSetor.value, elements.filterProduto.value),
-        elements.filterMarca.value,
-      );
+      updateFilterDependencies();
     });
   }
 
@@ -1183,9 +1222,10 @@ function setupCountFilterEvents() {
   // Produto e marca dependem do que veio antes, igual ao filtro do index.
   if (elements.countFilterSetor) {
     elements.countFilterSetor.addEventListener("change", () => {
+      const setor = elements.countFilterSetor.value;
       setSelectOptions(
         elements.countFilterProduto,
-        listProductsBySetor(elements.countFilterSetor.value),
+        countFilterValues("produto", (row) => !setor || row.setor === setor),
         "",
       );
       setSelectOptions(elements.countFilterMarca, [], "");
@@ -1194,9 +1234,14 @@ function setupCountFilterEvents() {
 
   if (elements.countFilterProduto) {
     elements.countFilterProduto.addEventListener("change", () => {
+      const setor = elements.countFilterSetor.value;
+      const produto = elements.countFilterProduto.value;
       setSelectOptions(
         elements.countFilterMarca,
-        listBrands(elements.countFilterSetor.value, elements.countFilterProduto.value),
+        countFilterValues(
+          "marca",
+          (row) => (!setor || row.setor === setor) && (!produto || row.produto === produto),
+        ),
         elements.countFilterMarca.value,
       );
     });
