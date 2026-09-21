@@ -478,6 +478,13 @@ function renderDashboardOverview() {
   if (PAGE_MODE !== "dashboard") return;
   if (!elements.ovTotalCaixas) return;
 
+  // Sem linha nenhuma e com consulta em voo, os cards escreveriam 0 - um numero
+  // errado na cara do operador, que nao distingue "estoque zerado" de "ainda
+  // carregando". Mantem o "--" do HTML e liga o skeleton ate a rede responder.
+  const carregandoVazio = state.carregando && !(state.publicRows || []).length;
+  document.body.classList.toggle("dash-loading", carregandoVazio);
+  if (carregandoVazio) return;
+
   const data = buildDashboardOverviewData();
 
   if (elements.ovTotalCaixas) {

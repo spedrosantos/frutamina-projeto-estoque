@@ -1035,6 +1035,29 @@ body[data-theme="dark"] {
   border-bottom-color: #d0d5dd;
 }
 
+/* Cards da Visao Geral enquanto o banco nao respondeu: o valor fica como um
+   bloco pulsando em vez de 0, que o operador leria como estoque zerado. */
+body.dash-loading .overview-metric-value,
+body.dash-loading .overview-metric-meta {
+  color: transparent;
+  border-radius: 6px;
+  background: var(--app-track, #eef0f4);
+  animation: skeleton-pulse 1.3s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.dash-loading .overview-metric-value,
+  body.dash-loading .overview-metric-meta {
+    animation: none;
+  }
+}
+
 /* Linha unica que ocupa a tabela vazia: diz se esta buscando ou se nao ha
    nada, em vez de deixar o corpo em branco. */
 .table-state {

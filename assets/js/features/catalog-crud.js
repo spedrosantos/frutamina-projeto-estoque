@@ -221,9 +221,16 @@ function renderCatalogTable() {
   }
 
   if (!rows.length) {
-    elements.catalogTableBody.innerHTML = `<tr><td colspan="7" class="catalog-empty">${
-      all.length ? "Nenhum produto para esta busca." : "Nenhum produto cadastrado."
-    }</td></tr>`;
+    // Catalogo vazio com consulta em voo e "ainda buscando", nao "nao existe".
+    const carregando = state.carregando && !all.length;
+    const texto = carregando
+      ? "Carregando dados..."
+      : all.length
+        ? "Nenhum produto para esta busca."
+        : "Nenhum produto cadastrado.";
+    elements.catalogTableBody.innerHTML = `<tr><td colspan="7" class="catalog-empty${
+      carregando ? " table-state is-loading" : ""
+    }">${texto}</td></tr>`;
     return;
   }
 

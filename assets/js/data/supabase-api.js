@@ -242,6 +242,8 @@ export async function loadPublicRecords() {
       setPublicMessage("warn", "Sem acesso ao servidor. Exibindo o ultimo estoque salvo.");
       return;
     }
+    // Sem este render o painel fica preso no skeleton quando a consulta falha.
+    renderDashboardIfLoaded();
     setPublicMessage("error", `Erro ao carregar dados: ${error.message}`);
     return;
   }
