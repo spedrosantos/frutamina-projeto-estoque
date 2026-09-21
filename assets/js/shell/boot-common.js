@@ -15,6 +15,7 @@ import {
   setSidebarOpen,
 } from "./auth-ui.js";
 import { loadPublicRecords, loadUserLabels } from "../data/supabase-api.js";
+import { setupLoadingBar } from "./loading-bar.js";
 
 const SESSION_CHECK_MS = 60 * 1000;
 
@@ -22,6 +23,7 @@ const SESSION_CHECK_MS = 60 * 1000;
  * Roda depois dos renders e dos eventos proprios da pagina.
  */
 export function finishBoot() {
+  setupLoadingBar();
   setupTheme();
   setupShellEvents();
   if (isRestrictedPageMode()) {

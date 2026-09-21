@@ -6,6 +6,7 @@ import "../shell/modal-shell.js";
 import "../shell/auth-panel.js";
 import "../shell/register-sw.js";
 import { state } from "../core/state.js";
+import { comCarregando } from "../core/utils.js";
 import { applyCatalogOverridesFromCache } from "../data/catalog-overrides.js";
 import { finishBoot } from "../shell/boot-common.js";
 import { initSetorSelects } from "../shell/auth-ui.js";
@@ -58,7 +59,8 @@ function setupEditTabs() {
 // Salvar o que foi lancado no modo "Estoque atual". No modo "Nova contagem"
 // quem grava continua sendo o botao da propria aba Contagem.
 function setupPendingActions() {
-  document.getElementById("count-save-btn")?.addEventListener("click", async () => {
+  const botaoSalvar = document.getElementById("count-save-btn");
+  botaoSalvar?.addEventListener("click", async () => {
     if (state.countMode === "new") {
       saveNewCount();
       return;
@@ -69,7 +71,7 @@ function setupPendingActions() {
       message: "Os lançamentos desta contagem entram no estoque agora.",
       confirmLabel: "Salvar",
     });
-    if (confirmed) applyPendingChanges();
+    if (confirmed) await comCarregando(botaoSalvar, () => applyPendingChanges());
   });
 
   // Rede de seguranca: a contagem fica no aparelho, mas o aviso evita que

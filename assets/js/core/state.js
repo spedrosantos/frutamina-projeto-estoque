@@ -44,6 +44,8 @@ export const state = {
   lastUpdatePublicBy: null,
   lastUpdateCountBy: null,
   snapshotRows: [],
+  // Verdadeiro enquanto houver consulta ao banco em voo (ver core/utils.js).
+  carregando: false,
   publicRows: [],
   rawPublicRows: [],
   user: null,

@@ -6,7 +6,7 @@ import {
   SPECIAL_TIPO_VARIANTS,
   CONFIG_GERAL,
 } from "./config.js";
-import { elements } from "./state.js";
+import { elements, state } from "./state.js";
 
 export function toInt(value, fallback = 0) {
   const parsed = Number.parseInt(value, 10);
@@ -405,7 +405,39 @@ export function getRowKey(row) {
   return row?.id ?? row?._localId ?? null;
 }
 
+// Botao que dispara trabalho assincrono: gira o icone e bloqueia o clique ate
+// terminar. Restaura o estado anterior de disabled, e nao false - botoes como o
+// count-save-btn nascem desabilitados e quem manda neles e o render.
+export async function comCarregando(botao, tarefa) {
+  if (!botao) return tarefa();
+  const estavaDesabilitado = botao.disabled;
+  botao.disabled = true;
+  botao.classList.add("is-loading");
+  try {
+    return await tarefa();
+  } finally {
+    botao.disabled = estavaDesabilitado;
+    botao.classList.remove("is-loading");
+  }
+}
+
+// Consultas em voo. Toda ida ao banco passa por withTimeout, entao contar aqui
+// e o unico ponto necessario para a barra de carregamento saber que o app esta
+// esperando a rede (ver shell/loading-bar.js).
+let consultasEmVoo = 0;
+
+function avisarCarregamento() {
+  // Bandeira lida pelos renders para distinguir "tabela vazia" de "ainda
+  // buscando" - sao coisas diferentes para quem esta olhando a tela.
+  state.carregando = consultasEmVoo > 0;
+  document.dispatchEvent(
+    new CustomEvent("cd:carregando", { detail: { ativo: consultasEmVoo > 0 } }),
+  );
+}
+
 export async function withTimeout(promise, ms, message) {
+  consultasEmVoo += 1;
+  avisarCarregamento();
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
@@ -416,6 +448,8 @@ export async function withTimeout(promise, ms, message) {
     return await Promise.race([promise, timeoutPromise]);
   } finally {
     clearTimeout(timeoutId);
+    consultasEmVoo -= 1;
+    avisarCarregamento();
   }
 }
 

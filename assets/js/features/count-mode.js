@@ -166,7 +166,10 @@ export async function saveNewCount() {
   if (!confirmed) return;
 
   isSavingCount = true;
-  if (elements.saveNewCountBtn) elements.saveNewCountBtn.disabled = true;
+  if (elements.saveNewCountBtn) {
+    elements.saveNewCountBtn.disabled = true;
+    elements.saveNewCountBtn.classList.add("is-loading");
+  }
   try {
     // Le os ids atuais de TODOS os usuarios para os setores desta contagem
     // (nao so os do usuario atual) ANTES de inserir a nova contagem, para so
@@ -288,7 +291,10 @@ export async function saveNewCount() {
     saveCountDraftLocally();
   } finally {
     isSavingCount = false;
-    if (elements.saveNewCountBtn) elements.saveNewCountBtn.disabled = false;
+    if (elements.saveNewCountBtn) {
+      elements.saveNewCountBtn.disabled = false;
+      elements.saveNewCountBtn.classList.remove("is-loading");
+    }
   }
 }
 

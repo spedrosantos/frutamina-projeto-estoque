@@ -12,6 +12,7 @@ import {
   setSelectOptions,
   pushMessage,
   withTimeout,
+  comCarregando,
 } from "../core/utils.js";
 import {
   hydrateInventoryRow,
@@ -520,6 +521,21 @@ function renderCountSummary() {
   renderSummaryFor(elements.countTableSummary, getCountRows);
 }
 
+// Tabela sem linha nenhuma nao conta o motivo: pode ser filtro, pode ser que o
+// banco ainda nao respondeu. Uma linha unica cobre os dois casos e evita o
+// vazio mudo durante o boot.
+function renderEstadoTabela(tbody, textoVazio) {
+  if (tbody.querySelector("tr")) return;
+  const tr = document.createElement("tr");
+  tr.className = "table-state-row";
+  const td = document.createElement("td");
+  td.colSpan = tbody.closest("table")?.querySelectorAll("thead th").length || 1;
+  td.className = state.carregando ? "table-state is-loading" : "table-state";
+  td.textContent = state.carregando ? "Carregando dados..." : textoVazio;
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+}
+
 export function renderPublicTable() {
   if (!elements.publicTableBody || !elements.publicTotalGeral) return;
   elements.publicTableBody.innerHTML = "";
@@ -546,6 +562,7 @@ export function renderPublicTable() {
     elements.publicTableBody.appendChild(tr);
     total += normalizedRow.total_caixas;
   }
+  renderEstadoTabela(elements.publicTableBody, "Nenhum item no estoque.");
   elements.publicTotalGeral.textContent = total;
   renderPublicSummary();
 }
@@ -631,10 +648,7 @@ export function renderCountTable() {
         saveBtn.setAttribute("aria-label", saveBtn.title);
         saveBtn.innerHTML = '<i class="bi bi-floppy-fill"></i>';
         saveBtn.addEventListener("click", () => {
-          saveBtn.disabled = true;
-          applyPendingRow(buildInventoryIdentityKey(row)).finally(() => {
-            saveBtn.disabled = false;
-          });
+          comCarregando(saveBtn, () => applyPendingRow(buildInventoryIdentityKey(row)));
         });
         rowSaveBtn = saveBtn;
       } else {
@@ -666,6 +680,7 @@ export function renderCountTable() {
     elements.countTableBody.appendChild(tr);
     total += totalCaixas;
   }
+  renderEstadoTabela(elements.countTableBody, "Nenhum item nesta contagem.");
   elements.countTotalGeral.textContent = total;
   // Filtro escondendo linha sem aviso e susto na contagem: o operador acha que
   // perdeu o que lancou. O botao fica marcado enquanto houver filtro.
@@ -1152,14 +1167,7 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
     elements.publicRefresh.addEventListener("click", async () => {
       const button = elements.publicRefresh;
       if (button.disabled) return;
-      button.disabled = true;
-      button.classList.add("is-loading");
-      try {
-        await loadPublicRecords();
-      } finally {
-        button.disabled = false;
-        button.classList.remove("is-loading");
-      }
+      await comCarregando(button, () => loadPublicRecords());
     });
   }
 
