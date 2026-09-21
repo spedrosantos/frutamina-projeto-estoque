@@ -123,16 +123,14 @@ export function openEditModal(row = null) {
   if (elements.editSetor) {
     elements.editSetor.value = row?.setor || state.setor || "";
   }
-  if (elements.editProduto) {
-    elements.editProduto.value = row?.produto || "";
-  }
-  if (elements.editMarca) {
-    elements.editMarca.value = row?.marca || "";
-  }
-  if (elements.editTipo) {
-    elements.editTipo.value =
-      row?.tipo === 0 || row?.tipo ? formatTipoLabelValue(row?.produto, row?.tipo, row?.marca) : "";
-  }
+  // As opcoes sao montadas a partir do setor e ja recebem os valores da linha:
+  // produto, marca e tipo sao selects, entao so aceitam o que existe no
+  // catalogo.
+  updateEditDependencies({
+    produto: row?.produto || "",
+    marca: row?.marca || "",
+    tipo: row?.tipo === 0 || row?.tipo ? row.tipo : "",
+  });
   if (elements.editCaixas) {
     elements.editCaixas.value = row?.caixas_pallet ?? "";
   }
@@ -476,60 +474,112 @@ function updateManualBoxesOptions() {
   }
 }
 
-function updateManualTipoOptions() {
-  if (!elements.manualTipo || !elements.manualProduto || !elements.manualMarca) return;
-  const produto = elements.manualProduto.value;
-  const marca = elements.manualMarca.value;
-  const currentTipoValue = elements.manualTipo.value;
+// Os dois formularios com contexto - o lancamento manual e o modal de edicao -
+// tem os mesmos quatro campos em cascata. A logica vive aqui uma vez so,
+// recebendo o conjunto de elementos. Antes existia so no manual, e por isso o
+// modal de edicao era texto livre: dava para digitar marca que nao existe.
+const uiManual = () => ({
+  setor: elements.manualSetor,
+  produto: elements.manualProduto,
+  marca: elements.manualMarca,
+  tipo: elements.manualTipo,
+});
+
+const uiEdit = () => ({
+  setor: elements.editSetor,
+  produto: elements.editProduto,
+  marca: elements.editMarca,
+  tipo: elements.editTipo,
+});
+
+function preencherTipoSelect(ui, tipoDesejado) {
+  if (!ui.tipo || !ui.produto || !ui.marca) return;
+  const produto = ui.produto.value;
+  const marca = ui.marca.value;
+  const atual =
+    tipoDesejado === undefined || tipoDesejado === null ? ui.tipo.value : String(tipoDesejado);
+
   if (isNoTipoContext(produto, marca)) {
-    elements.manualTipo.innerHTML = "";
+    ui.tipo.innerHTML = "";
     const option = document.createElement("option");
     option.value = "";
     option.textContent = "S/T";
-    elements.manualTipo.appendChild(option);
-    elements.manualTipo.disabled = true;
-    updateManualBoxesOptions();
+    ui.tipo.appendChild(option);
+    ui.tipo.disabled = true;
     return;
   }
-  elements.manualTipo.disabled = false;
+
+  ui.tipo.disabled = false;
   if (hasSpecialTipoVariants(produto)) {
-    elements.manualTipo.innerHTML = "";
+    ui.tipo.innerHTML = "";
     const empty = document.createElement("option");
     empty.value = "";
     empty.textContent = "Selecione";
-    elements.manualTipo.appendChild(empty);
+    ui.tipo.appendChild(empty);
     buildTipoOptionList(produto).forEach((tipoOption) => {
       const option = document.createElement("option");
       option.value = tipoOption.value;
       option.textContent = tipoOption.label;
-      elements.manualTipo.appendChild(option);
+      ui.tipo.appendChild(option);
     });
-    if (
-      currentTipoValue &&
-      elements.manualTipo.querySelector(`option[value="${currentTipoValue}"]`)
-    ) {
-      elements.manualTipo.value = currentTipoValue;
-    } else {
-      elements.manualTipo.value = "";
-    }
-    updateManualBoxesOptions();
+    ui.tipo.value = atual && ui.tipo.querySelector(`option[value="${atual}"]`) ? atual : "";
     return;
   }
-  setNumberOptions(elements.manualTipo, TIPO_MIN, TIPO_MAX, currentTipoValue, "Selecione");
-  updateManualBoxesOptions();
+
+  setNumberOptions(ui.tipo, TIPO_MIN, TIPO_MAX, atual, "Selecione");
 }
 
-function getManualCaixasPallet() {
-  const setor = elements.manualSetor?.value;
-  const produto = elements.manualProduto?.value;
-  const marca = elements.manualMarca?.value;
+// Refaz produto, marca e tipo a partir do setor. Sem valores informados mantem
+// o que ja estava escolhido, quando a opcao continua existindo.
+function preencherCascata(ui, valores = {}) {
+  if (!ui.setor || !ui.produto || !ui.marca) return;
+  const setor = ui.setor.value;
+  setSelectOptionsWithPlaceholder(
+    ui.produto,
+    listProductsBySetor(setor),
+    valores.produto ?? ui.produto.value,
+    "Selecione",
+  );
+  setSelectOptionsWithPlaceholder(
+    ui.marca,
+    listBrands(setor, ui.produto.value),
+    valores.marca ?? ui.marca.value,
+    "Selecione",
+  );
+  preencherTipoSelect(ui, valores.tipo);
+}
+
+function calcularCaixasPallet(ui) {
+  const setor = ui.setor?.value;
+  const produto = ui.produto?.value;
+  const marca = ui.marca?.value;
   if (!setor || !produto || !marca) return 0;
   const regra = CONFIG_GERAL[setor]?.[produto]?.[marca];
   if (!regra) return 0;
   const noTipo = isNoTipoContext(produto, marca);
-  const tipo = noTipo ? NO_TIPO_VALUE : parseTipoInputValue(elements.manualTipo?.value, produto);
+  const tipo = noTipo ? NO_TIPO_VALUE : parseTipoInputValue(ui.tipo?.value, produto);
   if (!noTipo && !isTipoValidForContext(produto, tipo)) return 0;
   return toNonNegativeInt(regra(getTipoRuleValue(produto, tipo)), 0);
+}
+
+function updateManualTipoOptions() {
+  preencherTipoSelect(uiManual());
+  updateManualBoxesOptions();
+}
+
+function getManualCaixasPallet() {
+  return calcularCaixasPallet(uiManual());
+}
+
+// Trocar de marca ou tipo muda quantas caixas cabem no pallet; sem isto o campo
+// ficaria com o numero da combinacao anterior e salvaria a conta errada.
+export function updateEditDependencies(valores) {
+  preencherCascata(uiEdit(), valores);
+  if (!elements.editCaixas) return;
+  const caixas = calcularCaixasPallet(uiEdit());
+  if (caixas > 0) {
+    elements.editCaixas.value = caixas;
+  }
 }
 
 export function initManualForm() {
@@ -564,26 +614,7 @@ export function initManualForm() {
 }
 
 export function updateManualDependencies() {
-  if (!elements.manualSetor || !elements.manualProduto || !elements.manualMarca) {
-    return;
-  }
-  const setor = elements.manualSetor.value;
-  const produtoAtual = elements.manualProduto.value;
-  const marcaAtual = elements.manualMarca.value;
-
-  setSelectOptionsWithPlaceholder(
-    elements.manualProduto,
-    listProductsBySetor(setor),
-    produtoAtual,
-    "Selecione",
-  );
-  setSelectOptionsWithPlaceholder(
-    elements.manualMarca,
-    listBrands(setor, elements.manualProduto.value),
-    marcaAtual,
-    "Selecione",
-  );
-  updateManualTipoOptions();
+  preencherCascata(uiManual());
   updateManualBoxesOptions();
 }
 
@@ -686,6 +717,15 @@ export function setupManualFormEvents() {
         elements.debugPanel.classList.add("hidden");
       }
     });
+  }
+
+  [elements.editSetor, elements.editProduto, elements.editMarca].forEach((campo) => {
+    if (!campo) return;
+    campo.addEventListener("change", () => updateEditDependencies());
+  });
+
+  if (elements.editTipo) {
+    elements.editTipo.addEventListener("change", () => updateEditDependencies());
   }
 
   if (elements.manualSetor) {
