@@ -31,7 +31,7 @@ import {
 } from "../core/utils.js";
 import { normalizeInventoryMetrics, buildInventoryIdentityKey } from "../core/inventory-core.js";
 import { requireAuthenticatedUser } from "../shell/auth-ui.js";
-import { renderContext, renderCountTable } from "./tables.js";
+import { renderContext, renderCountTable, removePendingCountRow } from "./tables.js";
 import { probeSupabase, loadUserRecords, loadPublicRecords } from "../data/supabase-api.js";
 import { replacePendingDelta } from "../data/pending-changes.js";
 import { confirmAction } from "../shell/confirm-modal.js";
@@ -112,6 +112,9 @@ export function openEditModal(row = null) {
     // para a edicao consolidar todos num unico lancamento.
     sourceIds: Array.isArray(row?._sourceIds) ? row._sourceIds : [],
     ownId: row?.id || null,
+    // A linha inteira: o botao Excluir do modal remove exatamente o que a
+    // lixeira da tabela removeria.
+    row,
   };
   setEditMessage("", "");
 
@@ -710,6 +713,22 @@ export function setupManualFormEvents() {
 
   if (elements.editSave) {
     elements.editSave.addEventListener("click", saveEditItem);
+  }
+
+  if (elements.editDelete) {
+    elements.editDelete.addEventListener("click", async () => {
+      const row = state.editTarget?.row;
+      if (!row) return;
+      closeEditModal();
+      // Na visao Contagem a linha e um lancamento local que ainda nao foi
+      // gravado; nas outras ela ja esta no estoque. Cada caso tem a sua
+      // remocao, e as duas ja pedem confirmacao por conta propria.
+      if (state.countSource !== "estoque" && state.countMode !== "new") {
+        await removePendingCountRow(row);
+        return;
+      }
+      await removeRow(row);
+    });
   }
 
   if (elements.debugHide) {

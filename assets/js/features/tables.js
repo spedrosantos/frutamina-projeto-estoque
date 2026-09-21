@@ -656,6 +656,14 @@ export function renderCountTable() {
       actionsTd.append(editBtn, deleteBtn);
       if (rowSaveBtn) actionsTd.append(rowSaveBtn);
       tr.appendChild(actionsTd);
+
+      // A linha inteira abre a edicao - no celular acertar o lapis e dificil.
+      // Os botoes de acao ficam de fora para o clique neles nao abrir o modal.
+      tr.classList.add("row-clickable");
+      tr.addEventListener("click", (event) => {
+        if (event.target.closest(".row-actions")) return;
+        import("./manual-form.js").then((m) => m.openEditModal(row));
+      });
     }
     elements.countTableBody.appendChild(tr);
     total += totalCaixas;
@@ -699,7 +707,7 @@ function buildPendingCountRows() {
 // Descarta os lancamentos de um item da contagem em andamento (visao Contagem).
 // Toda exclusao pede confirmacao: o lancamento so existe no aparelho, entao
 // nao ha como recuperar depois de descartado.
-async function removePendingCountRow(row) {
+export async function removePendingCountRow(row) {
   const tipoLabel = formatTipoLabelValue(row?.produto, row?.tipo, row?.marca);
   const nome = [row?.produto, row?.marca].filter(Boolean).join(" ");
   const confirmed = await confirmAction({

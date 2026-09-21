@@ -1512,3 +1512,14 @@ body[data-theme="dark"] .sync-copy strong {
     font-size: 13px;
   }
 }
+
+/* A linha da contagem abre o modal de edicao ao ser clicada. */
+.row-clickable {
+  cursor: pointer;
+}
+
+/* Excluir fica na ponta oposta do Salvar: os dois lado a lado num modal que se
+   abre com um clique na linha e convite a apagar contagem sem querer. */
+#edit-delete {
+  margin-right: auto;
+}

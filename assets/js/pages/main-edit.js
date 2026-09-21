@@ -45,6 +45,13 @@ function setupEditTabs() {
       tab.setAttribute("aria-selected", String(active));
       document.getElementById(`panel-${tab.dataset.tab}`)?.classList.toggle("hidden", !active);
     });
+
+    // Quem sai da Contagem com lancamento pendente vai para "Revisar e salvar"
+    // justamente para ver o que acabou de contar: a tabela abre em "Meus
+    // lancamentos", nao no que ja estava gravado.
+    if (button.dataset.tab === "conferencia" && hasPendingChanges()) {
+      setCountSource("contagem");
+    }
   });
 }
 

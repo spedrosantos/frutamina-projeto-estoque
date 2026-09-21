@@ -118,6 +118,7 @@ export const elements = {
   editClose: document.getElementById("edit-close"),
   editCloseBtn: document.getElementById("edit-close-btn"),
   editTitle: document.getElementById("edit-title"),
+  editDelete: document.getElementById("edit-delete"),
   editSetor: document.getElementById("edit-setor"),
   editProduto: document.getElementById("edit-produto"),
   editMarca: document.getElementById("edit-marca"),
