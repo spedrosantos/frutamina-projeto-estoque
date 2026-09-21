@@ -104,7 +104,14 @@
                   <th>Total Caixas</th>
                 </tr>
               </thead>
-              <tbody id="public-table-body"></tbody>
+              <tbody id="public-table-body">
+                <!-- Linha de carregando ja no HTML: os modulos do app levam ~1,5s
+                     para subir, e ate la a tabela ficava em branco sem dizer nada.
+                     O primeiro render limpa o tbody e a linha sai. -->
+                <tr class="table-state-row">
+                  <td colspan="8" class="table-state is-loading">Carregando dados...</td>
+                </tr>
+              </tbody>
             </table>
           </div>
           <div class="table-footer">
