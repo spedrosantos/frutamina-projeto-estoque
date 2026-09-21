@@ -815,36 +815,58 @@ body[data-theme="dark"] {
 
 .print-head {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 0 0 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #d0d5dd;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 0 0 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #101828;
 }
 
+/* A logo e um wordmark de 380x51 (7,45:1): quem manda no tamanho e a altura, e
+   a largura vem junto multiplicada por 7,45. Por isso ela e sempre baixa - a
+   16px ela ja ocupa 119px, que e o limite antes de competir com o titulo. */
 .print-logo {
-  height: 34px;
+  height: 16px;
   width: auto;
   flex: none;
 }
 
 .print-head-text {
   min-width: 0;
+  text-align: right;
+}
+
+.print-sheet .print-head-text h1 {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: -0.01em;
 }
 
 .print-sheet .print-meta {
-  margin: 0;
-  font-size: 12px;
+  margin: 2px 0 0;
+  font-size: 10px;
   color: #667085;
 }
 
 .print-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
   margin-top: 18px;
-  padding-top: 8px;
+  padding-top: 7px;
   border-top: 1px solid #d0d5dd;
-  font-size: 10px;
-  color: #667085;
-  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: #98a2b3;
+}
+
+/* Assinatura discreta: 8px de altura = 60px de largura. */
+.print-footer-logo {
+  height: 8px;
+  width: auto;
+  opacity: 0.55;
 }
 
 .print-sheet table {
@@ -958,7 +980,7 @@ body[data-theme="dark"] {
   }
 
   #print-area.print-sheet {
-    padding-bottom: 26px !important;
+    padding-bottom: 30px !important;
   }
 
   #print-area thead {

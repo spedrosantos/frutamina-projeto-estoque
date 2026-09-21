@@ -860,15 +860,18 @@ function ensurePrintArea() {
   // fixo em toda folha, que e como se consegue um rodape por pagina sem
   // depender de @page { @bottom-center }, que o Chrome nao implementa.
   area.innerHTML = `
-    <div class="print-head">
+    <header class="print-head">
       <img src="assets/img/logo.webp" alt="Frutamina" class="print-logo" />
       <div class="print-head-text">
         <h1></h1>
         <p class="print-meta"></p>
       </div>
-    </div>
+    </header>
     <div class="print-sheet-body"></div>
-    <footer class="print-footer">Developed by Pedro Santos</footer>`;
+    <footer class="print-footer">
+      <span>Developed by Pedro Santos</span>
+      <img src="assets/img/logo.webp" alt="Frutamina" class="print-footer-logo" />
+    </footer>`;
   document.body.appendChild(area);
   return area;
 }
