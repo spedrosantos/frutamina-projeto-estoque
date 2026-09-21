@@ -1192,3 +1192,22 @@ button.is-loading i {
 .bi-x-lg::before {
   content: "\f659";
 }
+
+/* Aviso de versao nova quando ha contagem em andamento: o recarregamento
+   automatico espera o operador. Fica sobre tudo, mas fora do caminho do
+   polegar, que no celular trabalha na metade de baixo da tela. */
+#sw-update-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 1000;
+  max-width: calc(100% - 32px);
+  background: var(--app-accent);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 11px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.28);
+}
