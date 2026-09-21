@@ -839,32 +839,55 @@ function closeFilterModal() {
   elements.filterModal.classList.add("hidden");
 }
 
+// Marca so existe dentro de um produto, e produto dentro de um setor: a mesma
+// marca aparece em produtos diferentes, entao escolher marca solta trazia
+// linhas de produto que ninguem pediu. Enquanto o nivel de cima estiver em
+// "Todos", o de baixo fica vazio e desligado.
+function preencherFiltroCascata(ui, valoresDe, escolhido = {}) {
+  if (!ui.setor || !ui.produto || !ui.marca) return;
+
+  setSelectOptions(ui.setor, valoresDe("setor"), escolhido.setor ?? ui.setor.value);
+  const setor = ui.setor.value;
+
+  setSelectOptions(
+    ui.produto,
+    setor ? valoresDe("produto", (row) => row.setor === setor) : [],
+    setor ? (escolhido.produto ?? ui.produto.value) : "",
+  );
+  ui.produto.disabled = !setor;
+  const produto = ui.produto.value;
+
+  setSelectOptions(
+    ui.marca,
+    produto ? valoresDe("marca", (row) => row.setor === setor && row.produto === produto) : [],
+    produto ? (escolhido.marca ?? ui.marca.value) : "",
+  );
+  ui.marca.disabled = !produto;
+}
+
+// A cascata vale tambem no que fica guardado: marca sem produto, ou produto
+// sem setor, filtraria por um nivel que a tela nem deixa escolher.
+function filtroEmCascata({ setor, produto, marca, tipo }) {
+  const produtoValido = setor ? produto : "";
+  return { setor, produto: produtoValido, marca: produtoValido ? marca : "", tipo };
+}
+
+const uiCountFilter = () => ({
+  setor: elements.countFilterSetor,
+  produto: elements.countFilterProduto,
+  marca: elements.countFilterMarca,
+});
+
+const uiPublicFilter = () => ({
+  setor: elements.filterSetor,
+  produto: elements.filterProduto,
+  marca: elements.filterMarca,
+});
+
 export function buildCountFilterOptions() {
-  if (
-    !elements.countFilterSetor ||
-    !elements.countFilterProduto ||
-    !elements.countFilterMarca ||
-    !elements.countFilterTipo
-  ) {
-    return;
-  }
+  if (!elements.countFilterSetor || !elements.countFilterTipo) return;
   const { setor, produto, marca, tipo } = state.countFilters;
-  setSelectOptions(elements.countFilterSetor, countFilterValues("setor"), setor);
-  setSelectOptions(
-    elements.countFilterProduto,
-    countFilterValues("produto", (row) => !setor || row.setor === setor),
-    produto,
-  );
-  setSelectOptions(
-    elements.countFilterMarca,
-    countFilterValues(
-      "marca",
-      (row) =>
-        (!setor || row.setor === setor) &&
-        (!elements.countFilterProduto.value || row.produto === elements.countFilterProduto.value),
-    ),
-    marca,
-  );
+  preencherFiltroCascata(uiCountFilter(), countFilterValues, { setor, produto, marca });
   elements.countFilterTipo.value = tipo || "";
 }
 
@@ -877,55 +900,14 @@ function publicFilterValues(campo, criterio = () => true) {
 }
 
 export function buildFilterOptions() {
-  if (
-    !elements.filterSetor ||
-    !elements.filterProduto ||
-    !elements.filterMarca ||
-    !elements.filterTipo
-  ) {
-    return;
-  }
-  const { setor, produto, marca } = state.publicFilters;
-
-  setSelectOptions(elements.filterSetor, publicFilterValues("setor"), setor);
-  setSelectOptions(
-    elements.filterProduto,
-    publicFilterValues("produto", (row) => !setor || row.setor === setor),
-    produto,
-  );
-  setSelectOptions(
-    elements.filterMarca,
-    publicFilterValues(
-      "marca",
-      (row) =>
-        (!setor || row.setor === setor) &&
-        (!elements.filterProduto.value || row.produto === elements.filterProduto.value),
-    ),
-    marca,
-  );
-
-  elements.filterTipo.value = state.publicFilters.tipo || "";
+  if (!elements.filterSetor || !elements.filterTipo) return;
+  const { setor, produto, marca, tipo } = state.publicFilters;
+  preencherFiltroCascata(uiPublicFilter(), publicFilterValues, { setor, produto, marca });
+  elements.filterTipo.value = tipo || "";
 }
 
-function updateFilterDependencies() {
-  if (!elements.filterSetor || !elements.filterProduto || !elements.filterMarca) {
-    return;
-  }
-  const setor = elements.filterSetor.value;
-  const produto = elements.filterProduto.value;
-  setSelectOptions(
-    elements.filterProduto,
-    publicFilterValues("produto", (row) => !setor || row.setor === setor),
-    produto,
-  );
-  setSelectOptions(
-    elements.filterMarca,
-    publicFilterValues(
-      "marca",
-      (row) => (!setor || row.setor === setor) && (!produto || row.produto === produto),
-    ),
-    elements.filterMarca.value,
-  );
+function updateFilterDependencies(escolhido) {
+  preencherFiltroCascata(uiPublicFilter(), publicFilterValues, escolhido);
 }
 
 function getPrintRows(scope) {
@@ -1135,24 +1117,24 @@ export function setupPublicTableEvents({ loadPublicRecords }) {
 
   if (elements.filterSetor) {
     elements.filterSetor.addEventListener("change", () => {
-      updateFilterDependencies();
+      updateFilterDependencies({ produto: "", marca: "" });
     });
   }
 
   if (elements.filterProduto) {
     elements.filterProduto.addEventListener("change", () => {
-      updateFilterDependencies();
+      updateFilterDependencies({ marca: "" });
     });
   }
 
   if (elements.filterApply) {
     elements.filterApply.addEventListener("click", () => {
-      state.publicFilters = {
+      state.publicFilters = filtroEmCascata({
         setor: elements.filterSetor.value,
         produto: elements.filterProduto.value,
         marca: elements.filterMarca.value,
         tipo: elements.filterTipo.value.trim(),
-      };
+      });
       renderPublicTable();
       closeFilterModal();
     });
@@ -1219,42 +1201,28 @@ function setupCountFilterEvents() {
     botao?.addEventListener("click", fechar);
   });
 
-  // Produto e marca dependem do que veio antes, igual ao filtro do index.
+  // Trocar um nivel limpa os de baixo: a marca do produto anterior nao vale
+  // para o novo.
   if (elements.countFilterSetor) {
     elements.countFilterSetor.addEventListener("change", () => {
-      const setor = elements.countFilterSetor.value;
-      setSelectOptions(
-        elements.countFilterProduto,
-        countFilterValues("produto", (row) => !setor || row.setor === setor),
-        "",
-      );
-      setSelectOptions(elements.countFilterMarca, [], "");
+      preencherFiltroCascata(uiCountFilter(), countFilterValues, { produto: "", marca: "" });
     });
   }
 
   if (elements.countFilterProduto) {
     elements.countFilterProduto.addEventListener("change", () => {
-      const setor = elements.countFilterSetor.value;
-      const produto = elements.countFilterProduto.value;
-      setSelectOptions(
-        elements.countFilterMarca,
-        countFilterValues(
-          "marca",
-          (row) => (!setor || row.setor === setor) && (!produto || row.produto === produto),
-        ),
-        elements.countFilterMarca.value,
-      );
+      preencherFiltroCascata(uiCountFilter(), countFilterValues, { marca: "" });
     });
   }
 
   if (elements.countFilterApply) {
     elements.countFilterApply.addEventListener("click", () => {
-      state.countFilters = {
+      state.countFilters = filtroEmCascata({
         setor: elements.countFilterSetor.value,
         produto: elements.countFilterProduto.value,
         marca: elements.countFilterMarca.value,
         tipo: elements.countFilterTipo.value.trim(),
-      };
+      });
       renderCountTable();
       fechar();
     });
