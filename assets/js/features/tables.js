@@ -864,6 +864,63 @@ function ensurePrintArea() {
   return area;
 }
 
+// Quantas marcas cabem numa tabela de papel. Cada marca ocupa 3 colunas
+// (Cx/P, P + Av, T), entao 6 marcas ja sao 19 colunas numa folha A4 retrato.
+// Acima disso a coluna fica mais estreita que uma letra e o navegador quebra
+// "Cx/P" na vertical, uma letra por linha - o relatorio vira ilegivel.
+const MAX_MARCAS_POR_TABELA = 6;
+
+// Remove de uma tabela de resumo todas as marcas fora da faixa [inicio, fim).
+// A tabela tem a coluna Tipo na posicao 0 e 3 colunas por marca depois dela;
+// a remocao vai de tras para frente para os indices nao andarem no caminho.
+function recortarMarcas(tabela, inicio, fim, totalMarcas) {
+  const cabecalhoMarcas = tabela.tHead.rows[0];
+  const cabecalhoColunas = tabela.tHead.rows[1];
+  const linhasDeDados = [...tabela.tBodies[0].rows, ...(tabela.tFoot?.rows || [])];
+
+  for (let marca = totalMarcas - 1; marca >= 0; marca -= 1) {
+    if (marca >= inicio && marca < fim) continue;
+    cabecalhoMarcas.deleteCell(1 + marca);
+    for (let coluna = 2; coluna >= 0; coluna -= 1) {
+      cabecalhoColunas.deleteCell(marca * 3 + coluna);
+      linhasDeDados.forEach((linha) => linha.deleteCell(1 + marca * 3 + coluna));
+    }
+  }
+
+  // Tipo que nao tem nenhum valor nas marcas que sobraram e so ruido no papel.
+  [...tabela.tBodies[0].rows].forEach((linha) => {
+    const vazia = [...linha.cells].slice(1).every((celula) => !celula.textContent.trim());
+    if (vazia) linha.remove();
+  });
+}
+
+// Quebra as tabelas largas demais em varias, repetindo a coluna Tipo. Roda so
+// no clone que vai para a folha: a tela continua com a tabela cruzada inteira.
+function dividirTabelasLargas(raiz) {
+  raiz.querySelectorAll(".summary-card").forEach((card) => {
+    const tabela = card.querySelector("table.summary-table");
+    if (!tabela?.tHead || tabela.tHead.rows.length < 2 || !tabela.tBodies[0]) return;
+
+    const totalMarcas = tabela.tHead.rows[0].cells.length - 1;
+    if (totalMarcas <= MAX_MARCAS_POR_TABELA) return;
+
+    const partes = Math.ceil(totalMarcas / MAX_MARCAS_POR_TABELA);
+    const blocos = document.createDocumentFragment();
+
+    for (let parte = 0; parte < partes; parte += 1) {
+      const inicio = parte * MAX_MARCAS_POR_TABELA;
+      const fim = Math.min(inicio + MAX_MARCAS_POR_TABELA, totalMarcas);
+      const bloco = card.cloneNode(true);
+      recortarMarcas(bloco.querySelector("table.summary-table"), inicio, fim, totalMarcas);
+      const titulo = bloco.querySelector(".summary-header h3");
+      if (titulo) titulo.textContent = `${titulo.textContent} (${parte + 1}/${partes})`;
+      blocos.appendChild(bloco);
+    }
+
+    card.replaceWith(blocos);
+  });
+}
+
 function printContent(title, contentNode, meta) {
   if (!contentNode) return;
   const clone = contentNode.cloneNode(true);
@@ -874,6 +931,7 @@ function printContent(title, contentNode, meta) {
   clone.removeAttribute("id");
   clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
   clone.classList.remove("hidden");
+  dividirTabelasLargas(clone);
 
   const area = ensurePrintArea();
   area.querySelector("h1").textContent = title;
