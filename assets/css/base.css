@@ -813,12 +813,38 @@ body[data-theme="dark"] {
   color: #101828;
 }
 
-.print-sheet .print-meta {
+.print-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   margin: 0 0 18px;
   padding-bottom: 12px;
   border-bottom: 1px solid #d0d5dd;
+}
+
+.print-logo {
+  height: 34px;
+  width: auto;
+  flex: none;
+}
+
+.print-head-text {
+  min-width: 0;
+}
+
+.print-sheet .print-meta {
+  margin: 0;
   font-size: 12px;
   color: #667085;
+}
+
+.print-footer {
+  margin-top: 18px;
+  padding-top: 8px;
+  border-top: 1px solid #d0d5dd;
+  font-size: 10px;
+  color: #667085;
+  text-align: center;
 }
 
 .print-sheet table {
@@ -909,10 +935,30 @@ body[data-theme="dark"] {
   }
 
   #print-area .print-meta {
-    margin: 0 0 12px;
-    padding-bottom: 8px;
+    margin: 0;
     font-size: 11px;
     text-align: left;
+  }
+
+  #print-area .print-head {
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+  }
+
+  /* Elemento fixo e repetido pelo navegador em cada folha - e assim que se
+     consegue um rodape por pagina sem @page { @bottom-center }, que o Chrome
+     nao implementa. O padding no rodape da folha reserva a faixa. */
+  #print-area .print-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
+    background: #ffffff;
+  }
+
+  #print-area.print-sheet {
+    padding-bottom: 26px !important;
   }
 
   #print-area thead {
@@ -945,6 +991,11 @@ body[data-theme="dark"] {
   background: #ffffff;
   color: #111827;
   border-color: #111827;
+}
+
+#print-area .print-footer {
+  color: #667085;
+  border-color: #d0d5dd;
 }
 
 #print-area th,

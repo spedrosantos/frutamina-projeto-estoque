@@ -856,10 +856,19 @@ function ensurePrintArea() {
   const area = document.createElement("div");
   area.id = "print-area";
   area.className = "print-sheet print-offscreen";
+  // O rodape e position: fixed no @media print: o navegador repete elemento
+  // fixo em toda folha, que e como se consegue um rodape por pagina sem
+  // depender de @page { @bottom-center }, que o Chrome nao implementa.
   area.innerHTML = `
-    <h1></h1>
-    <p class="print-meta"></p>
-    <div class="print-sheet-body"></div>`;
+    <div class="print-head">
+      <img src="assets/img/logo.webp" alt="Frutamina" class="print-logo" />
+      <div class="print-head-text">
+        <h1></h1>
+        <p class="print-meta"></p>
+      </div>
+    </div>
+    <div class="print-sheet-body"></div>
+    <footer class="print-footer">Developed by Pedro Santos</footer>`;
   document.body.appendChild(area);
   return area;
 }
@@ -868,7 +877,7 @@ function ensurePrintArea() {
 // (Cx/P, P + Av, T), entao 6 marcas ja sao 19 colunas numa folha A4 retrato.
 // Acima disso a coluna fica mais estreita que uma letra e o navegador quebra
 // "Cx/P" na vertical, uma letra por linha - o relatorio vira ilegivel.
-const MAX_MARCAS_POR_TABELA = 6;
+const MAX_MARCAS_POR_TABELA = 5;
 
 // Remove de uma tabela de resumo todas as marcas fora da faixa [inicio, fim).
 // A tabela tem a coluna Tipo na posicao 0 e 3 colunas por marca depois dela;
