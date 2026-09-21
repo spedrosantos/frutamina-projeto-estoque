@@ -669,6 +669,11 @@ export function renderCountTable() {
     total += totalCaixas;
   }
   elements.countTotalGeral.textContent = total;
+  // Filtro escondendo linha sem aviso e susto na contagem: o operador acha que
+  // perdeu o que lancou. O botao fica marcado enquanto houver filtro.
+  if (elements.countFilterBtn) {
+    elements.countFilterBtn.classList.toggle("is-filtered", hasCountFilters());
+  }
   renderCountSummary();
   renderCountSyncStatus();
   if (state.countMode === "new") {
@@ -786,9 +791,33 @@ function buildStockRows() {
 
 // A Conferencia mostra sempre todos os setores: o contexto travado serve para
 // lancar, nao para esconder o que ja foi contado em outro setor.
+function matchesCountFilters(row) {
+  const { setor, produto, marca, tipo } = state.countFilters;
+  if (setor && row.setor !== setor) return false;
+  if (produto && row.produto !== produto) return false;
+  if (marca && row.marca !== marca) return false;
+  if (tipo) {
+    const tipoNum = Number.parseInt(tipo, 10);
+    if (!Number.isNaN(tipoNum) && row.tipo !== tipoNum) return false;
+  }
+  return true;
+}
+
+export function hasCountFilters() {
+  return Object.values(state.countFilters).some(Boolean);
+}
+
+// Tabela, resumo e impressao da Conferencia passam por aqui, entao o filtro
+// vale nos tres. Nenhuma gravacao usa esta funcao - se usasse, filtrar aqui
+// salvaria a contagem pela metade.
 function getCountRows() {
-  if (state.countSource === "estoque") return buildStockRows();
-  return state.countMode === "new" ? state.sessionRows : buildPendingCountRows();
+  const rows =
+    state.countSource === "estoque"
+      ? buildStockRows()
+      : state.countMode === "new"
+        ? state.sessionRows
+        : buildPendingCountRows();
+  return rows.filter(matchesCountFilters);
 }
 
 function openFilterModal() {
@@ -800,6 +829,26 @@ function openFilterModal() {
 function closeFilterModal() {
   if (!elements.filterModal) return;
   elements.filterModal.classList.add("hidden");
+}
+
+export function buildCountFilterOptions() {
+  if (
+    !elements.countFilterSetor ||
+    !elements.countFilterProduto ||
+    !elements.countFilterMarca ||
+    !elements.countFilterTipo
+  ) {
+    return;
+  }
+  const { setor, produto, marca, tipo } = state.countFilters;
+  setSelectOptions(elements.countFilterSetor, Object.keys(CONFIG_GERAL).sort(), setor);
+  setSelectOptions(elements.countFilterProduto, listProductsBySetor(setor), produto);
+  setSelectOptions(
+    elements.countFilterMarca,
+    listBrands(setor, elements.countFilterProduto.value),
+    marca,
+  );
+  elements.countFilterTipo.value = tipo || "";
 }
 
 export function buildFilterOptions() {
@@ -1117,8 +1166,67 @@ function setupCountSourceEvents() {
   });
 }
 
+function setupCountFilterEvents() {
+  const fechar = () => elements.countFilterModal?.classList.add("hidden");
+
+  if (elements.countFilterBtn) {
+    elements.countFilterBtn.addEventListener("click", () => {
+      buildCountFilterOptions();
+      elements.countFilterModal?.classList.remove("hidden");
+    });
+  }
+
+  [elements.countFilterClose, elements.countFilterCloseBtn].forEach((botao) => {
+    botao?.addEventListener("click", fechar);
+  });
+
+  // Produto e marca dependem do que veio antes, igual ao filtro do index.
+  if (elements.countFilterSetor) {
+    elements.countFilterSetor.addEventListener("change", () => {
+      setSelectOptions(
+        elements.countFilterProduto,
+        listProductsBySetor(elements.countFilterSetor.value),
+        "",
+      );
+      setSelectOptions(elements.countFilterMarca, [], "");
+    });
+  }
+
+  if (elements.countFilterProduto) {
+    elements.countFilterProduto.addEventListener("change", () => {
+      setSelectOptions(
+        elements.countFilterMarca,
+        listBrands(elements.countFilterSetor.value, elements.countFilterProduto.value),
+        elements.countFilterMarca.value,
+      );
+    });
+  }
+
+  if (elements.countFilterApply) {
+    elements.countFilterApply.addEventListener("click", () => {
+      state.countFilters = {
+        setor: elements.countFilterSetor.value,
+        produto: elements.countFilterProduto.value,
+        marca: elements.countFilterMarca.value,
+        tipo: elements.countFilterTipo.value.trim(),
+      };
+      renderCountTable();
+      fechar();
+    });
+  }
+
+  if (elements.countFilterClear) {
+    elements.countFilterClear.addEventListener("click", () => {
+      state.countFilters = { setor: "", produto: "", marca: "", tipo: "" };
+      buildCountFilterOptions();
+      renderCountTable();
+    });
+  }
+}
+
 export function setupCountTableEvents() {
   setupCountSourceEvents();
+  setupCountFilterEvents();
   if (elements.countViewDetailedBtn) {
     elements.countViewDetailedBtn.addEventListener("click", () => {
       setCountViewMode("detailed");

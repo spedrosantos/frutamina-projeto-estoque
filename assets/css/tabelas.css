@@ -1517,3 +1517,10 @@ body[data-theme="dark"] .sync-copy strong {
 .row-clickable {
   cursor: pointer;
 }
+
+/* Filtro ligado: sem marca no botao, a linha some da Conferencia e o operador
+   acha que perdeu o lancamento. */
+.count-toolbar-actions #count-filter-btn.is-filtered {
+  border-color: var(--app-accent);
+  color: var(--app-accent);
+}

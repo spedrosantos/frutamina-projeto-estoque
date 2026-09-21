@@ -196,6 +196,10 @@
                 <strong id="count-last-update">--</strong>
               </div>
               <div class="count-toolbar-actions">
+                <button id="count-filter-btn" class="ghost" type="button">
+                  <i class="bi bi-funnel"></i>
+                  Filtros
+                </button>
                 <!-- Alterna entre a contagem em andamento e o estoque gravado. -->
                 <select id="count-source-select" aria-label="O que a tabela mostra">
                   <option value="contagem">Meus lançamentos</option>
@@ -298,6 +302,35 @@
     </div>
 
     <!-- Modal de manutencao manual dos itens ja lancados. -->
+    <!-- Filtros da tabela da Conferencia. Mesmos campos do filtro do index. -->
+    <div
+      id="count-filter-modal"
+      class="modal hidden"
+      data-modal
+      data-modal-icon="bi-funnel"
+      data-modal-title="Filtros"
+      data-modal-close="count-filter"
+      data-modal-x
+    >
+      <div class="modal-body">
+        <label for="count-filter-setor">Setor</label>
+        <select id="count-filter-setor"></select>
+
+        <label for="count-filter-produto">Produto</label>
+        <select id="count-filter-produto"></select>
+
+        <label for="count-filter-marca">Marca</label>
+        <select id="count-filter-marca"></select>
+
+        <label for="count-filter-tipo">Tipo</label>
+        <input id="count-filter-tipo" type="number" placeholder="Ex: 4" />
+      </div>
+      <div class="modal-actions">
+        <button id="count-filter-clear" class="ghost" type="button">Limpar</button>
+        <button id="count-filter-apply" class="primary" type="button">Aplicar</button>
+      </div>
+    </div>
+
     <div
       id="edit-modal"
       class="modal hidden"
