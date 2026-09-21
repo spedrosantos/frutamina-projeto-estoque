@@ -56,10 +56,19 @@ function atualizarEstadoDasTabelas() {
   });
 }
 
+// O painel desenha uma vez antes de finishBoot disparar as consultas, entao
+// naquele primeiro render state.carregando ainda era false e o skeleton nunca
+// entrava. Redesenhar aqui e o que faz a bandeira chegar nos cards.
+function atualizarEstadoDoPainel() {
+  if (!document.getElementById("ov-total-caixas")) return;
+  import("../features/dashboard.js").then((m) => m.renderDashboard());
+}
+
 export function setupLoadingBar() {
   document.addEventListener("cd:carregando", (event) => {
     if (event.detail?.ativo) mostrar();
     else esconder();
     atualizarEstadoDasTabelas();
+    atualizarEstadoDoPainel();
   });
 }
