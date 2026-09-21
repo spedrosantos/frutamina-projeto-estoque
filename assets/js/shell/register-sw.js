@@ -13,6 +13,11 @@
 // velho para a proxima abertura do app.
 const CHAVE_AVISO = "cd_app_atualizado";
 
+// De quanto em quanto tempo perguntar por versao nova. Quinze minutos e curto
+// o bastante para o deploy do dia chegar no turno e longo o bastante para nao
+// pesar: a checagem e um GET condicional de um arquivo pequeno.
+const INTERVALO_CHECAGEM_MS = 15 * 60 * 1000;
+
 let recarregamentoAgendado = false;
 
 // A versao mora num lugar so - a constante STATIC_CACHE do service-worker.js,
@@ -73,6 +78,17 @@ function marcarAtualizacao() {
   }
 }
 
+async function procurarVersaoNova() {
+  if (recarregamentoAgendado) return;
+  try {
+    const registro = await navigator.serviceWorker.getRegistration();
+    await registro?.update();
+  } catch (error) {
+    // Sem rede, ou o navegador recusou a checagem: tenta de novo na proxima.
+    console.warn("Nao foi possivel procurar versao nova.", error);
+  }
+}
+
 async function aplicarVersaoNova() {
   if (recarregamentoAgendado) return;
   recarregamentoAgendado = true;
@@ -115,5 +131,14 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.ready
       .then(() => Promise.all([mostrarVersao(), avisarSeAtualizou()]))
       .catch(() => {});
+
+    // O navegador so procura versao nova na abertura da pagina (e uma vez por
+    // dia por conta propria). Quem deixa o PWA aberto o turno inteiro ficaria
+    // sem o deploy do dia. Estas duas checagens cobrem isso; quando acham algo,
+    // o resto do fluxo e o mesmo - o worker novo instala e manda recarregar.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") procurarVersaoNova();
+    });
+    setInterval(procurarVersaoNova, INTERVALO_CHECAGEM_MS);
   });
 }
