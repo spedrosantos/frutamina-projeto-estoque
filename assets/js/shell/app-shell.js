@@ -108,6 +108,9 @@ function buildSidebar(currentPage) {
           <i class="bi bi-box-arrow-right"></i>
           <span class="sidebar-label">Sair</span>
         </button>
+        <!-- Preenchido por register-sw.js com a versao do cache. Serve para
+             saber, olhando a tela, se o aparelho ja pegou o deploy novo. -->
+        <p id="app-version" class="sidebar-label app-version"></p>
       </div>`;
 
   const overlay = document.createElement("div");
