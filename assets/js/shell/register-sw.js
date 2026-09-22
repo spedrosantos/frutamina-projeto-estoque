@@ -78,6 +78,25 @@ function marcarAtualizacao() {
   }
 }
 
+// Conta ao worker tudo o que esta pagina baixou do proprio site, para ele
+// gravar no Cache API. Sem isto, o que o navegador busca ANTES do worker
+// assumir o controle (a primeira visita inteira) nunca e cacheado, e o app
+// offline acaba dependendo do cache HTTP do navegador. Ler do performance
+// evita manter uma lista de arquivos a mao, que envelheceria sozinha.
+const ATRASO_AQUECIMENTO_MS = 5000;
+
+function aquecerCache() {
+  const controlador = navigator.serviceWorker.controller;
+  if (!controlador || !performance.getEntriesByType) return;
+  const urls = performance
+    .getEntriesByType("resource")
+    // fetch/xhr sao as chamadas ao Supabase: dado, nao codigo.
+    .filter((entrada) => !["fetch", "xmlhttprequest", "beacon"].includes(entrada.initiatorType))
+    .map((entrada) => entrada.name)
+    .filter((nome) => nome.startsWith(`${location.origin}/`));
+  if (urls.length) controlador.postMessage({ tipo: "aquecer", urls });
+}
+
 async function procurarVersaoNova() {
   if (recarregamentoAgendado) return;
   try {
@@ -131,6 +150,11 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker.ready
       .then(() => Promise.all([mostrarVersao(), avisarSeAtualizou()]))
       .catch(() => {});
+
+    // Duas passadas: a primeira pega o shell, a segunda os modulos que entram
+    // por import() sob demanda (tabelas, dashboard, formulario de edicao).
+    aquecerCache();
+    setTimeout(aquecerCache, ATRASO_AQUECIMENTO_MS);
 
     // O navegador so procura versao nova na abertura da pagina (e uma vez por
     // dia por conta propria). Quem deixa o PWA aberto o turno inteiro ficaria

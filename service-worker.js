@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v166";
-const RUNTIME_CACHE = "frutamina-runtime-v166";
+const STATIC_CACHE = "frutamina-static-v167";
+const RUNTIME_CACHE = "frutamina-runtime-v167";
 
 const APP_SHELL = [
   "./",
@@ -188,6 +188,31 @@ self.addEventListener("activate", (event) => {
   preparar.then((eraAtualizacao) => {
     if (eraAtualizacao) forcarRecarga();
   });
+});
+
+// O Cache API so guarda o que passa pelo worker, e a primeira carga da pagina
+// acontece sem worker no controle: nenhum dos ~30 modulos JS fica gravado. Ate
+// aqui o app offline dependia do cache HTTP do navegador, que o navegador
+// despeja quando quer - e o operador ficava sem app fora de cobertura. A pagina
+// manda a lista do que realmente carregou (register-sw.js) e o worker guarda;
+// assim a lista se mantem sozinha, sem repetir nomes de arquivo no APP_SHELL.
+async function aquecerRuntime(urls) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  await Promise.all(
+    urls.map(async (url) => {
+      if (await readCached(url)) return;
+      try {
+        await cache.add(new Request(url, { cache: "no-cache" }));
+      } catch (error) {
+        console.warn("Falha ao aquecer o cache:", url, error);
+      }
+    }),
+  );
+}
+
+self.addEventListener("message", (event) => {
+  if (event.data?.tipo !== "aquecer") return;
+  event.waitUntil(aquecerRuntime(event.data.urls || []));
 });
 
 self.addEventListener("fetch", (event) => {
