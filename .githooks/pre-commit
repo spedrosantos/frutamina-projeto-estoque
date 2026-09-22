@@ -24,7 +24,7 @@ sw="service-worker.js"
 changed=$(git diff --cached --name-only --diff-filter=ACMR)
 
 # O proprio service worker mudando ja conta; fora dele, olha assets e HTML.
-echo "$changed" | grep -qE '^(assets/|.*\.html$|manifest\.webmanifest$)' || exit 0
+echo "$changed" | grep -qE '^(assets/|service-worker\.js$|.*\.html$|manifest\.webmanifest$)' || exit 0
 
 # Se a versao ja subiu neste commit, nao mexe de novo.
 if echo "$changed" | grep -q "^$sw$" && git diff --cached "$sw" | grep -q '^+const STATIC_CACHE'; then

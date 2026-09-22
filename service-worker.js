@@ -60,7 +60,12 @@ async function cacheAppShell() {
   await Promise.all(
     APP_SHELL.map(async (asset) => {
       try {
-        await cache.add(asset);
+        // cache: "reload" e obrigatorio aqui. cache.add(url) faz um fetch comum,
+        // que o navegador pode responder do cache HTTP dele - o GitHub Pages
+        // manda max-age nos assets. Sem isto, o worker da versao nova gravava no
+        // cache da versao nova uma copia VELHA do arquivo: versao nova na tela,
+        // CSS antigo pintando. "reload" ignora o cache HTTP e vai na rede.
+        await cache.add(new Request(asset, { cache: "reload" }));
       } catch (error) {
         console.warn("Falha ao adicionar asset no cache:", asset, error);
       }
