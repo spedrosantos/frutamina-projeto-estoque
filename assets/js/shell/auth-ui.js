@@ -8,7 +8,7 @@ import {
   THEME_PREFERENCE_KEY,
   SUPABASE_TIMEOUT_MS,
 } from "../core/config.js";
-import { pushMessage, toAuthEmail, displayUserFromEmail } from "../core/utils.js";
+import { pushMessage, toAuthEmail, displayUserFromEmail, comCarregando } from "../core/utils.js";
 import {
   renderContext,
   renderCountTable,
@@ -450,8 +450,14 @@ export function setupShellEvents() {
     });
   }
 
-  if (elements.loginBtn) {
-    elements.loginBtn.addEventListener("click", async () => {
+  // O painel virou um <form>: submit e o que o Enter e a tecla "Ir" do teclado
+  // do celular disparam. Antes so o clique no botao entrava, entao quem usava o
+  // preenchimento automatico (Face ID do iOS, biometria do Android) preenchia os
+  // dois campos e ainda tinha de procurar o botao.
+  const formularioLogin = elements.loginBtn?.closest("form");
+  if (formularioLogin) {
+    formularioLogin.addEventListener("submit", async (event) => {
+      event.preventDefault();
       const loginId = elements.email.value.trim();
       const email = toAuthEmail(loginId);
       if (!email) {
@@ -460,10 +466,11 @@ export function setupShellEvents() {
         return;
       }
       const password = elements.password.value;
-      const { error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Trava o botao durante a ida ao servidor: no Enter e facil disparar duas
+      // vezes antes da primeira resposta chegar.
+      const { error } = await comCarregando(elements.loginBtn, () =>
+        supabaseClient.auth.signInWithPassword({ email, password }),
+      );
       if (error) {
         elements.authMsg.textContent = error.message;
         elements.authMsg.className = "msg error";

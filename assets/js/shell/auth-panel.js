@@ -20,6 +20,7 @@ function buildPanelMarkup({ title, subtitle }) {
       <h2>${title}</h2>
       <p>${subtitle}</p>
     </div>
+    <form id="auth-form" novalidate>
     <div class="form-grid auth-form">
       <label for="email">Usuario</label>
       <div class="auth-field">
@@ -33,10 +34,11 @@ function buildPanelMarkup({ title, subtitle }) {
       </div>
     </div>
     <div class="actions">
-      <button id="login-btn" class="primary" type="button">
+      <button id="login-btn" class="primary" type="submit">
         <i class="bi bi-box-arrow-in-right"></i><span>Entrar</span>
       </button>
     </div>
+    </form>
     <div id="auth-msg" class="msg-area" role="status" aria-live="polite"></div>`;
 }
 
