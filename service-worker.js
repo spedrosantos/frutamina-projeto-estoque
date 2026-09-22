@@ -17,8 +17,8 @@
   carregamento seguinte. Trocar a versao apaga os caches antigos (o install
   regrava o STATIC inteiro), entao a versao nova chega junto com o novo worker.
 */
-const STATIC_CACHE = "frutamina-static-v165";
-const RUNTIME_CACHE = "frutamina-runtime-v165";
+const STATIC_CACHE = "frutamina-static-v166";
+const RUNTIME_CACHE = "frutamina-runtime-v166";
 
 const APP_SHELL = [
   "./",
@@ -84,11 +84,30 @@ async function readCached(request) {
   return runtimeCache.match(request);
 }
 
+// Mesmo motivo do cache: "reload" no install: fetch comum pode ser respondido
+// pelo cache HTTP do navegador, e o GitHub Pages manda max-age. Como o cache de
+// runtime nasce vazio a cada versao, a primeira busca de cada modulo JS e
+// justamente a que corre o risco de gravar uma copia velha sob o nome da versao
+// nova. "no-cache" revalida com o servidor: 304 barato quando nao mudou, bytes
+// novos quando mudou - diferente de "reload", que rebaixaria tudo sempre.
+function buscarNaRede(request) {
+  // Requisicao de navegacao nao pode ser reconstruida (mode "navigate" e
+  // proibido no construtor), e nem precisa: o HTML do shell vem do STATIC, que
+  // o install regrava a cada versao.
+  if (request.mode === "navigate") return fetch(request);
+  // O fallback nao e detalhe: sem rede, "no-cache" falha na hora, enquanto o
+  // fetch comum ainda e respondido pelo cache HTTP do navegador. Era dele que
+  // vinha o app offline quando o cache de runtime estava vazio (a primeira
+  // carga da pagina acontece sem worker no controle, entao nada foi gravado
+  // ainda). Tirar essa saida deixava o galpao sem app fora de cobertura.
+  return fetch(request, { cache: "no-cache" }).catch(() => fetch(request));
+}
+
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(RUNTIME_CACHE);
   const cached = await readCached(request);
 
-  const fetchPromise = fetch(request)
+  const fetchPromise = buscarNaRede(request)
     .then((response) => {
       // Erro (404/500) nao pode entrar no cache, e resposta redirecionada nao
       // pode ser servida do cache para uma navegacao.
