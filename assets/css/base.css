@@ -958,31 +958,47 @@ body[data-theme="dark"] {
     padding-bottom: 8px;
   }
 
-  /* Elemento fixo e repetido pelo navegador em cada folha - e assim que se
-     consegue um rodape por pagina sem @page { @bottom-center }, que o Chrome
-     nao implementa. O padding no rodape da folha reserva a faixa. */
+  /* Rodape em fluxo normal, uma vez no fim do documento.
+     Era position: fixed para repetir em toda folha, mas o padding-bottom da
+     folha so reserva a faixa UMA vez, no fim - nas folhas do meio o rodape
+     caia por cima da tabela (o "Developed by Pedro Santos" em cima do
+     cabecalho da pagina 2). Numero de pagina e endereco quem imprime e o
+     proprio navegador, entao nao se perde nada essencial. */
   #print-area .print-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0;
-    background: #ffffff;
-  }
-
-  #print-area.print-sheet {
-    padding-bottom: 30px !important;
+    position: static;
+    margin-top: 16px;
   }
 
   #print-area thead {
     display: table-header-group;
   }
 
+  /* O cartao era item de grid, e o Chrome ignora break-inside em item de grid:
+     o cartao partia e a tabela, que nao partia, pulava para a folha seguinte -
+     dai a caixa vazia com so o titulo (AMARELO 2/3, GALIA, SAPO). Em bloco a
+     regra vale e o cartao inteiro desce junto.
+     "table" saiu da lista de proposito: tabela mais alta que a folha tem de
+     partir entre linhas, com o thead repetido, em vez de ser empurrada. */
+  #print-area .summary-grid {
+    display: block;
+  }
+
+  #print-area .summary-card {
+    margin-bottom: 16px;
+  }
+
   #print-area tr,
-  #print-area .summary-card,
-  #print-area table {
+  #print-area .summary-card {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /* Com 5 marcas a tabela tem 16 colunas; sem isto o Chrome quebrava dentro do
+     numero ("2880" virava "288 0") e ate do rotulo ("Tota l"). */
+  #print-area th,
+  #print-area td {
+    white-space: nowrap;
+    padding: 4px 5px;
   }
 }
 
