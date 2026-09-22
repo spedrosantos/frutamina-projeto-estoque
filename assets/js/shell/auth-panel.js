@@ -25,12 +25,24 @@ function buildPanelMarkup({ title, subtitle }) {
       <label for="email">Usuario</label>
       <div class="auth-field">
         <i class="bi bi-person" aria-hidden="true"></i>
-        <input id="email" type="text" placeholder="Ex: 1234 ou JOAO" autocomplete="username" />
+        <input
+          id="email"
+          type="text"
+          placeholder="Ex: 1234 ou JOAO"
+          autocomplete="username"
+          enterkeyhint="next"
+        />
       </div>
       <label for="password">Senha</label>
       <div class="auth-field">
         <i class="bi bi-key" aria-hidden="true"></i>
-        <input id="password" type="password" placeholder="Senha" autocomplete="current-password" />
+        <input
+          id="password"
+          type="password"
+          placeholder="Senha"
+          autocomplete="current-password"
+          enterkeyhint="go"
+        />
       </div>
     </div>
     <div class="actions">

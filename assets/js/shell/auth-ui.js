@@ -456,6 +456,25 @@ export function setupShellEvents() {
   // dois campos e ainda tinha de procurar o botao.
   const formularioLogin = elements.loginBtn?.closest("form");
   if (formularioLogin) {
+    // Submissao explicita no Enter. A implicita (a do proprio navegador, quando
+    // o form tem botao de submit) nao dispara no Safari do iOS depois que o
+    // preenchimento automatico do Face ID enche os campos: o operador via os
+    // dados na tela e o Enter nao fazia nada. preventDefault antes de
+    // requestSubmit garante um unico envio onde a implicita funciona.
+    formularioLogin.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" || event.target.tagName !== "INPUT") return;
+      event.preventDefault();
+      // Digitando a mao, o Enter no usuario desce para a senha - e o que o
+      // teclado promete com enterkeyhint="next", e evita enviar com a senha em
+      // branco so para receber erro. Com a senha ja preenchida (Face ID enche os
+      // dois de uma vez) o Enter entra, venha de qual campo vier.
+      if (event.target === elements.email && !elements.password.value) {
+        elements.password.focus();
+        return;
+      }
+      formularioLogin.requestSubmit();
+    });
+
     formularioLogin.addEventListener("submit", async (event) => {
       event.preventDefault();
       const loginId = elements.email.value.trim();
